@@ -22,6 +22,9 @@ htmlcov/
 
 # Temporary files
 .mini-coding-agent
+.env
+.env.*
+!.env.example
 *.tmp
 *.temp
 *.swp

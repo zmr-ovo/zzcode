@@ -113,6 +113,15 @@ def _extract_openai_text(data):
     return ""
 
 
+def _has_openai_reasoning_without_text(data):
+    for item in data.get("output", []):
+        if item.get("type") != "reasoning":
+            continue
+        if any(str(summary.get("text", "")).strip() for summary in item.get("summary", [])):
+            return True
+    return False
+
+
 def _extract_openai_text_from_sse(body_text):
     last_response = None
     deltas = []
@@ -341,7 +350,15 @@ class OpenAICompatibleModelClient:
             "prompt_cache_retention": prompt_cache_retention,
             **_extract_usage_cache_details(data),
         }
-        return _extract_openai_text(data)
+        text = _extract_openai_text(data)
+        if text:
+            return text
+        if _has_openai_reasoning_without_text(data):
+            raise RuntimeError(
+                "OpenAI-compatible backend returned reasoning without a final text response. "
+                f"Increase --max-new-tokens above {max_new_tokens}."
+            )
+        return ""
 
 
 def _extract_anthropic_text(data):

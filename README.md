@@ -109,6 +109,38 @@ uv run zzcode --provider anthropic
 
 如果你的服务端对多个兼容接口复用了同一套密钥，`zzcode` 也支持从 `ANTHROPIC_API_KEY` 回退到 `RIGHT_CODES_API_KEY` 或 `OPENAI_API_KEY`。
 
+### 使用 `.env`
+
+`zzcode` 会优先加载自身项目根目录中的 `.env`。因此无论从哪个文件夹运行，都可以复用同一份模型配置：
+
+```env
+OPENAI_API_KEY=your-api-key
+OPENAI_API_BASE=https://your-api.example/v1
+OPENAI_MODEL=gpt-5.4
+```
+
+配置完成后，可以在任意目录直接运行：
+
+```bash
+zzcode
+```
+
+复杂目录检查默认最多允许 10 次工具调用。需要更大预算时可以使用：
+
+```bash
+zzcode --max-steps 20
+```
+
+推理模型的思考过程也会占用输出预算。默认预算为 2048 token；如果模型提示只返回 reasoning 而没有最终文本，可以提高：
+
+```bash
+zzcode --max-new-tokens 4096
+```
+
+如果实际工作目录中也有 `.env`，它只会补充全局配置中缺少的变量。终端已经设置的环境变量始终优先。也可以通过 `ZZCODE_ENV_FILE` 指定另一份全局配置文件。
+
+`.env` 默认被 Git 和 agent 的文件扫描忽略，也不允许通过文件读取工具送入模型上下文。可以提交不含真实密钥的 `.env.example` 作为配置模板。
+
 ## 常用交互命令
 
 - `/help`：查看内置命令

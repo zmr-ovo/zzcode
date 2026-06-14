@@ -93,8 +93,8 @@ class ZZCode:
         session=None,
         run_store=None,
         approval_policy="ask",
-        max_steps=6,
-        max_new_tokens=512,
+        max_steps=10,
+        max_new_tokens=2048,
         depth=0,
         max_depth=1,
         read_only=False,
@@ -965,6 +965,71 @@ class ZZCode:
             )
             self.run_store.write_report(task_state, self.redact_artifact(self.build_report(task_state)))
             return final
+
+        if tool_steps >= self.max_steps:
+            attempts += 1
+            task_state.record_attempt()
+            self.run_store.write_task_state(task_state)
+            prompt, prompt_metadata = self._build_prompt_and_metadata(user_message)
+            prompt += textwrap.dedent(
+                """
+
+                Tool budget exhausted. Do not call another tool. Based only on the tool results already
+                available, return the best concise answer you can now using exactly one <final>...</final>.
+                Clearly mention any file or detail that could not be inspected.
+                """
+            )
+            self.emit_trace(
+                task_state,
+                "model_requested",
+                {
+                    "attempts": task_state.attempts,
+                    "tool_steps": task_state.tool_steps,
+                    "finalization_only": True,
+                },
+            )
+            raw = self.model_client.complete(
+                prompt,
+                self.max_new_tokens,
+                prompt_cache_key=None,
+                prompt_cache_retention=None,
+            )
+            kind, payload = self.parse(raw)
+            self.emit_trace(
+                task_state,
+                "model_parsed",
+                {
+                    "kind": kind,
+                    "finalization_only": True,
+                },
+            )
+            if kind == "final":
+                final = (payload or raw).strip()
+                self.record({"role": "assistant", "content": final, "created_at": now()})
+                task_state.finish_success(final)
+                self.promote_durable_memory(user_message, final)
+                checkpoint = self.create_checkpoint(task_state, user_message, trigger="run_finished")
+                self.run_store.write_task_state(task_state)
+                self.emit_trace(
+                    task_state,
+                    "checkpoint_created",
+                    {
+                        "checkpoint_id": checkpoint["checkpoint_id"],
+                        "trigger": "run_finished",
+                    },
+                )
+                self.emit_trace(
+                    task_state,
+                    "run_finished",
+                    {
+                        "status": task_state.status,
+                        "stop_reason": task_state.stop_reason,
+                        "final_answer": final,
+                        "run_duration_ms": int((time.monotonic() - run_started_at) * 1000),
+                    },
+                )
+                self.run_store.write_report(task_state, self.redact_artifact(self.build_report(task_state)))
+                return final
 
         if attempts >= max_attempts and tool_steps < self.max_steps:
             final = "Stopped after too many malformed model responses without a valid tool call or final answer."

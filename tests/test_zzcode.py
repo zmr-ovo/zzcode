@@ -5,7 +5,9 @@ import sys
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
 import zzcode as mini_pkg
+from zzcode import cli as mini_cli
 from zzcode import (
     AnthropicCompatibleModelClient,
     FakeModelClient,
@@ -189,6 +191,24 @@ def test_retries_do_not_consume_the_whole_budget(tmp_path):
     answer = agent.ask("Do the task")
 
     assert answer == "Recovered after several retries."
+
+
+def test_agent_gets_finalization_turn_after_tool_budget_is_exhausted(tmp_path):
+    (tmp_path / "hello.txt").write_text("hello\n", encoding="utf-8")
+    agent = build_agent(
+        tmp_path,
+        [
+            '<tool>{"name":"read_file","args":{"path":"hello.txt","start":1,"end":1}}</tool>',
+            "<final>The file contains hello.</final>",
+        ],
+        max_steps=1,
+    )
+
+    answer = agent.ask("What is in hello.txt?")
+
+    assert answer == "The file contains hello."
+    assert agent.current_task_state.tool_steps == 1
+    assert agent.current_task_state.attempts == 2
 
 
 def test_agent_saves_and_resumes_session(tmp_path):
@@ -392,6 +412,44 @@ def test_openai_compatible_client_posts_expected_responses_payload():
         "stream": False,
         "temperature": 0.2,
     }
+
+
+def test_openai_compatible_client_reports_reasoning_only_response():
+    class FakeResponse:
+        headers = {"Content-Type": "application/json"}
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def read(self):
+            return json.dumps(
+                {
+                    "status": "completed",
+                    "output": [
+                        {
+                            "type": "reasoning",
+                            "summary": [{"type": "summary_text", "text": "Planning the response."}],
+                        }
+                    ],
+                    "usage": {"input_tokens": 0, "output_tokens": 0, "total_tokens": 0},
+                }
+            ).encode("utf-8")
+
+    client = OpenAICompatibleModelClient(
+        model="qwen3.7-max",
+        base_url="https://example.com/v1",
+        api_key="sk-test",
+        temperature=0.2,
+        timeout=30,
+    )
+
+    with patch("urllib.request.urlopen", return_value=FakeResponse()), pytest.raises(
+        RuntimeError, match="Increase --max-new-tokens above 512"
+    ):
+        client.complete("hello", 512)
 
 
 def test_openai_compatible_client_sends_prompt_cache_fields_and_records_usage():
@@ -662,10 +720,58 @@ def test_build_agent_uses_openai_provider_and_model_override(tmp_path):
     assert agent.model_client is fake_client
 
 
+def test_build_agent_loads_global_dotenv_from_another_workspace(tmp_path):
+    global_env = tmp_path / "global.env"
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    global_env.write_text(
+        "OPENAI_API_KEY=global-key\nOPENAI_MODEL=global-model\n",
+        encoding="utf-8",
+    )
+    args = mini_pkg.build_arg_parser().parse_args(["--cwd", str(workspace)])
+
+    with patch.dict(os.environ, {}, clear=True), patch(
+        "zzcode.cli._global_env_path", return_value=global_env
+    ), patch("zzcode.cli.OpenAICompatibleModelClient") as mock_openai:
+        mini_cli._load_env_files(workspace)
+        mini_pkg.build_agent(args)
+
+    assert mock_openai.call_args.kwargs["api_key"] == "global-key"
+    assert mock_openai.call_args.kwargs["model"] == "global-model"
+
+
+def test_shell_env_overrides_global_and_workspace_dotenv(tmp_path):
+    global_env = tmp_path / "global.env"
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    global_env.write_text("OPENAI_API_KEY=global-key\n", encoding="utf-8")
+    (workspace / ".env").write_text("OPENAI_API_KEY=workspace-key\n", encoding="utf-8")
+    args = mini_pkg.build_arg_parser().parse_args(["--cwd", str(workspace)])
+
+    with patch.dict(os.environ, {"OPENAI_API_KEY": "shell-key"}, clear=True), patch(
+        "zzcode.cli._global_env_path", return_value=global_env
+    ), patch("zzcode.cli.OpenAICompatibleModelClient") as mock_openai:
+        mini_cli._load_env_files(workspace)
+        mini_pkg.build_agent(args)
+
+    assert mock_openai.call_args.kwargs["api_key"] == "shell-key"
+
+
+def test_dotenv_is_hidden_and_cannot_be_read_by_agent(tmp_path):
+    (tmp_path / ".env").write_text("OPENAI_API_KEY=secret\n", encoding="utf-8")
+    agent = build_agent(tmp_path, [])
+
+    assert ".env" not in agent.run_tool("list_files", {"path": "."})
+    assert "access to private environment files is not allowed" in agent.run_tool(
+        "read_file", {"path": ".env"}
+    )
+
+
 def test_build_arg_parser_defaults_provider_to_openai(tmp_path):
     args = mini_pkg.build_arg_parser().parse_args(["--cwd", str(tmp_path)])
 
     assert args.provider == "openai"
+    assert args.max_new_tokens == 2048
 
 
 def test_build_arg_parser_accepts_anthropic_provider(tmp_path):

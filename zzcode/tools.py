@@ -9,7 +9,7 @@ import subprocess
 import textwrap
 from functools import partial
 
-from .workspace import IGNORED_PATH_NAMES, clip
+from .workspace import IGNORED_PATH_NAMES, PRIVATE_PATH_NAMES, clip
 
 BASE_TOOL_SPECS = {
     "list_files": {
@@ -82,6 +82,11 @@ def tool_example(name):
 def validate_tool(agent, name, args):
     args = args or {}
 
+    def reject_private_path(path):
+        relative_parts = path.relative_to(agent.root).parts
+        if any(part in PRIVATE_PATH_NAMES for part in relative_parts):
+            raise ValueError("access to private environment files is not allowed")
+
     if name == "list_files":
         path = agent.path(args.get("path", "."))
         if not path.is_dir():
@@ -90,6 +95,7 @@ def validate_tool(agent, name, args):
 
     if name == "read_file":
         path = agent.path(args["path"])
+        reject_private_path(path)
         if not path.is_file():
             raise ValueError("path is not a file")
         start = int(args.get("start", 1))
@@ -102,7 +108,7 @@ def validate_tool(agent, name, args):
         pattern = str(args.get("pattern", "")).strip()
         if not pattern:
             raise ValueError("pattern must not be empty")
-        agent.path(args.get("path", "."))
+        reject_private_path(agent.path(args.get("path", ".")))
         return
 
     if name == "run_shell":

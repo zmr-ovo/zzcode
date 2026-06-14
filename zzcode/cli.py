@@ -10,6 +10,12 @@ import os
 import shutil
 import sys
 import textwrap
+import json
+from importlib import metadata
+from pathlib import Path
+from urllib.parse import unquote, urlparse
+
+from dotenv import load_dotenv
 
 from .models import AnthropicCompatibleModelClient, OllamaModelClient, OpenAICompatibleModelClient
 from .runtime import ZZCode, SessionStore
@@ -25,15 +31,9 @@ DEFAULT_SECRET_ENV_NAMES = (
     "GH_PAT",
 )
 
-WELCOME_ART = (
-    "        /\\___/\\\\",
-    "       (  o o  )",
-    "       /   ^   \\\\",
-    "      /|       |\\\\",
-)
 WELCOME_NAME = "zzcode"
 WELCOME_SUBTITLE = "local coding agent"
-WELCOME_STATUS = "calm shell, ready for work"
+WELCOME_STATUS = "Start your creation!"
 HELP_DETAILS = textwrap.dedent(
     """\
     Commands:
@@ -54,6 +54,35 @@ DEFAULT_ANTHROPIC_MODEL = "claude-sonnet-4-6"
 DEFAULT_ANTHROPIC_BASE_URL = "https://www.right.codes/claude/v1"
 LEGACY_SECRET_ENV_NAMES_VAR = "MINI_CODING_AGENT_SECRET_ENV_NAMES"
 SECRET_ENV_NAMES_VAR = "ZZCODE_SECRET_ENV_NAMES"
+
+
+def _global_env_path():
+    configured_path = os.environ.get("ZZCODE_ENV_FILE")
+    if configured_path:
+        return Path(configured_path).expanduser().resolve()
+
+    source_env = Path(__file__).resolve().parent.parent / ".env"
+    if source_env.is_file():
+        return source_env
+
+    try:
+        direct_url = json.loads(metadata.distribution("zzcode").read_text("direct_url.json") or "{}")
+        parsed_url = urlparse(str(direct_url.get("url", "")))
+        if parsed_url.scheme == "file":
+            return Path(unquote(parsed_url.path)).resolve() / ".env"
+    except (metadata.PackageNotFoundError, json.JSONDecodeError, OSError, TypeError):
+        pass
+
+    return source_env
+
+
+def _load_env_files(cwd):
+    global_env = _global_env_path()
+    workspace_env = Path(cwd).expanduser().resolve() / ".env"
+    for env_path in dict.fromkeys((global_env, workspace_env)):
+        if env_path.is_file():
+            load_dotenv(dotenv_path=env_path, override=False)
+    return global_env, workspace_env
 
 
 def _effective_model(args, provider):
@@ -166,7 +195,7 @@ def build_welcome(agent, model, host):
         return f"| {left}{' ' * gap}{right} |"
 
     line = divider("=")
-    rows = [center(text) for text in WELCOME_ART]
+    rows = []
     rows.extend(
         [
             center(WELCOME_NAME),
@@ -257,8 +286,8 @@ def build_arg_parser():
         default=[],
         help="Extra environment variable names to treat as secrets for trace/report redaction.",
     )
-    parser.add_argument("--max-steps", type=int, default=6, help="Maximum tool/model iterations per request.")
-    parser.add_argument("--max-new-tokens", type=int, default=512, help="Maximum model output tokens per step.")
+    parser.add_argument("--max-steps", type=int, default=10, help="Maximum tool calls per request before finalization.")
+    parser.add_argument("--max-new-tokens", type=int, default=2048, help="Maximum model output tokens per step, including reasoning tokens.")
     parser.add_argument("--temperature", type=float, default=0.2, help="Sampling temperature sent to Ollama.")
     parser.add_argument("--top-p", type=float, default=0.9, help="Top-p sampling value sent to Ollama.")
     return parser
@@ -266,6 +295,7 @@ def build_arg_parser():
 
 def main(argv=None):
     args = build_arg_parser().parse_args(argv)
+    _load_env_files(args.cwd)
     agent = build_agent(args)
 
     model = getattr(agent.model_client, "model", getattr(args, "model", DEFAULT_OLLAMA_MODEL))
