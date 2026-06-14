@@ -1,0 +1,944 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="ZZCode 项目流程框架图与面试复习卡片">
+  <title>ZZCode 项目流程框架图</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #eef3f8;
+      --surface: rgba(255, 255, 255, 0.94);
+      --surface-solid: #ffffff;
+      --ink: #17324d;
+      --muted: #5b7185;
+      --line: #d7e2eb;
+      --blue: #1769aa;
+      --green: #2c7a5a;
+      --orange: #b76b12;
+      --purple: #7651a8;
+      --shadow: 0 18px 50px rgba(23, 50, 77, 0.12);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 4%, rgba(23, 105, 170, 0.12), transparent 28rem),
+        radial-gradient(circle at 92% 12%, rgba(44, 122, 90, 0.10), transparent 25rem),
+        var(--bg);
+      font-family: Inter, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      line-height: 1.65;
+    }
+
+    button, a { -webkit-tap-highlight-color: transparent; }
+
+    a { color: inherit; }
+
+    .shell {
+      width: min(1480px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 26px 0 64px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(28px, 5vw, 58px);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: 30px;
+      background: linear-gradient(135deg, #17324d 0%, #1b5682 60%, #23765f 100%);
+      color: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 420px;
+      height: 420px;
+      right: -170px;
+      top: -210px;
+      border: 70px solid rgba(255, 255, 255, 0.07);
+      border-radius: 50%;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: #bfe2ff;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 900px;
+      margin: 0;
+      font-size: clamp(34px, 5vw, 64px);
+      line-height: 1.08;
+      letter-spacing: -0.04em;
+    }
+
+    .hero-copy {
+      max-width: 850px;
+      margin: 20px 0 0;
+      color: rgba(255, 255, 255, 0.82);
+      font-size: clamp(16px, 2vw, 20px);
+    }
+
+    .memory-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-top: 28px;
+    }
+
+    .memory-line span {
+      padding: 7px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.10);
+      font-size: 14px;
+      font-weight: 700;
+      backdrop-filter: blur(8px);
+    }
+
+    .nav {
+      position: sticky;
+      top: 12px;
+      z-index: 20;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      margin: 18px 0;
+      padding: 9px;
+      border: 1px solid rgba(215, 226, 235, 0.9);
+      border-radius: 18px;
+      background: var(--surface);
+      box-shadow: 0 10px 35px rgba(23, 50, 77, 0.08);
+      backdrop-filter: blur(16px);
+      scrollbar-width: none;
+    }
+
+    .nav::-webkit-scrollbar { display: none; }
+
+    .nav a {
+      flex: 0 0 auto;
+      padding: 9px 14px;
+      border-radius: 11px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 750;
+    }
+
+    .nav a:hover, .nav a:focus-visible {
+      color: var(--blue);
+      background: #edf6fd;
+      outline: none;
+    }
+
+    .panel {
+      margin-top: 18px;
+      padding: clamp(18px, 3vw, 30px);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface-solid);
+      box-shadow: 0 12px 38px rgba(23, 50, 77, 0.07);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(24px, 3vw, 34px);
+      line-height: 1.2;
+      letter-spacing: -0.025em;
+    }
+
+    .hint {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .diagram-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .control {
+      min-width: 42px;
+      padding: 9px 13px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      font-size: 14px;
+      font-weight: 750;
+      cursor: pointer;
+    }
+
+    .control:hover, .control:focus-visible {
+      border-color: #8dbce5;
+      color: var(--blue);
+      background: #f4f9fd;
+      outline: none;
+    }
+
+    .zoom-label {
+      display: inline-grid;
+      min-width: 64px;
+      place-items: center;
+      color: var(--muted);
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .diagram-viewport {
+      position: relative;
+      height: min(72vh, 820px);
+      min-height: 420px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background-color: #f5f8fb;
+      background-image:
+        linear-gradient(rgba(23, 50, 77, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(23, 50, 77, 0.045) 1px, transparent 1px);
+      background-size: 24px 24px;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .diagram-viewport.dragging { cursor: grabbing; }
+
+    .diagram-stage {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1600px;
+      height: 1120px;
+      transform-origin: 0 0;
+      will-change: transform;
+    }
+
+    .diagram-stage img {
+      display: block;
+      width: 1600px;
+      height: 1120px;
+      pointer-events: none;
+    }
+
+    .diagram-viewport:fullscreen {
+      border: 0;
+      border-radius: 0;
+      background-color: #eaf0f5;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: flow;
+    }
+
+    .steps li {
+      min-height: 148px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #fff, #f8fafc);
+      counter-increment: flow;
+    }
+
+    .steps li::before {
+      content: counter(flow, decimal-leading-zero);
+      display: block;
+      margin-bottom: 14px;
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 850;
+      letter-spacing: 0.1em;
+    }
+
+    .steps strong { display: block; margin-bottom: 5px; }
+    .steps p { margin: 0; color: var(--muted); font-size: 13px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .speech {
+      margin: 0;
+      padding: 24px;
+      border-left: 5px solid var(--blue);
+      border-radius: 5px 16px 16px 5px;
+      background: #f2f8fd;
+      color: #29475f;
+      font-size: 16px;
+    }
+
+    .qa-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    summary {
+      position: relative;
+      padding: 15px 48px 15px 17px;
+      cursor: pointer;
+      font-weight: 750;
+      list-style: none;
+    }
+
+    summary::-webkit-details-marker { display: none; }
+
+    summary::after {
+      content: "+";
+      position: absolute;
+      right: 18px;
+      color: var(--blue);
+      font-size: 22px;
+      font-weight: 500;
+      line-height: 1;
+    }
+
+    details[open] summary::after { content: "−"; }
+
+    details p {
+      margin: 0;
+      padding: 0 17px 16px;
+      color: var(--muted);
+    }
+
+    .module-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .module-card {
+      overflow: hidden;
+      border-radius: 17px;
+      background: #fff;
+    }
+
+    .module-card summary {
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 13px;
+      padding: 17px 54px 17px 17px;
+    }
+
+    .module-card summary::after { top: 20px; }
+
+    .module-index {
+      display: grid;
+      width: 38px;
+      height: 38px;
+      place-items: center;
+      border-radius: 11px;
+      background: #edf6fd;
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .module-title strong { display: block; }
+    .module-title span { display: block; color: var(--muted); font-size: 12px; font-weight: 500; }
+
+    .module-role {
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .module-body {
+      padding: 0 18px 20px;
+      border-top: 1px solid #edf2f6;
+    }
+
+    .module-lead {
+      margin: 17px 0;
+      color: #29475f;
+      font-size: 15px;
+    }
+
+    .module-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .module-block {
+      padding: 14px;
+      border-radius: 12px;
+      background: #f7fafc;
+    }
+
+    .module-block h3 {
+      margin: 0 0 7px;
+      color: var(--ink);
+      font-size: 13px;
+    }
+
+    .module-block p, .module-block ul {
+      margin: 0;
+      padding: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .module-block ul { padding-left: 18px; }
+    .module-block li + li { margin-top: 4px; }
+
+    .interview-answer {
+      grid-column: 1 / -1;
+      border-left: 4px solid var(--green);
+      background: #f1f8f5;
+    }
+
+    .interview-answer h3 { color: var(--green); }
+
+    .sequence-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .sequence-card {
+      padding: 17px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: linear-gradient(180deg, #fff, #f8fafc);
+    }
+
+    .sequence-card b { display: block; margin-bottom: 8px; color: var(--blue); }
+    .sequence-card p { margin: 0; color: var(--muted); font-size: 13px; }
+
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 13px 15px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      background: #f6f9fb;
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    tbody tr:hover { background: #f8fbfd; }
+
+    code {
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: #edf3f7;
+      color: #155f96;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.9em;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: #fafcfd;
+    }
+
+    .metric b {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--blue);
+      font-size: 16px;
+    }
+
+    .metric span { color: var(--muted); font-size: 13px; }
+
+    footer {
+      padding-top: 28px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 13px;
+    }
+
+    @media (max-width: 1050px) {
+      .steps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .sequence-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 760px) {
+      .shell { width: min(100% - 18px, 1480px); padding-top: 9px; }
+      .hero { border-radius: 22px; }
+      .nav { top: 6px; }
+      .section-head { display: block; }
+      .section-head .hint { margin-top: 7px; }
+      .diagram-viewport { height: 62vh; min-height: 370px; }
+      .steps, .grid, .metric-grid { grid-template-columns: 1fr; }
+      .module-grid { grid-template-columns: 1fr; }
+      .module-card summary { grid-template-columns: 42px minmax(0, 1fr); }
+      .module-role { display: none; }
+      .steps li { min-height: 0; }
+      th, td { min-width: 150px; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .shell { width: 100%; padding: 0; }
+      .hero { box-shadow: none; }
+      .nav, .diagram-toolbar { display: none; }
+      .panel { box-shadow: none; break-inside: avoid; }
+      .diagram-viewport { height: auto; min-height: 0; overflow: visible; border: 0; }
+      .diagram-stage { position: static; width: 100%; height: auto; transform: none !important; }
+      .diagram-stage img { width: 100%; height: auto; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <p class="eyebrow">ZZCode Interview Map</p>
+      <h1>把项目讲成一条清晰的 Agent 主线</h1>
+      <p class="hero-copy">从 CLI 装配到 Runtime 控制循环，再到记忆、恢复、安全与 Benchmark。用于快速建立全局理解，也用于面试前按模块复习。</p>
+      <div class="memory-line" aria-label="记忆主轴">
+        <span>装配</span><span>感知</span><span>决策</span><span>行动</span><span>沉淀</span><span>恢复 / 评测</span>
+      </div>
+    </header>
+
+    <nav class="nav" aria-label="页面导航">
+      <a href="#diagram">流程总图</a>
+      <a href="#mainline">主线记忆</a>
+      <a href="#deep-dive">模块详解</a>
+      <a href="#long-answer">3 分钟回答</a>
+      <a href="#speech">60 秒复述</a>
+      <a href="#questions">高频追问</a>
+      <a href="#modules">模块对照</a>
+      <a href="#benchmark">评测抓手</a>
+    </nav>
+
+    <section class="panel" id="diagram">
+      <div class="section-head">
+        <h2>流程总图</h2>
+        <p class="hint">滚轮缩放，按住拖动画布；双击恢复适应窗口。</p>
+      </div>
+      <div class="diagram-toolbar" aria-label="流程图控制栏">
+        <button class="control" id="zoomOut" type="button" aria-label="缩小">−</button>
+        <span class="zoom-label" id="zoomLabel">100%</span>
+        <button class="control" id="zoomIn" type="button" aria-label="放大">＋</button>
+        <button class="control" id="fit" type="button">适应窗口</button>
+        <button class="control" id="actual" type="button">原始大小</button>
+        <button class="control" id="fullscreen" type="button">全屏查看</button>
+      </div>
+      <div class="diagram-viewport" id="viewport" tabindex="0" aria-label="可缩放的 ZZCode 流程框架图">
+        <div class="diagram-stage" id="stage">
+          <img src="../assets/diagrams/zzcode-interview-flow.svg" width="1600" height="1120" alt="ZZCode 项目流程框架图">
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="mainline">
+      <div class="section-head">
+        <h2>一条主线记忆</h2>
+        <p class="hint">先记住六个动词，再往每一步挂代码模块。</p>
+      </div>
+      <ol class="steps">
+        <li><strong>装配</strong><p>CLI 解析参数，构建 Workspace、Provider Client 和 Session。</p></li>
+        <li><strong>感知</strong><p>ContextManager 组装并压缩 Prompt，当前请求永远保留。</p></li>
+        <li><strong>决策</strong><p>模型只返回一个工具调用或最终答案，Runtime 统一解析。</p></li>
+        <li><strong>行动</strong><p>工具经过校验、防重复、审批和 Diff 后才真正执行。</p></li>
+        <li><strong>沉淀</strong><p>结果进入 History、Memory、TaskState、Trace 与 Checkpoint。</p></li>
+        <li><strong>恢复 / 评测</strong><p>检测状态漂移，并用固定任务与消融实验验证设计。</p></li>
+      </ol>
+    </section>
+
+    <div class="grid">
+      <section class="panel" id="speech">
+        <div class="section-head"><h2>60 秒面试复述</h2></div>
+        <blockquote class="speech">
+          ZZCode 是一个运行在本地代码仓库里的轻量 Coding Agent。CLI 先完成模型、工作区和 Session 的装配，真正的核心是 <code>ZZCode.ask()</code> 控制循环：每轮由 <code>ContextManager</code> 把工作区信息、分层记忆、历史和当前请求组成 Prompt，模型再返回工具调用或最终答案。工具调用不会直接执行，而是统一经过白名单、参数校验、防重复、审批、路径隔离和结果 Diff。执行结果会回写 History 与 Working Memory，并持续生成 TaskState、Trace 和 Checkpoint，因此系统既能解释每一步，也能在恢复时检测文件过期或工作区漂移。最后项目通过固定 Harness 和 Context、Memory、Recovery 消融实验验证 runtime 合同与各模块收益。
+        </blockquote>
+      </section>
+
+      <section class="panel" id="questions">
+        <div class="section-head"><h2>高频追问</h2></div>
+        <div class="qa-list">
+          <details open><summary>为什么不是纯聊天机器人？</summary><p>它在真实仓库中运行，通过受约束的工具循环读取、修改、执行并验证工程任务。</p></details>
+          <details><summary>如何控制上下文成本？</summary><p>稳定 Prefix 可缓存；Memory、Relevant Memory 和 History 有独立预算并按优先级压缩；当前请求不裁剪。</p></details>
+          <details><summary>如何避免重复读文件？</summary><p>读取结果会生成文件摘要和 episodic note，后续按请求召回；写入后旧摘要立即失效。</p></details>
+          <details><summary>如何保证恢复可靠？</summary><p>Checkpoint 同时保存关键文件 freshness、workspace fingerprint 和 runtime identity，恢复时不盲信旧摘要。</p></details>
+          <details><summary>工具安全如何实现？</summary><p>显式白名单、严格参数校验、workspace 路径隔离、风险审批、Shell 环境 allowlist，以及 Trace / Report 脱敏。</p></details>
+          <details><summary>如何证明这些设计有效？</summary><p>Harness 验证 runtime 合同，Context、Memory、Recovery 消融分别验证压缩收益、重复读取降低和漂移检测。</p></details>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel" id="deep-dive">
+      <div class="section-head">
+        <h2>模块详细拆解</h2>
+        <p class="hint">每个模块按“职责、输入输出、关键机制、取舍、面试表达”展开。</p>
+      </div>
+      <div class="module-stack">
+        <details class="module-card" open>
+          <summary><span class="module-index">01</span><span class="module-title"><strong>CLI 与依赖装配</strong><span>zzcode/cli.py</span></span><span class="module-role">Composition Root</span></summary>
+          <div class="module-body">
+            <p class="module-lead">把命令行参数和环境变量翻译成 Runtime 所需的对象图，one-shot 与 REPL 最终统一进入 <code>agent.ask()</code>。</p>
+            <div class="module-grid">
+              <div class="module-block"><h3>输入 / 输出</h3><p>输入是 argparse 参数；输出是装配完成的新建或恢复后的 <code>ZZCode</code> 实例。</p></div>
+              <div class="module-block"><h3>关键装配</h3><ul><li>Secret 名单与审批策略</li><li>WorkspaceContext 与 SessionStore</li><li>Ollama / OpenAI / Anthropic Client</li><li>max_steps 与 max_new_tokens</li></ul></div>
+              <div class="module-block"><h3>设计取舍</h3><p>CLI 只处理配置和生命周期，不承载 Agent 推理，使交互界面、模型后端和核心循环彼此解耦。</p></div>
+              <div class="module-block"><h3>容易被追问</h3><p><code>--resume latest</code> 从本地 Session 目录恢复；模型优先级为显式参数、环境变量、默认值。</p></div>
+              <div class="module-block interview-answer"><h3>面试回答</h3><p>“CLI 是项目的 Composition Root，负责依赖注入和生命周期管理，所有业务行为最终收口到同一个 Runtime。”</p></div>
+            </div>
+          </div>
+        </details>
+
+        <details class="module-card">
+          <summary><span class="module-index">02</span><span class="module-title"><strong>工作区快照</strong><span>zzcode/workspace.py</span></span><span class="module-role">Lazy Inspection</span></summary>
+          <div class="module-body">
+            <p class="module-lead">在第一次工具调用前提供一份小而稳定的仓库导航包，避免预加载整个代码库。</p>
+            <div class="module-grid">
+              <div class="module-block"><h3>采集内容</h3><p>repo root、分支、默认分支、Git status、最近 5 条提交，以及 AGENTS / README / pyproject / package.json 摘要。</p></div>
+              <div class="module-block"><h3>Fingerprint</h3><p>对结构化快照做 SHA-256；状态变化时刷新 Prompt Prefix，并影响恢复时的 Runtime Identity 判断。</p></div>
+              <div class="module-block"><h3>为什么不全量索引</h3><p>降低启动成本和上下文噪声。源文件仍通过 list/read/search 按需探索，符合本地 Agent 的渐进式感知。</p></div>
+              <div class="module-block"><h3>边界</h3><p>Fingerprint 不是整个仓库内容哈希；近期关键文件的内容变化由 Memory freshness 单独补足。</p></div>
+              <div class="module-block interview-answer"><h3>面试回答</h3><p>“WorkspaceContext 提供稳定基线上下文，项目采用 lazy inspection，而不是启动时构建昂贵的全仓索引。”</p></div>
+            </div>
+          </div>
+        </details>
+
+        <details class="module-card">
+          <summary><span class="module-index">03</span><span class="module-title"><strong>模型适配层</strong><span>zzcode/models.py</span></span><span class="module-role">Adapter Pattern</span></summary>
+          <div class="module-body">
+            <p class="module-lead">隔离 Provider 的协议差异，Runtime 只依赖统一的 <code>complete(prompt)</code> 合同。</p>
+            <div class="module-grid">
+              <div class="module-block"><h3>统一接口</h3><p>输入 Prompt 和生成预算，输出文本；usage、cache 等附加信息通过 <code>last_completion_metadata</code> 返回。</p></div>
+              <div class="module-block"><h3>协议差异</h3><ul><li>Ollama 本地生成接口</li><li>OpenAI-compatible JSON / SSE</li><li>Anthropic-compatible Messages</li><li>FakeModelClient 确定性测试</li></ul></div>
+              <div class="module-block"><h3>可靠性</h3><p>网络错误和 5xx 有有限重试；非 JSON、错误响应和空文本被转换为明确 RuntimeError。</p></div>
+              <div class="module-block"><h3>设计边界</h3><p>这是最小公分母式 Adapter，不抽象所有 Provider 特有能力；Prompt Cache 也只在客户端明确支持时启用。</p></div>
+              <div class="module-block interview-answer"><h3>面试回答</h3><p>“模型层保持窄接口，既方便切换 Provider，也让 Fake Client 能复用同一 Runtime 做确定性回归。”</p></div>
+            </div>
+          </div>
+        </details>
+
+        <details class="module-card" open>
+          <summary><span class="module-index">04</span><span class="module-title"><strong>Runtime 控制循环</strong><span>zzcode/runtime.py</span></span><span class="module-role">System Orchestrator</span></summary>
+          <div class="module-body">
+            <p class="module-lead"><code>ZZCode.ask()</code> 是系统中枢：模型只做下一步决策，平台掌握上下文、工具、安全、状态、持久化和停止条件。</p>
+            <div class="module-grid">
+              <div class="module-block"><h3>一轮生命周期</h3><p>记录请求 → 创建 TaskState / Run → 构建 Prompt → 调模型 → 解析 Tool / Final / Retry → 执行或结束。</p></div>
+              <div class="module-block"><h3>循环预算</h3><p><code>tool_steps</code> 统计工具执行；<code>attempts</code> 统计模型请求。额外的 max_attempts 防止 malformed output 无限重试。</p></div>
+              <div class="module-block"><h3>模型协议</h3><p>支持 JSON Tool 与适合多行文件的 XML Tool；有效 Final、工具调用和 Retry 都有明确分支。</p></div>
+              <div class="module-block"><h3>可恢复推进</h3><p>工具执行、上下文压缩、恢复异常和运行结束均创建 Checkpoint；命中上限时也保存可继续状态。</p></div>
+              <div class="module-block interview-answer"><h3>面试回答</h3><p>“它是显式状态机式的 ReAct 循环：感知、决策、行动、记录。模型不直接拥有执行权，平台负责所有确定性约束。”</p></div>
+            </div>
+          </div>
+        </details>
+
+        <details class="module-card" open>
+          <summary><span class="module-index">05</span><span class="module-title"><strong>上下文管理</strong><span>zzcode/context_manager.py</span></span><span class="module-role">Prompt Orchestration</span></summary>
+          <div class="module-body">
+            <p class="module-lead">把不断膨胀的会话压缩成可控 Prompt，同时保留当前决策最需要的信息。</p>
+            <div class="module-grid">
+              <div class="module-block"><h3>五段 Prompt</h3><p>Prefix → Memory → Relevant Memory → History → Current Request。最新请求放最后且永不裁剪。</p></div>
+              <div class="module-block"><h3>预算策略</h3><p>总预算默认 12000 字符。超限依次压缩相关记忆、历史、工作记忆、稳定前缀，并为每区保留 floor。</p></div>
+              <div class="module-block"><h3>历史语义压缩</h3><p>优先保留最近 6 条；合并较早的重复读取；复用新鲜文件摘要；旧 Shell 和工具输出转成短摘要。</p></div>
+              <div class="module-block"><h3>可观测性与边界</h3><p>Metadata 记录每区压缩前后长度。当前按字符而非精确 Token 预算，简单且 Provider 无关，但存在估算误差。</p></div>
+              <div class="module-block interview-answer"><h3>面试回答</h3><p>“不是粗暴截断，而是分区预算、优先级压缩和历史语义去重；核心不变量是当前用户请求完整保留。”</p></div>
+            </div>
+          </div>
+        </details>
+
+        <details class="module-card" open>
+          <summary><span class="module-index">06</span><span class="module-title"><strong>分层记忆</strong><span>zzcode/memory.py</span></span><span class="module-role">Working / Episodic / Durable</span></summary>
+          <div class="module-body">
+            <p class="module-lead">History 保存完整事件，Memory 保存小而可复用的知识，两者分工不同。</p>
+            <div class="module-grid">
+              <div class="module-block"><h3>Working Memory</h3><p>当前任务、最近 8 个文件、最多 6 个新鲜摘要，用于每轮 Prompt 的轻量状态仪表盘。</p></div>
+              <div class="module-block"><h3>Episodic / Durable</h3><p>Episodic 最多 12 条跨轮笔记；Durable 持久化项目约定、决策、依赖事实和用户偏好。</p></div>
+              <div class="module-block"><h3>Freshness</h3><p>文件摘要带 SHA-256。读文件生成摘要，写或 Patch 立即失效；恢复时内容变化也会清理旧摘要。</p></div>
+              <div class="module-block"><h3>召回与边界</h3><p>按 tag、关键词重叠、时间排序，透明且低成本；不使用 Embedding，因此同义语义召回能力有限。</p></div>
+              <div class="module-block"><h3>长期记忆防污染</h3><p>必须有用户保存意图和固定语义前缀；Secret、临时任务状态、超长噪声不会晋升。</p></div>
+              <div class="module-block interview-answer"><h3>面试回答</h3><p>“分层记忆的重点不是记得越多越好，而是控制生命周期，并用 freshness 防止代码变化后继续相信过期事实。”</p></div>
+            </div>
+          </div>
+        </details>
+
+        <details class="module-card" open>
+          <summary><span class="module-index">07</span><span class="module-title"><strong>工具与安全边界</strong><span>zzcode/tools.py + run_tool()</span></span><span class="module-role">Execution Gateway</span></summary>
+          <div class="module-body">
+            <p class="module-lead">模型不能直接调用底层函数，所有外部动作都必须通过唯一工具总闸口。</p>
+            <div class="module-grid">
+              <div class="module-block"><h3>执行流水线</h3><p>Registry 存在性 → 参数校验 → 路径隔离 → 防重复 → 风险审批 → 执行 → 工作区 Diff → 状态分类。</p></div>
+              <div class="module-block"><h3>工具能力</h3><p>list/read/search、shell/write/patch，以及只读、限步数、限深度的 delegate 子 Agent。</p></div>
+              <div class="module-block"><h3>安全细节</h3><p>阻止 ../ 与符号链接逃逸；Shell 最长 120 秒；环境变量 allowlist；Secret 在 Trace 和 Report 中脱敏。</p></div>
+              <div class="module-block"><h3>部分成功</h3><p>Shell 非零退出但工作区已变化时标记 partial_success，保留 affected paths，提醒下一轮先检查 Diff。</p></div>
+              <div class="module-block"><h3>边界</h3><p>这些是应用层护栏，不等价于容器或系统调用级 OS 沙箱；更高风险场景还需要进程隔离。</p></div>
+              <div class="module-block interview-answer"><h3>面试回答</h3><p>“安全不是写在 Prompt 里的建议，而是执行前后由平台强制实施的验证、授权、隔离和审计链路。”</p></div>
+            </div>
+          </div>
+        </details>
+
+        <details class="module-card">
+          <summary><span class="module-index">08</span><span class="module-title"><strong>TaskState 状态机</strong><span>zzcode/task_state.py</span></span><span class="module-role">Run Contract</span></summary>
+          <div class="module-body">
+            <p class="module-lead">用结构化状态回答一次请求进行到哪里、调用了多少次模型和工具、最终为什么停止。</p>
+            <div class="module-grid">
+              <div class="module-block"><h3>核心字段</h3><p>run_id、task_id、status、tool_steps、attempts、last_tool、stop_reason、final_answer、checkpoint_id、resume_status。</p></div>
+              <div class="module-block"><h3>状态语义</h3><p>running / completed / stopped / failed；状态与停止原因分离，便于区分“结果是什么”和“为什么停”。</p></div>
+              <div class="module-block"><h3>数据流向</h3><p>每轮写入 task_state.json，最终嵌入 report，同时被 Benchmark 用于预算与 Stop Reason 判定。</p></div>
+              <div class="module-block"><h3>设计价值</h3><p>避免从自然语言日志反推运行状态，为恢复、观测和评测提供稳定数据合同。</p></div>
+              <div class="module-block interview-answer"><h3>面试回答</h3><p>“TaskState 是一次 ask 的最小状态机快照，连接在线控制循环和离线分析。”</p></div>
+            </div>
+          </div>
+        </details>
+
+        <details class="module-card" open>
+          <summary><span class="module-index">09</span><span class="module-title"><strong>Session、Checkpoint 与 RunStore</strong><span>runtime.py + run_store.py</span></span><span class="module-role">Recovery & Audit</span></summary>
+          <div class="module-body">
+            <p class="module-lead">把“下次继续工作需要的状态”和“这一次运行发生过什么的证据”分开保存。</p>
+            <div class="module-grid">
+              <div class="module-block"><h3>Session</h3><p>保存跨轮 History、Memory、Checkpoint 和 Runtime Identity；整份 JSON 面向恢复。</p></div>
+              <div class="module-block"><h3>Run Artifacts</h3><p>task_state 原子写；trace.jsonl 逐事件追加；report.json 在结束时汇总结果与指标。</p></div>
+              <div class="module-block"><h3>恢复判定</h3><p>full-valid、partial-stale、workspace-mismatch、schema-mismatch；旧摘要失效时主动重锚定。</p></div>
+              <div class="module-block"><h3>Runtime Identity</h3><p>比较 cwd、模型、审批、Feature Flags、Workspace Fingerprint、Tool Signature 等，避免换运行环境后盲目续跑。</p></div>
+              <div class="module-block interview-answer"><h3>面试回答</h3><p>“Session 面向继续工作，Trace / Report 面向解释与审计，Checkpoint 是两者之间的恢复锚点。”</p></div>
+            </div>
+          </div>
+        </details>
+
+        <details class="module-card" open>
+          <summary><span class="module-index">10</span><span class="module-title"><strong>Evaluator 与 Metrics</strong><span>zzcode/evaluator.py + zzcode/metrics.py</span></span><span class="module-role">Evidence Layer</span></summary>
+          <div class="module-body">
+            <p class="module-lead">把“看起来能运行”转成可复现的成功定义、回归任务和模块消融证据。</p>
+            <div class="module-grid">
+              <div class="module-block"><h3>Harness</h3><p>校验任务 Schema；复制全新 fixture；独立运行 Agent；检查工件、Verifier、步数预算与 Stop Reason。</p></div>
+              <div class="module-block"><h3>消融实验</h3><p>Context 比较压缩；Memory 比较重复读取；Recovery 比较 stale / drift；Security 与 Provider 单独统计。</p></div>
+              <div class="module-block"><h3>成功定义</h3><p>工件存在、Verifier 通过、工具步数在预算内，并以 final_answer_returned 正常结束，四者缺一不可。</p></div>
+              <div class="module-block"><h3>口径边界</h3><p>Harness 证明 Runtime 合同，不证明模型上限。allowed_tools 当前被校验和记录，但没有动态裁剪 Registry。</p></div>
+              <div class="module-block interview-answer"><h3>面试回答</h3><p>“我把确定性合同回归和模块消融分开，避免把 Harness、真实 Provider 表现和单模块收益混成一个结论。”</p></div>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <div class="sequence-grid" aria-label="跨模块时序链路">
+        <article class="sequence-card"><b>正常工具调用链</b><p>CLI → ask → ContextManager → Model → parse → run_tool → History / Memory → Trace / Checkpoint → 下一轮</p></article>
+        <article class="sequence-card"><b>最终回答链</b><p>Model Final → Session → TaskState completed → Durable Promotion → Final Checkpoint → Report → CLI</p></article>
+        <article class="sequence-card"><b>恢复链</b><p>--resume → SessionStore → Freshness / Identity 检查 → Prompt 注入恢复状态 → 重读关键文件 → 新 Checkpoint</p></article>
+      </div>
+    </section>
+
+    <section class="panel" id="long-answer">
+      <div class="section-head">
+        <h2>3 分钟项目介绍模板</h2>
+        <p class="hint">按“定位 → 主循环 → 上下文 → 记忆 → 安全恢复 → 证据”展开。</p>
+      </div>
+      <blockquote class="speech">
+        <p><strong>项目定位：</strong>ZZCode 是运行在本地代码仓库中的轻量 Coding Agent。项目重点不是简单调用大模型，而是实现模型外部的 Agent Runtime，使多步工程行为具备上下文控制、工具安全、状态恢复和审计能力。</p>
+        <p><strong>核心链路：</strong>CLI 装配 Workspace、Provider、Session 和审批策略，统一进入 <code>ZZCode.ask()</code>。每轮由 ContextManager 构建 Prompt，模型返回 Tool Call 或 Final；Tool Call 必须经过统一的 run_tool 总闸口，校验、审批并执行后，结果写回 History 和 Memory，继续下一轮。</p>
+        <p><strong>上下文与记忆：</strong>Prompt 分为 Prefix、Working Memory、Relevant Memory、History、Current Request。超限时按优先级压缩，当前请求不裁剪。记忆分 Working、Episodic、Durable 三层，文件摘要带内容哈希，修改后自动失效。</p>
+        <p><strong>安全与恢复：</strong>工具通过白名单、参数校验、路径隔离、防重复、风险审批、Shell 环境 allowlist 和产物脱敏进行约束。Session 负责跨轮恢复，RunStore 保存 TaskState、Trace 和 Report；Checkpoint 通过 freshness、Workspace Fingerprint 和 Runtime Identity 检测漂移。</p>
+        <p><strong>验证结果：</strong>12 个 Harness 任务的通过率、预算内完成率和 Verifier 通过率均为 100%；Context 平均压缩 16.19%，当前请求保留率 100%；Memory On / Off 重复读取为 0 / 60；Workspace Drift Detection 为 100%，Resume False Accept 为 0%。这些结果证明 Runtime 合同和模块收益，不代表模型能力上限。</p>
+      </blockquote>
+    </section>
+
+    <section class="panel" id="modules">
+      <div class="section-head">
+        <h2>模块对照</h2>
+        <p class="hint">面试回答时按“概念 → 文件 → 职责”落到代码。</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>面试概念</th><th>代码位置</th><th>核心职责</th></tr></thead>
+          <tbody>
+            <tr><td>程序入口与依赖装配</td><td><code>zzcode/cli.py</code></td><td>Provider 选择、工作区采集、新建或恢复 Session</td></tr>
+            <tr><td>Agent 控制循环</td><td><code>zzcode/runtime.py</code></td><td>Prompt、模型、工具、停止条件与 Checkpoint 的总调度</td></tr>
+            <tr><td>上下文工程</td><td><code>zzcode/context_manager.py</code></td><td>分区预算、相关记忆召回、历史压缩、当前请求保护</td></tr>
+            <tr><td>分层记忆</td><td><code>zzcode/memory.py</code></td><td>Working、Episodic、Durable Memory 与文件 freshness</td></tr>
+            <tr><td>工具与安全边界</td><td><code>zzcode/tools.py</code></td><td>工具白名单、参数校验、路径约束和只读子 Agent</td></tr>
+            <tr><td>模型适配层</td><td><code>zzcode/models.py</code></td><td>统一不同 Provider 的调用协议与缓存元数据</td></tr>
+            <tr><td>单次任务状态</td><td><code>zzcode/task_state.py</code></td><td>attempts、tool_steps、stop_reason、checkpoint_id</td></tr>
+            <tr><td>审计工件</td><td><code>zzcode/run_store.py</code></td><td>保存 task_state、逐事件 trace 和最终 report</td></tr>
+            <tr><td>工作区上下文</td><td><code>zzcode/workspace.py</code></td><td>Git 状态、项目文档与 workspace fingerprint</td></tr>
+            <tr><td>评测体系</td><td><code>zzcode/evaluator.py</code> / <code>zzcode/metrics.py</code></td><td>固定任务、verifier、消融实验和指标聚合</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="benchmark">
+      <div class="section-head">
+        <h2>评测抓手</h2>
+        <p class="hint">注意口径：验证模块收益，不夸大为模型能力上限。</p>
+      </div>
+      <div class="metric-grid">
+        <div class="metric"><b>Harness · 12 Tasks</b><span>Pass、Within Budget、Verifier Pass 均为 100%，证明 Runtime 合同稳定。</span></div>
+        <div class="metric"><b>Context · 16.19%</b><span>平均压缩率 16.19%，最大 33.28%，当前请求保留率 100%。</span></div>
+        <div class="metric"><b>Memory · 0 vs 60</b><span>Memory On 重复读取 0 次，Memory Off 60 次；On 的正确率与命中率 100%。</span></div>
+        <div class="metric"><b>Recovery · 100%</b><span>Workspace Drift Detection 100%，Resume False Accept 0%，恢复成功率 90%。</span></div>
+      </div>
+    </section>
+
+    <footer>离线页面 · 流程图资源来自 <code>assets/diagrams/zzcode-interview-flow.svg</code></footer>
+  </main>
+
+  <script>
+    (() => {
+      const viewport = document.getElementById("viewport");
+      const stage = document.getElementById("stage");
+      const label = document.getElementById("zoomLabel");
+      const imageWidth = 1600;
+      const imageHeight = 1120;
+      const minScale = 0.2;
+      const maxScale = 3;
+      let scale = 1;
+      let x = 0;
+      let y = 0;
+      let dragging = false;
+      let pointerX = 0;
+      let pointerY = 0;
+
+      const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+      function render() {
+        stage.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+        label.textContent = `${Math.round(scale * 100)}%`;
+      }
+
+      function fit() {
+        const box = viewport.getBoundingClientRect();
+        const padding = 24;
+        scale = clamp(Math.min((box.width - padding * 2) / imageWidth, (box.height - padding * 2) / imageHeight), minScale, maxScale);
+        x = (box.width - imageWidth * scale) / 2;
+        y = (box.height - imageHeight * scale) / 2;
+        render();
+      }
+
+      function setScale(nextScale, centerX = viewport.clientWidth / 2, centerY = viewport.clientHeight / 2) {
+        const previous = scale;
+        scale = clamp(nextScale, minScale, maxScale);
+        const ratio = scale / previous;
+        x = centerX - (centerX - x) * ratio;
+        y = centerY - (centerY - y) * ratio;
+        render();
+      }
+
+      document.getElementById("zoomIn").addEventListener("click", () => setScale(scale * 1.2));
+      document.getElementById("zoomOut").addEventListener("click", () => setScale(scale / 1.2));
+      document.getElementById("fit").addEventListener("click", fit);
+      document.getElementById("actual").addEventListener("click", () => {
+        scale = 1;
+        x = (viewport.clientWidth - imageWidth) / 2;
+        y = 20;
+        render();
+      });
+
+      document.getElementById("fullscreen").addEventListener("click", async () => {
+        if (!document.fullscreenElement) {
+          await viewport.requestFullscreen?.();
+        } else {
+          await document.exitFullscreen?.();
+        }
+        setTimeout(fit, 80);
+      });
+
+      viewport.addEventListener("wheel", (event) => {
+        event.preventDefault();
+        const rect = viewport.getBoundingClientRect();
+        const centerX = event.clientX - rect.left;
+        const centerY = event.clientY - rect.top;
+        setScale(scale * (event.deltaY < 0 ? 1.1 : 0.9), centerX, centerY);
+      }, { passive: false });
+
+      viewport.addEventListener("pointerdown", (event) => {
+        dragging = true;
+        pointerX = event.clientX;
+        pointerY = event.clientY;
+        viewport.classList.add("dragging");
+        viewport.setPointerCapture(event.pointerId);
+      });
+
+      viewport.addEventListener("pointermove", (event) => {
+        if (!dragging) return;
+        x += event.clientX - pointerX;
+        y += event.clientY - pointerY;
+        pointerX = event.clientX;
+        pointerY = event.clientY;
+        render();
+      });
+
+      function stopDragging(event) {
+        dragging = false;
+        viewport.classList.remove("dragging");
+        if (event.pointerId !== undefined && viewport.hasPointerCapture(event.pointerId)) {
+          viewport.releasePointerCapture(event.pointerId);
+        }
+      }
+
+      viewport.addEventListener("pointerup", stopDragging);
+      viewport.addEventListener("pointercancel", stopDragging);
+      viewport.addEventListener("dblclick", fit);
+      viewport.addEventListener("keydown", (event) => {
+        if (event.key === "+" || event.key === "=") setScale(scale * 1.2);
+        if (event.key === "-") setScale(scale / 1.2);
+        if (event.key === "0") fit();
+      });
+      window.addEventListener("resize", fit);
+      document.addEventListener("fullscreenchange", () => setTimeout(fit, 80));
+
+      if (document.readyState === "complete") fit();
+      else window.addEventListener("load", fit, { once: true });
+    })();
+  </script>
+</body>
+</html>

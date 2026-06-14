@@ -1,0 +1,165 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1120" viewBox="0 0 1600 1120" role="img" aria-labelledby="title desc">
+  <title id="title">ZZCode 项目流程框架图</title>
+  <desc id="desc">展示 ZZCode 从 CLI 装配、上下文构建、模型决策、工具执行，到记忆、恢复、审计和基准评测的完整流程。</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f7f9fc"/>
+      <stop offset="1" stop-color="#eef3f8"/>
+    </linearGradient>
+    <filter id="shadow" x="-15%" y="-15%" width="130%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#18324a" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#49647a"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#1769aa"/>
+    </marker>
+    <style>
+      .title { font: 700 36px Inter, "PingFang SC", "Microsoft YaHei", sans-serif; fill: #17324d; }
+      .subtitle { font: 400 17px Inter, "PingFang SC", "Microsoft YaHei", sans-serif; fill: #597085; }
+      .section { font: 700 20px Inter, "PingFang SC", "Microsoft YaHei", sans-serif; fill: #17324d; }
+      .box-title { font: 700 18px Inter, "PingFang SC", "Microsoft YaHei", sans-serif; fill: #17324d; }
+      .box-text { font: 400 14px Inter, "PingFang SC", "Microsoft YaHei", sans-serif; fill: #425c70; }
+      .small { font: 400 13px Inter, "PingFang SC", "Microsoft YaHei", sans-serif; fill: #587083; }
+      .tag { font: 700 13px Inter, "PingFang SC", "Microsoft YaHei", sans-serif; fill: #fff; }
+      .code { font: 600 13px ui-monospace, SFMono-Regular, Menlo, monospace; fill: #1769aa; }
+      .arrow { stroke: #49647a; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+      .loop { stroke: #1769aa; stroke-width: 3; fill: none; marker-end: url(#arrowBlue); }
+      .dash { stroke: #7890a3; stroke-width: 2; stroke-dasharray: 7 7; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="1600" height="1120" fill="url(#bg)"/>
+  <rect x="48" y="38" width="1504" height="1044" rx="28" fill="#fff" stroke="#d9e3ec" filter="url(#shadow)"/>
+
+  <text x="92" y="98" class="title">ZZCode 项目流程框架图</text>
+  <text x="92" y="132" class="subtitle">面试记忆主轴：装配 → 感知 → 决策 → 行动 → 沉淀 → 恢复 / 评测</text>
+
+  <rect x="92" y="170" width="188" height="42" rx="21" fill="#17324d"/>
+  <text x="186" y="197" text-anchor="middle" class="tag">1. 启动与装配</text>
+
+  <rect x="92" y="232" width="260" height="150" rx="18" fill="#eef6ff" stroke="#8dbce5"/>
+  <text x="116" y="266" class="box-title">用户入口</text>
+  <text x="116" y="296" class="box-text">• one-shot 命令</text>
+  <text x="116" y="321" class="box-text">• REPL 多轮会话</text>
+  <text x="116" y="352" class="code">zzcode/cli.py</text>
+
+  <path d="M 352 307 L 392 307" class="arrow"/>
+
+  <rect x="392" y="232" width="286" height="150" rx="18" fill="#f1f8f5" stroke="#8fc6aa"/>
+  <text x="416" y="266" class="box-title">build_agent()</text>
+  <text x="416" y="296" class="box-text">工作区快照 + Provider Client</text>
+  <text x="416" y="321" class="box-text">新建 / 恢复 Session</text>
+  <text x="416" y="352" class="code">WorkspaceContext · SessionStore</text>
+
+  <path d="M 678 307 L 718 307" class="arrow"/>
+
+  <rect x="718" y="232" width="300" height="150" rx="18" fill="#fff7eb" stroke="#e5b66e"/>
+  <text x="742" y="266" class="box-title">ZZCode Runtime</text>
+  <text x="742" y="296" class="box-text">初始化工具白名单与稳定 Prefix</text>
+  <text x="742" y="321" class="box-text">检查 checkpoint / workspace freshness</text>
+  <text x="742" y="352" class="code">zzcode/runtime.py</text>
+
+  <path d="M 1018 307 L 1058 307" class="arrow"/>
+
+  <rect x="1058" y="232" width="450" height="150" rx="18" fill="#f8f3ff" stroke="#b89ade"/>
+  <text x="1082" y="266" class="box-title">模型后端适配</text>
+  <text x="1082" y="296" class="box-text">Ollama / OpenAI Responses 兼容 / Anthropic Messages 兼容</text>
+  <text x="1082" y="321" class="box-text">统一为 complete(prompt)；可选 Prompt Cache</text>
+  <text x="1082" y="352" class="code">zzcode/models.py</text>
+
+  <rect x="92" y="418" width="230" height="42" rx="21" fill="#1769aa"/>
+  <text x="207" y="445" text-anchor="middle" class="tag">2. ask() 核心控制循环</text>
+
+  <rect x="92" y="487" width="240" height="178" rx="18" fill="#eef6ff" stroke="#8dbce5"/>
+  <text x="116" y="521" class="box-title">A. 感知</text>
+  <text x="116" y="550" class="box-text">ContextManager 组装 Prompt</text>
+  <text x="116" y="576" class="small">Prefix + Memory + Relevant Memory</text>
+  <text x="116" y="599" class="small">+ History + Current Request</text>
+  <text x="116" y="629" class="small">超预算按优先级压缩，请求不裁剪</text>
+  <text x="116" y="650" class="code">context_manager.py</text>
+
+  <path d="M 332 576 L 376 576" class="arrow"/>
+
+  <rect x="376" y="487" width="240" height="178" rx="18" fill="#f8f3ff" stroke="#b89ade"/>
+  <text x="400" y="521" class="box-title">B. 决策</text>
+  <text x="400" y="550" class="box-text">模型返回严格协议</text>
+  <text x="400" y="582" class="code">&lt;tool&gt;...&lt;/tool&gt;</text>
+  <text x="400" y="608" class="code">或 &lt;final&gt;...&lt;/final&gt;</text>
+  <text x="400" y="638" class="small">解析失败进入 retry，受 attempts 限制</text>
+
+  <path d="M 616 576 L 660 576" class="arrow"/>
+
+  <rect x="660" y="487" width="294" height="178" rx="18" fill="#fff7eb" stroke="#e5b66e"/>
+  <text x="684" y="521" class="box-title">C. 行动：run_tool()</text>
+  <text x="684" y="550" class="box-text">存在性 → 参数校验 → 防重复</text>
+  <text x="684" y="576" class="box-text">→ 审批 → 执行 → Diff / 状态分类</text>
+  <text x="684" y="607" class="small">读：list / read / search / delegate</text>
+  <text x="684" y="630" class="small">写：shell / write / patch</text>
+  <text x="684" y="651" class="code">zzcode/tools.py</text>
+
+  <path d="M 954 576 L 998 576" class="arrow"/>
+
+  <rect x="998" y="487" width="244" height="178" rx="18" fill="#f1f8f5" stroke="#8fc6aa"/>
+  <text x="1022" y="521" class="box-title">D. 记录与沉淀</text>
+  <text x="1022" y="550" class="box-text">工具结果写回 History</text>
+  <text x="1022" y="576" class="box-text">更新 Working Memory</text>
+  <text x="1022" y="602" class="box-text">保存 TaskState / Trace</text>
+  <text x="1022" y="628" class="box-text">每步创建 Checkpoint</text>
+  <text x="1022" y="651" class="code">memory.py · run_store.py</text>
+
+  <path d="M 1242 576 L 1286 576" class="arrow"/>
+
+  <rect x="1286" y="487" width="222" height="178" rx="18" fill="#f7f9fb" stroke="#9eafbd"/>
+  <text x="1310" y="521" class="box-title">E. 停止判断</text>
+  <text x="1310" y="550" class="box-text">final：成功结束</text>
+  <text x="1310" y="576" class="box-text">tool：继续循环</text>
+  <text x="1310" y="602" class="box-text">step / retry limit：停止</text>
+  <text x="1310" y="632" class="small">最终生成 report.json</text>
+
+  <path d="M 1110 487 C 1110 430, 510 430, 510 477" class="loop"/>
+  <text x="795" y="425" text-anchor="middle" class="small">工具结果成为下一轮上下文，形成 ReAct 式闭环</text>
+
+  <rect x="92" y="705" width="188" height="42" rx="21" fill="#2c7a5a"/>
+  <text x="186" y="732" text-anchor="middle" class="tag">3. 横向能力层</text>
+
+  <rect x="92" y="771" width="330" height="198" rx="18" fill="#f1f8f5" stroke="#8fc6aa"/>
+  <text x="116" y="807" class="box-title">分层记忆</text>
+  <text x="116" y="837" class="box-text">Working：当前任务、最近文件、摘要</text>
+  <text x="116" y="864" class="box-text">Episodic：可检索的历史事实 / 过程笔记</text>
+  <text x="116" y="891" class="box-text">Durable：显式晋升的项目约定与决策</text>
+  <text x="116" y="925" class="small">读文件生成摘要；写文件使旧摘要失效</text>
+  <text x="116" y="949" class="code">.zzcode/memory/</text>
+
+  <rect x="446" y="771" width="330" height="198" rx="18" fill="#eef6ff" stroke="#8dbce5"/>
+  <text x="470" y="807" class="box-title">恢复与一致性</text>
+  <text x="470" y="837" class="box-text">Checkpoint 保存目标、关键文件 freshness</text>
+  <text x="470" y="864" class="box-text">对比 runtime identity / workspace fingerprint</text>
+  <text x="470" y="891" class="box-text">full-valid / partial-stale / workspace-mismatch</text>
+  <text x="470" y="925" class="small">检测漂移后重锚定，不盲信旧摘要</text>
+  <text x="470" y="949" class="code">.zzcode/sessions/</text>
+
+  <rect x="800" y="771" width="330" height="198" rx="18" fill="#fff7eb" stroke="#e5b66e"/>
+  <text x="824" y="807" class="box-title">安全与可观测</text>
+  <text x="824" y="837" class="box-text">路径隔离 + 工具白名单 + 审批策略</text>
+  <text x="824" y="864" class="box-text">Secret 环境变量过滤与产物脱敏</text>
+  <text x="824" y="891" class="box-text">TaskState + trace.jsonl + report.json</text>
+  <text x="824" y="925" class="small">Session 负责恢复；RunStore 负责审计</text>
+  <text x="824" y="949" class="code">.zzcode/runs/&lt;run_id&gt;/</text>
+
+  <rect x="1154" y="771" width="354" height="198" rx="18" fill="#f8f3ff" stroke="#b89ade"/>
+  <text x="1178" y="807" class="box-title">Benchmark 验证链</text>
+  <text x="1178" y="837" class="box-text">固定任务 → 新鲜 fixture → ZZCode 执行</text>
+  <text x="1178" y="864" class="box-text">Verifier → 聚合 artifact → Core Report</text>
+  <text x="1178" y="897" class="small">Harness / Context / Memory / Recovery</text>
+  <text x="1178" y="925" class="small">验证 runtime 合同与模块收益</text>
+  <text x="1178" y="949" class="code">evaluator.py · metrics.py</text>
+
+  <path d="M 257 771 L 257 690 L 1120 690 L 1120 665" class="dash"/>
+  <path d="M 611 771 L 611 704 L 1155 704 L 1155 665" class="dash"/>
+  <path d="M 965 771 L 965 720 L 1397 720 L 1397 665" class="dash"/>
+
+  <rect x="92" y="1008" width="1416" height="46" rx="12" fill="#17324d"/>
+  <text x="800" y="1037" text-anchor="middle" class="tag">一句话：ZZCode 是一个以 Runtime 控制循环为核心、由上下文压缩与分层记忆增强、受工具护栏约束、可恢复且可审计的本地 Coding Agent。</text>
+</svg>

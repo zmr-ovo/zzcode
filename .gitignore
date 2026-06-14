@@ -31,15 +31,17 @@ htmlcov/
 # Local scratch space
 tmp/
 .worktrees/
-.pico/
+.zzcode/
 artifacts/
 readme_intro_locked/
 
 # Local docs not intended for publication
-docs/
+docs/*
+!docs/zzcode-interview-flow.md
+!docs/zzcode-interview-flow.html
 
 # OS files
 .DS_Store
 
 # Packaging metadata
-pico.egg-info/
+zzcode.egg-info/
