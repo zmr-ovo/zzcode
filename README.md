@@ -1,6 +1,4 @@
-# zzcode — Lightweight Repository-Aware Coding Agent
-
-## 轻量级本地 Coding Agent Harness
+# zzcode — 轻量级本地 Coding Agent Harness
 
 **技术栈：** Agent Harness · Tool Calling · Context Management · Memory · Checkpoint · Trace
 
