@@ -1,8 +1,10 @@
 # zzcode — Lightweight Repository-Aware Coding Agent
 
-`zzcode` 是一个面向本地代码仓库的轻量 Coding Agent。它围绕真实工作区执行 **观察 → 决策 → 工具调用 → 修改 → 验证** 的多步循环，并通过 Context、Memory、Approval、Checkpoint 与 Evaluation 提升 Agent 的可控性和可恢复性。
+## 轻量级本地 Coding Agent Harness
 
-> **Coding Agent · Agent Harness · Tool Use · Context Engineering · Memory · Evaluation**
+**技术栈：** Agent Harness · Tool Calling · Context Management · Memory · Checkpoint · Trace
+
+面向代码仓库级任务构建本地 Coding Agent Harness，围绕 **Agent Loop、工具调用、上下文与记忆管理、任务恢复及执行追踪** 设计核心机制，提升长任务执行中的上下文可控性、状态连续性与工具调用安全性。
 
 ---
 
