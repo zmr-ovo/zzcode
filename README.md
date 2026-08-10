@@ -64,8 +64,6 @@ flowchart LR
 | Resume Recovery | freshness / workspace mismatch |
 | Durable Memory | 稳定事实晋升与异常内容拒绝 |
 
-相关实现：`zzcode/evaluator.py`、`zzcode/metrics.py`、`benchmarks/coding_tasks.json`。
-
 ---
 
 ## Key Modules
@@ -80,13 +78,11 @@ flowchart LR
 | `workspace.py` | 工作区与 Git 上下文 |
 | `evaluator.py` / `metrics.py` | Agent Evaluation 与指标 |
 
-更完整的流程与实现说明见 [`docs/zzcode-interview-flow.md`](docs/zzcode-interview-flow.md)。
-
 ---
 
 ## Quick Start
 
-需要 Python 3.10+。
+Python 3.10+。
 
 ```bash
 uv sync
