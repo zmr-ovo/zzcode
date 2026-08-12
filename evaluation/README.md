@@ -10,9 +10,9 @@ Phase 1 已实现评测系统的数据边界，包括：
 - 与 SWE-bench 兼容的 `predictions.jsonl` 读写；
 - Schema 校验和私有数据泄漏检查。
 
-Phase 2 已实现运行状态、错误模型和 Artifact Store。Phase 3 已实现本地干净 Workspace、严格 patch 应用、隐藏测试注入、JUnit 解析和 F2P/P2P Grader。
+Phase 2 已实现运行状态、错误模型和 Artifact Store。Phase 3 已实现本地干净 Workspace、严格 patch 应用、隐藏测试注入、JUnit 解析和 F2P/P2P Grader。Phase 4 已实现固定 Docker 评分环境和受限容器执行后端。
 
-当前 Phase 3 只接收人工提供的 Null、Gold、Partial、Regression 和 Conflict patch，用于证明 Harness 本身正确。它仍不调用真实模型，也不提供 Docker 隔离；真实 zzcode Adapter 和容器执行将在后续 Phase 实现。
+当前 Harness 仍只接收人工提供的 Null、Gold、Partial、Regression 和 Conflict patch，用于证明评分链路本身正确；真实 zzcode Adapter 将在 Phase 5 接入。F2P/P2P 既可使用 Phase 3 本地后端，也可使用 Phase 4 Docker 后端，正式评分应选择 Docker 后端。
 
 ## Phase 3 本地执行流程
 
@@ -52,7 +52,10 @@ Null Patch 是任务认证模式：不应用模型 patch，直接在 `base_commi
 - Workspace 必须处于精确 `base_commit`；
 - clone 使用 `--no-hardlinks`，避免修改源仓库对象；
 - 模型 patch 应用前工作区必须干净；
-- Phase 3 是本地进程隔离，不等同于 Docker 安全沙箱。
+- `TestExecutor` 是开发期本地后端，不提供 OS 级隔离。
+- `DockerTestExecutor` 是正式评分后端：workspace 只读、artifact 目录可写，容器禁网、根文件系统只读、使用非 root 用户，并限制 CPU、内存、PID 和 `/tmp`。
+- Docker runner 只允许 `/workspace` 和 `/artifacts` 两个挂载目标；挂载源还必须位于创建 runner 时提供的 allowlist 中。
+- image tag 只用于查找镜像；实际运行结果会记录不可变 `image_digest`。
 
 ## Phase 3 Patch 安全与应用规则
 
@@ -71,7 +74,7 @@ Patch 只使用严格的 `git apply --check` 和 `git apply`，不会使用 fuzz
 
 ## F2P/P2P 执行和评分
 
-F2P 和 P2P 分别调用 pytest，并分别生成：
+F2P 和 P2P 分别在独立短生命周期容器中调用 pytest，并分别生成：
 
 ```text
 f2p.xml
@@ -110,6 +113,49 @@ Empty Patch      → AGENT_ERROR / EMPTY_PATCH
 ```
 
 这些 patch 只用于测试 Harness，不是模型能力成绩。
+
+## Phase 4 Docker 评分后端
+
+构建固定评分镜像：
+
+```bash
+docker build --pull=false \
+  -t zzcode-eval-py313:phase4 \
+  evaluation/environments/zzcode-py313
+```
+
+运行非 Docker Harness 测试：
+
+```bash
+uv run pytest evaluation/tests -m "not docker"
+```
+
+运行 Docker Gate（Gold 连续三次、禁网/资源与文件系统策略、timeout 清理）：
+
+```bash
+RUN_DOCKER_TESTS=1 uv run pytest evaluation/tests -m docker
+```
+
+接入同一套 `LocalGradingHarness`：
+
+```python
+from zzcode.evaluation import (
+    DockerRunner,
+    DockerTestExecutor,
+    LocalGradingHarness,
+    ResourceLimits,
+)
+
+runner = DockerRunner(allowed_mount_roots=(workspace_root, artifact_root))
+executor = DockerTestExecutor(
+    runner,
+    image="zzcode-eval-py313:phase4",
+    limits=ResourceLimits(cpus=1.0, memory_mb=1024, pids_limit=128),
+)
+harness = LocalGradingHarness(workspace_manager, test_executor=executor)
+```
+
+`allowed_mount_roots` 只能包含本次运行的 workspace 和 artifact 父目录，不能使用用户主目录或文件系统根目录。private test patch 仍由 Harness 注入宿主机的 grading workspace；随后该 workspace 只读挂载进评分容器，模型推理阶段不能访问它。
 
 ## Phase 2 运行产物目录
 

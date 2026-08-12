@@ -1,0 +1,16 @@
+{
+  "environment_id": "zzcode-py313",
+  "image": "zzcode-eval-py313:phase4",
+  "base_image": "python:3.13.13-slim-bookworm@sha256:355bfa66770995d7e9a0da4b3473b44d0cb451f6b56f5615ad9c39e3c4eca03f",
+  "python": "3.13.13",
+  "pytest": "9.0.3",
+  "network": "none",
+  "read_only_rootfs": true,
+  "user": "65532:65532",
+  "limits": {
+    "cpus": 1.0,
+    "memory_mb": 1024,
+    "pids_limit": 128,
+    "tmpfs_mb": 256
+  }
+}

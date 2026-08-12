@@ -1,4 +1,5 @@
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -7,9 +8,13 @@ import pytest
 
 from zzcode.evaluation import (
     FailureType,
+    ContainerHandle,
+    DockerRunner,
+    DockerTestExecutor,
     LocalGradingHarness,
     PrivateTestSpec,
     ResolvedStatus,
+    ResourceLimits,
     TaskInstance,
     WorkspaceManager,
 )
@@ -177,12 +182,16 @@ def golden_repo(tmp_path):
     }
 
 
-def _run_case(tmp_path, golden_repo, name, patch):
+def _run_case(tmp_path, golden_repo, name, patch, test_executor=None):
     manager = WorkspaceManager(
         tmp_path / f"workspaces-{name}",
         {"local/golden": golden_repo["repo"]},
     )
-    harness = LocalGradingHarness(manager, python_executable=sys.executable)
+    harness = LocalGradingHarness(
+        manager,
+        python_executable=sys.executable if test_executor is None else None,
+        test_executor=test_executor,
+    )
     return harness.run(
         golden_repo["task"],
         golden_repo["spec"],
@@ -261,3 +270,42 @@ def test_model_patch_cannot_modify_tests(tmp_path, golden_repo):
     assert result.decision.resolved_status == ResolvedStatus.NO
     assert result.decision.failure.failure_type == FailureType.SAFETY_VIOLATION
     assert result.patch_apply is None
+
+
+@pytest.mark.docker
+@pytest.mark.skipif(
+    os.environ.get("RUN_DOCKER_TESTS") != "1",
+    reason="set RUN_DOCKER_TESTS=1 to run Docker golden validation",
+)
+def test_docker_gold_is_full_three_times_with_stable_digest_and_cleanup(tmp_path, golden_repo):
+    image = os.environ.get("ZZCODE_EVAL_IMAGE", "zzcode-eval-py313:phase4")
+    runner = DockerRunner(allowed_mount_roots=(tmp_path,))
+    executor = DockerTestExecutor(
+        runner,
+        image=image,
+        limits=ResourceLimits(cpus=1.0, memory_mb=512, pids_limit=64, tmpfs_mb=64),
+    )
+    results = [
+        _run_case(tmp_path, golden_repo, f"docker-gold-{index}", golden_repo["gold"], executor)
+        for index in range(3)
+    ]
+
+    assert [result.decision.resolved_status for result in results] == [ResolvedStatus.FULL] * 3
+    digests = {
+        run.image_digest
+        for result in results
+        for run in (result.fail_to_pass, result.pass_to_pass)
+    }
+    assert len(digests) == 1
+    assert next(iter(digests)).startswith("sha256:")
+    assert all(
+        result.evaluation_result.metrics["image_digest"] == next(iter(digests))
+        for result in results
+    )
+    assert all(
+        not runner.exists(
+            ContainerHandle(run.container_id, "removed", image, run.image_digest)
+        )
+        for result in results
+        for run in (result.fail_to_pass, result.pass_to_pass)
+    )

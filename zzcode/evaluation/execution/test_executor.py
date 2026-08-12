@@ -227,6 +227,8 @@ class TestExecutor:
                 "junit_path": str(run.junit_path),
                 "result": run.result.to_dict(),
                 "failure": run.failure.to_dict() if run.failure else None,
+                "image_digest": run.image_digest,
+                "container_id": run.container_id,
             },
             overwrite=False,
         )

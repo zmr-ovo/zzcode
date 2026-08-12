@@ -129,6 +129,8 @@ class TestRun:
     junit_path: Path
     result: TestGroupResult
     failure: FailureRecord | None = None
+    image_digest: str | None = None
+    container_id: str | None = None
 
 
 @dataclass(frozen=True)
@@ -138,3 +140,45 @@ class GradingDecision:
     pass_to_pass_rate: float | None
     tests_completed: bool
     failure: FailureRecord | None = None
+
+
+@dataclass(frozen=True)
+class ResourceLimits:
+    cpus: float = 1.0
+    memory_mb: int = 1024
+    pids_limit: int = 128
+    tmpfs_mb: int = 256
+
+    def __post_init__(self) -> None:
+        if isinstance(self.cpus, bool) or not isinstance(self.cpus, (int, float)) or self.cpus <= 0:
+            raise ValueError("cpus must be positive")
+        for name in ("memory_mb", "pids_limit", "tmpfs_mb"):
+            value = getattr(self, name)
+            if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+                raise ValueError(f"{name} must be a positive integer")
+
+
+@dataclass(frozen=True)
+class MountSpec:
+    source: Path
+    target: str
+    read_only: bool = True
+
+
+@dataclass(frozen=True)
+class ContainerHandle:
+    container_id: str
+    name: str
+    image: str
+    image_digest: str
+
+
+@dataclass(frozen=True)
+class CommandResult:
+    command: tuple[str, ...]
+    returncode: int | None
+    stdout: str
+    stderr: str
+    duration_seconds: float
+    timed_out: bool
+    container_id: str

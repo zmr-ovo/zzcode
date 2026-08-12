@@ -1,0 +1,7 @@
+# Phase 4 grading dependencies. Every package is pinned exactly.
+iniconfig==2.3.0
+packaging==26.1
+pluggy==1.6.0
+Pygments==2.20.0
+pytest==9.0.3
+python-dotenv==1.2.2

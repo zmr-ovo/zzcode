@@ -42,11 +42,14 @@ class LocalGradingHarness:
         workspace_manager: WorkspaceManager,
         *,
         python_executable: Path | str | None = None,
+        test_executor: TestExecutor | None = None,
         safety_policy: SafetyPolicy | None = None,
     ) -> None:
+        if python_executable is not None and test_executor is not None:
+            raise ValueError("provide python_executable or test_executor, not both")
         self.workspace_manager = workspace_manager
         self.patch_applier = PatchApplier()
-        self.test_executor = TestExecutor(python_executable)
+        self.test_executor = test_executor or TestExecutor(python_executable)
         self.safety_policy = safety_policy or SafetyPolicy()
 
     def run(
@@ -214,6 +217,7 @@ class LocalGradingHarness:
                 model_patch,
                 bool(patch_apply and patch_apply.applied),
                 decision,
+                test_runs=(f2p, p2p),
             )
         return LocalGradingRun(
             task.instance_id,
@@ -233,12 +237,22 @@ class LocalGradingHarness:
         model_patch: str | None,
         patch_applied: bool,
         decision: GradingDecision,
+        *,
+        test_runs: tuple[TestRun, TestRun] | None = None,
     ) -> EvaluationResult | None:
         if model_patch is None:
             return None
         tests_completed = decision.tests_completed and patch_applied
         f2p_rate = decision.fail_to_pass_rate if tests_completed else None
         p2p_rate = decision.pass_to_pass_rate if tests_completed else None
+        metrics = {}
+        if test_runs is not None:
+            digests = {run.image_digest for run in test_runs if run.image_digest is not None}
+            if len(digests) == 1:
+                metrics["image_digest"] = next(iter(digests))
+            metrics["test_duration_seconds"] = sum(
+                run.duration_seconds for run in test_runs
+            )
         return EvaluationResult(
             instance_id=task.instance_id,
             resolved_status=decision.resolved_status,
@@ -250,5 +264,5 @@ class LocalGradingHarness:
             pass_to_pass_rate=p2p_rate,
             failure=decision.failure,
             completed_at=_now(),
-            metrics={},
+            metrics=metrics,
         )

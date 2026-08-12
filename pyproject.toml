@@ -22,3 +22,14 @@ dev = [
 
 [tool.setuptools.packages.find]
 include = ["zzcode*"]
+
+[tool.pytest.ini_options]
+markers = [
+  "unit: fast isolated tests",
+  "integration: component integration tests",
+  "security: security invariant tests",
+  "eval_harness: evaluation framework tests",
+  "docker: tests requiring Docker",
+  "real_model: tests requiring a configured real model",
+  "slow: long-running tests",
+]
