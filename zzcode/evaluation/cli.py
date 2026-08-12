@@ -10,7 +10,10 @@ from typing import Sequence
 
 from .dataset import EvaluationDataset
 from .errors import EvaluationError
-from .prediction import load_predictions, validate_predictions
+from .prediction import append_prediction, load_predictions, validate_predictions
+from .inference import AgentRunConfig, InferenceRunner, ZZCodeAgentAdapter
+from .execution import WorkspaceManager
+from .serialization import write_json_atomic, write_text_atomic
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
@@ -41,6 +44,29 @@ def build_arg_parser() -> argparse.ArgumentParser:
     validate_prediction_file.add_argument("--private-root", type=Path, default=None)
     validate_prediction_file.add_argument("--split", default="dev")
     validate_prediction_file.add_argument("--predictions", type=Path, required=True)
+
+    run_inference = subparsers.add_parser(
+        "run-inference",
+        help="run one public Repo Task with the real zzcode Agent",
+    )
+    run_inference.add_argument("--public-root", type=Path, required=True)
+    run_inference.add_argument("--private-root", type=Path, default=None)
+    run_inference.add_argument("--split", default="dev")
+    run_inference.add_argument("--instance-id", required=True)
+    run_inference.add_argument("--repo-path", type=Path, required=True)
+    run_inference.add_argument("--workspace-root", type=Path, required=True)
+    run_inference.add_argument("--artifact-dir", type=Path, required=True)
+    run_inference.add_argument("--provider", choices=("openai", "anthropic", "ollama"), required=True)
+    run_inference.add_argument("--model", required=True)
+    run_inference.add_argument("--base-url", default=None)
+    run_inference.add_argument("--host", default=None)
+    run_inference.add_argument("--temperature", type=float, default=0.0)
+    run_inference.add_argument("--top-p", type=float, default=0.9)
+    run_inference.add_argument("--max-steps", type=int, default=30)
+    run_inference.add_argument("--max-new-tokens", type=int, default=8192)
+    run_inference.add_argument("--timeout-seconds", type=float, default=900)
+    run_inference.add_argument("--provider-timeout-seconds", type=float, default=300)
+    run_inference.add_argument("--tool-image", default="zzcode-eval-py313:phase4")
     return parser
 
 
@@ -74,6 +100,64 @@ def main(argv: Sequence[str] | None = None) -> int:
             predictions = load_predictions(args.predictions)
             validate_predictions(dataset.tasks(), predictions)
             result["prediction_count"] = len(predictions)
+        elif args.command == "run-inference":
+            tasks = {task.instance_id: task for task in dataset.tasks()}
+            try:
+                task = tasks[args.instance_id]
+            except KeyError as exc:
+                raise EvaluationError(
+                    f"instance_id is not in split {dataset.split}: {args.instance_id}"
+                ) from exc
+            config = AgentRunConfig(
+                provider=args.provider,
+                model=args.model,
+                temperature=args.temperature,
+                top_p=args.top_p,
+                max_steps=args.max_steps,
+                max_new_tokens=args.max_new_tokens,
+                timeout_seconds=args.timeout_seconds,
+                provider_timeout_seconds=args.provider_timeout_seconds,
+                base_url=args.base_url,
+                host=args.host,
+                tool_image=args.tool_image,
+            )
+            workspace_manager = WorkspaceManager(
+                args.workspace_root,
+                {task.repo: args.repo_path},
+            )
+            inference = InferenceRunner(workspace_manager, ZZCodeAgentAdapter()).run(
+                task,
+                config,
+                args.artifact_dir,
+            )
+            write_json_atomic(
+                args.artifact_dir / "agent_result.json",
+                inference.agent_result.to_dict(),
+                overwrite=False,
+            )
+            if inference.prediction is not None:
+                write_text_atomic(
+                    args.artifact_dir / "patch.diff",
+                    inference.prediction.model_patch,
+                    overwrite=False,
+                )
+                append_prediction(
+                    args.artifact_dir / "predictions.jsonl",
+                    inference.prediction,
+                )
+            result.update(
+                {
+                    "instance_id": task.instance_id,
+                    "agent_status": inference.agent_result.status.value,
+                    "patch_generated": inference.agent_result.patch_generated,
+                    "failure_type": (
+                        inference.agent_result.failure.failure_type.value
+                        if inference.agent_result.failure
+                        else None
+                    ),
+                    "workspace": str(inference.workspace),
+                }
+            )
         print(json.dumps(result, ensure_ascii=False, sort_keys=True))
         return 0
     except EvaluationError as exc:

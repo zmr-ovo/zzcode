@@ -35,6 +35,16 @@ from .execution import (
     reconcile_expected_tests,
 )
 from .grading import SafetyPolicy, grade_test_results, inspect_patch
+from .inference import (
+    AgentAdapter,
+    AgentRunConfig,
+    DockerToolSandbox,
+    InferenceOutcome,
+    InferenceRunner,
+    ZZCodeAgentAdapter,
+    build_real_model_client,
+    collect_patch,
+)
 from .prediction import append_prediction, load_predictions, validate_predictions
 from .reporting import ArtifactStore, RunPaths, generate_run_id
 from .schema import (
@@ -58,6 +68,8 @@ from .status import (
 
 __all__ = [
     "AgentRunResult",
+    "AgentAdapter",
+    "AgentRunConfig",
     "AgentRunStatus",
     "ArtifactError",
     "ArtifactStore",
@@ -70,6 +82,7 @@ __all__ = [
     "EvaluationStage",
     "DockerRunner",
     "DockerTestExecutor",
+    "DockerToolSandbox",
     "FailureCategory",
     "FailureRecord",
     "FailureType",
@@ -77,6 +90,8 @@ __all__ = [
     "JUnitReport",
     "LocalGradingHarness",
     "LocalGradingRun",
+    "InferenceOutcome",
+    "InferenceRunner",
     "MountSpec",
     "PatchApplier",
     "PatchApplyResult",
@@ -101,9 +116,12 @@ __all__ = [
     "TestGroupResult",
     "TestRun",
     "WorkspaceManager",
+    "ZZCodeAgentAdapter",
     "append_prediction",
     "assert_inference_payload_safe",
     "classify_failure",
+    "build_real_model_client",
+    "collect_patch",
     "generate_run_id",
     "grade_test_results",
     "inspect_patch",

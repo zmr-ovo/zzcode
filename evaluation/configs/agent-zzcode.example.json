@@ -1,0 +1,14 @@
+{
+  "provider": "openai",
+  "model": "provider/model-name",
+  "temperature": 0.0,
+  "top_p": 0.9,
+  "max_steps": 30,
+  "max_new_tokens": 8192,
+  "timeout_seconds": 900,
+  "provider_timeout_seconds": 300,
+  "base_url": "https://provider.example/v1",
+  "approval_policy": "auto",
+  "tool_network_enabled": false,
+  "tool_image": "zzcode-eval-py313:phase4"
+}

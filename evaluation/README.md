@@ -157,6 +157,69 @@ harness = LocalGradingHarness(workspace_manager, test_executor=executor)
 
 `allowed_mount_roots` 只能包含本次运行的 workspace 和 artifact 父目录，不能使用用户主目录或文件系统根目录。private test patch 仍由 Harness 注入宿主机的 grading workspace；随后该 workspace 只读挂载进评分容器，模型推理阶段不能访问它。
 
+## Phase 5 真实 zzcode Agent
+
+Phase 5 的 inference 与 grading 完全分离：
+
+```text
+公开 TaskInstance
+        ↓
+WorkspaceManager.create_inference()
+        ↓
+真实 Provider worker 调用 ZZCode.ask(problem_statement)
+        ↓
+read/write/patch 工具限制在 inference workspace
+run_shell 进入禁网 Docker tool container
+        ↓
+PatchCollector 执行 git diff HEAD --binary
+        ↓
+非空 patch 生成 Prediction
+        ↓
+独立 grading workspace 和 DockerTestExecutor 只消费 Prediction.model_patch
+```
+
+该链路没有 FakeLLM fallback。provider 与 model 必须显式设置；Fake、Stub、Mock 名称会在配置阶段被拒绝。OpenAI/Anthropic 密钥只从环境变量读取，不写入配置、worker request、prompt、日志或 Agent tool container。
+
+单任务真实 inference 命令：
+
+```bash
+python scripts/run_internal_eval.py \
+  --public-root evaluation/datasets/zzcode-bench-v1 \
+  --private-root "$ZZCODE_EVAL_PRIVATE_ROOT" \
+  --split dev \
+  --instance-id ZZCODE-BUG-001 \
+  --repo-path /absolute/path/to/zzcode \
+  --workspace-root /tmp/zzcode-eval-workspaces \
+  --artifact-dir evaluation/runs/manual/instances/ZZCODE-BUG-001 \
+  --provider openai \
+  --model provider/model-name \
+  --base-url https://provider.example/v1
+```
+
+输出包括：
+
+- `agent_request.json`：公开 Task 和非敏感配置；
+- `agent_response.json`：runtime 状态和用量；
+- `runtime/`：已脱敏的 zzcode session、trace、report；
+- `agent_worker.stdout.log`、`agent_worker.stderr.log`；
+- `agent_result.json`：统一 AgentRunResult；
+- `patch.diff` 和 SWE-bench-compatible `predictions.jsonl`：仅在 patch 非空时生成。
+
+状态分类：
+
+| 情况 | Agent 状态 | FailureType |
+|---|---|---|
+| 正常生成非空 patch | `COMPLETED` | 无 |
+| 正常结束但没有代码修改 | `FAILED` | `EMPTY_PATCH` |
+| Provider 不可用或请求失败 | `FAILED` | `PROVIDER_UNAVAILABLE` |
+| Agent 总时限到达 | `INTERRUPTED` | `AGENT_TIMEOUT` |
+| Tool/runtime 异常 | `FAILED` | `TOOL_FAILURE` |
+| Worker/patch collector 基础设施异常 | `FAILED` | `INFRASTRUCTURE_ERROR` |
+
+Adapter 不读取 `PrivateTestSpec`，也不运行 F2P/P2P。Grader 只读取 patch，因此不会依赖 Agent 的 history、memory、最终回答或内部状态。
+
+Phase 5 Gate 已使用真实 provider 在临时 Git Repo Task 上执行 smoke：Agent 完成工具调用后生成非空 `Prediction`，同时落盘 steps、latency 和 token usage。该 smoke 只认证 Adapter 链路，不属于正式数据集成绩；正式 Pass@1 从 Phase 6 的 verified tasks 开始。
+
 ## Phase 2 运行产物目录
 
 一次评测对应一个不可重复的 Run ID，默认写入：
