@@ -13,6 +13,7 @@ import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
+from pathlib import PurePosixPath
 from typing import Any, Mapping
 
 from .errors import SchemaValidationError
@@ -83,6 +84,18 @@ def _tuple_of_strings(value: object, field_name: str) -> tuple[str, ...]:
     items = tuple(_required_string(item, field_name) for item in value)
     if len(items) != len(set(items)):
         raise SchemaValidationError(f"{field_name} contains duplicate test ids")
+    return items
+
+
+def _test_selectors(value: object, field_name: str) -> tuple[str, ...]:
+    items = _tuple_of_strings(value, field_name)
+    for selector in items:
+        if selector.startswith("-") or "\x00" in selector or "\n" in selector or "\\" in selector:
+            raise SchemaValidationError(f"{field_name} contains an unsafe pytest selector: {selector!r}")
+        path = selector.split("::", 1)[0]
+        pure = PurePosixPath(path)
+        if pure.is_absolute() or ".." in pure.parts or not path.endswith(".py"):
+            raise SchemaValidationError(f"{field_name} contains an unsafe pytest selector: {selector!r}")
     return items
 
 
@@ -234,12 +247,12 @@ class PrivateTestSpec:
         object.__setattr__(
             self,
             "fail_to_pass",
-            _tuple_of_strings(self.fail_to_pass, "FAIL_TO_PASS"),
+            _test_selectors(self.fail_to_pass, "FAIL_TO_PASS"),
         )
         object.__setattr__(
             self,
             "pass_to_pass",
-            _tuple_of_strings(self.pass_to_pass, "PASS_TO_PASS"),
+            _test_selectors(self.pass_to_pass, "PASS_TO_PASS"),
         )
         overlap = sorted(set(self.fail_to_pass) & set(self.pass_to_pass))
         if overlap:

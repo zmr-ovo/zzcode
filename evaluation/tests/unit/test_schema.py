@@ -76,3 +76,16 @@ def test_prediction_uses_exact_swebench_compatible_fields():
 def test_prediction_rejects_empty_patch():
     with pytest.raises(SchemaValidationError, match="model_patch"):
         Prediction("ZZCODE-BUG-001", "provider/model", "  ")
+
+
+def test_private_test_spec_rejects_pytest_option_injection(tmp_path):
+    with pytest.raises(SchemaValidationError, match="unsafe pytest selector"):
+        from zzcode.evaluation import PrivateTestSpec
+
+        PrivateTestSpec(
+            instance_id="ZZCODE-BUG-001",
+            gold_patch_path=tmp_path / "gold.patch",
+            test_patch_path=tmp_path / "test.patch",
+            fail_to_pass=("--override-ini=addopts=-x",),
+            pass_to_pass=("tests/test_memory.py",),
+        )

@@ -10,7 +10,106 @@ Phase 1 已实现评测系统的数据边界，包括：
 - 与 SWE-bench 兼容的 `predictions.jsonl` 读写；
 - Schema 校验和私有数据泄漏检查。
 
-Phase 2 已实现运行状态、错误模型和 Artifact Store。当前仍不负责运行 Agent、收集 Git patch、创建评分工作区、注入隐藏测试，也不进行 `FULL / PARTIAL / NO` 判分。这些功能将在后续 Phase 中实现。
+Phase 2 已实现运行状态、错误模型和 Artifact Store。Phase 3 已实现本地干净 Workspace、严格 patch 应用、隐藏测试注入、JUnit 解析和 F2P/P2P Grader。
+
+当前 Phase 3 只接收人工提供的 Null、Gold、Partial、Regression 和 Conflict patch，用于证明 Harness 本身正确。它仍不调用真实模型，也不提供 Docker 隔离；真实 zzcode Adapter 和容器执行将在后续 Phase 实现。
+
+## Phase 3 本地执行流程
+
+`LocalGradingHarness` 对一项任务执行以下流程：
+
+```text
+TaskInstance + PrivateTestSpec + 人工 model_patch
+                    ↓
+WorkspaceManager 从 allowlist 仓库重新 clone
+                    ↓
+checkout --detach 到精确 base_commit
+                    ↓
+确认 HEAD 正确且工作区干净
+                    ↓
+SafetyPolicy 检查 model_patch
+                    ↓
+git apply --check --binary --whitespace=error-all
+                    ↓
+git apply --binary --whitespace=error-all
+                    ↓
+注入私有 test.patch
+                    ↓
+分别运行 F2P 和 P2P，生成 JUnit XML
+                    ↓
+解析 failed / error / skipped / not-run / collection error
+                    ↓
+Grader 输出 FULL / PARTIAL / NO 或明确错误
+```
+
+Null Patch 是任务认证模式：不应用模型 patch，直接在 `base_commit` 上注入隐藏测试并执行 F2P/P2P。Null 结果用于证明问题真实存在，不生成正式 `EvaluationResult`，也不进入 Pass@1。
+
+## Phase 3 Workspace 规则
+
+- 仓库必须在 `WorkspaceManager` 的 repo allowlist 中；
+- Inference 和 Grading 使用不同目录；
+- 每个 Workspace 只创建一次，已有目录不能覆盖；
+- Workspace 必须处于精确 `base_commit`；
+- clone 使用 `--no-hardlinks`，避免修改源仓库对象；
+- 模型 patch 应用前工作区必须干净；
+- Phase 3 是本地进程隔离，不等同于 Docker 安全沙箱。
+
+## Phase 3 Patch 安全与应用规则
+
+模型 patch 会先经过静态检查：
+
+- 禁止修改 `.git`、`.env`、`.zzcode`、`evaluation`、`private`、`hidden_tests` 和 `tests`；
+- 禁止绝对路径、`..` 路径穿越和反斜线路径；
+- 禁止 rename/copy、符号链接和默认的 binary patch；
+- 限制修改文件数量和增删行数量；
+- 空 patch 记录为 `AGENT_ERROR / EMPTY_PATCH`；
+- Conflict 或格式错误记录为 `NO / PATCH_APPLY_FAILURE`。
+
+Patch 只使用严格的 `git apply --check` 和 `git apply`，不会使用 fuzz、三方合并或自动修补来替 Agent 修改答案。
+
+私有 `test.patch` 不执行模型 patch 的“禁止修改 tests”策略，因为它本身就是 Harness 信任的评分输入；但它必须能 clean apply，否则任务记为 `DATASET_ERROR`。
+
+## F2P/P2P 执行和评分
+
+F2P 和 P2P 分别调用 pytest，并分别生成：
+
+```text
+f2p.xml
+f2p.log
+f2p.result.json
+p2p.xml
+p2p.log
+p2p.result.json
+```
+
+Grader 只读取结构化 `TestGroupResult`：
+
+| 条件 | 结果 |
+|---|---|
+| Safety 通过，F2P=100%，P2P=100% | `FULL` |
+| Safety 通过，0%<F2P<100%，P2P=100% | `PARTIAL` |
+| P2P<100%，即使 F2P 全过 | `NO` |
+| 测试缺失、collection error、JUnit 缺失或不完整 | `NO / TEST_ERROR` |
+| pytest 无法启动等基础设施故障 | `INFRA_ERROR` |
+| Safety 违规 | `NO / SAFETY_VIOLATION` |
+
+F2P/P2P selector 必须是 `.py` 文件或 pytest node id，不能以 `-` 开头、包含换行、反斜线或路径穿越，避免把数据集内容注入为 pytest 命令行选项。
+
+## Golden Harness 验收
+
+`evaluation/tests/golden/test_local_harness.py` 会临时创建独立 Git 仓库和私有 test patch，验证：
+
+```text
+Null Patch       → NO，F2P=0%，P2P=100%
+Gold Patch       → FULL
+Partial Patch    → PARTIAL
+Regression Patch → NO
+Conflict Patch   → PATCH_APPLY_FAILURE
+Unsafe Patch     → SAFETY_VIOLATION
+Empty Patch      → AGENT_ERROR / EMPTY_PATCH
+```
+
+这些 patch 只用于测试 Harness，不是模型能力成绩。
 
 ## Phase 2 运行产物目录
 
