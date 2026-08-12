@@ -89,4 +89,5 @@ python scripts/run_internal_eval.py --task ZZCODE-BUG-001 --config evaluation/co
 - [x] 明确 scripted/FakeModel 只能服务协议回归，不能进入 formal evaluation。
 - [x] 给出新层级、迁移顺序、退出条件和 Pass@1 边界。
 - [x] Phase 1 已完成：`TaskInstance`、`PrivateTestSpec`、`Prediction`、Dataset Loader、digest、JSONL、CLI 和 public/private 隔离测试已实现。
-- [ ] Phase 2 尚未开始：没有实现 RunManifest、运行状态或统一的 Agent/Data/Infrastructure 错误结果。
+- [x] Phase 2 已完成：`RunManifest`、`AgentRunResult`、`EvaluationResult`、状态/错误分类、原子 Artifact Store 和中断保留已实现。
+- [ ] Phase 3 尚未开始：没有创建本地 workspace、应用 patch、执行 F2P/P2P 或判定 `FULL / PARTIAL / NO`。

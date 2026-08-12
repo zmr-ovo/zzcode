@@ -6,8 +6,9 @@ import json
 from pathlib import Path
 from typing import Iterable, Mapping
 
-from .errors import PredictionValidationError, SchemaValidationError
+from .errors import ArtifactError, PredictionValidationError, SchemaValidationError
 from .schema import Prediction, TaskInstance
+from .serialization import append_jsonl
 
 
 def append_prediction(path: Path, prediction: Prediction) -> None:
@@ -16,16 +17,10 @@ def append_prediction(path: Path, prediction: Prediction) -> None:
     path = Path(path)
     if not isinstance(prediction, Prediction):
         raise PredictionValidationError("prediction must be a Prediction instance")
-    if path.exists():
-        existing = load_predictions(path)
-        if prediction.instance_id in existing:
-            raise PredictionValidationError(
-                f"duplicate prediction instance_id: {prediction.instance_id}"
-            )
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("a", encoding="utf-8", newline="\n") as handle:
-        handle.write(json.dumps(prediction.to_dict(), ensure_ascii=False, separators=(",", ":")))
-        handle.write("\n")
+    try:
+        append_jsonl(path, prediction.to_dict(), unique_key="instance_id")
+    except ArtifactError as exc:
+        raise PredictionValidationError(str(exc)) from exc
 
 
 def load_predictions(path: Path) -> dict[str, Prediction]:

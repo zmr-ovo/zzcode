@@ -1,21 +1,91 @@
 # zzcode Evaluation
 
-This directory contains evaluation data, harness self-tests, environment
-definitions, run artifacts, and reports. Reusable Python code lives in
-`zzcode/evaluation/`.
+本目录用于存放评测数据、Evaluation Harness 自测、执行环境定义、运行产物和评测报告。可复用的 Python 实现位于 `zzcode/evaluation/`。
 
-Phase 1 implements only the data boundary:
+Phase 1 已实现评测系统的数据边界，包括：
 
-- versioned public `TaskInstance` values;
-- separately loaded private grading specs;
-- deterministic dataset digests;
-- SWE-bench-compatible `predictions.jsonl` I/O;
-- schema and private-data leakage validation.
+- 带版本号的公开 `TaskInstance`；
+- 与公开任务分开加载的私有评分配置；
+- 可复现的数据集摘要（dataset digest）；
+- 与 SWE-bench 兼容的 `predictions.jsonl` 读写；
+- Schema 校验和私有数据泄漏检查。
 
-It does not yet run an Agent, collect a Git patch, create a grading workspace,
-inject hidden tests, or assign `FULL / PARTIAL / NO`. Those are later phases.
+Phase 2 已实现运行状态、错误模型和 Artifact Store。当前仍不负责运行 Agent、收集 Git patch、创建评分工作区、注入隐藏测试，也不进行 `FULL / PARTIAL / NO` 判分。这些功能将在后续 Phase 中实现。
 
-## Public dataset layout
+## Phase 2 运行产物目录
+
+一次评测对应一个不可重复的 Run ID，默认写入：
+
+```text
+evaluation/runs/<run-id>/
+├── run_manifest.json
+├── predictions.jsonl
+├── instance_results.jsonl
+├── results.json
+├── run_failure.json
+└── instances/
+    └── <instance-id>/
+        ├── agent_result.json
+        ├── patch.diff
+        └── report.json
+```
+
+各文件的职责：
+
+| 文件 | 内容 |
+|---|---|
+| `run_manifest.json` | 数据集 digest、split、Agent commit、provider/model、模型参数、资源限制、环境和 Run 生命周期 |
+| `predictions.jsonl` | SWE-bench-compatible Prediction，每个任务最多一行 |
+| `instance_results.jsonl` | 已完成任务的结构化结果，每个任务最多一行 |
+| `results.json` | 后续 Reporting 阶段生成的整次运行汇总 |
+| `run_failure.json` | Harness 在数据集、基础设施或中断阶段发生的运行级失败 |
+| `agent_result.json` | 单任务 Agent 阶段状态、耗时、token、工具步数和失败信息 |
+| `patch.diff` | 单任务产生的模型 patch；Phase 3 前只定义存储接口，不负责生成 |
+| `report.json` | 单任务 `EvaluationResult` |
+
+Artifact Store 遵循以下规则：
+
+1. Run ID 由 UTC 时间和随机后缀组成；
+2. 创建目录时使用排他模式，已存在的 Run ID 会直接报错；
+3. JSON 通过同目录临时文件和原子替换写入；
+4. JSONL 写入时加排他锁，一次只追加一条完整记录；
+5. Prediction 和单任务结果按 `instance_id` 去重；
+6. 已进入 `COMPLETED`、`FAILED` 或 `INTERRUPTED` 的 Run 不允许再次修改；
+7. 单任务终态结果不允许覆盖；
+8. 中断只追加 `run_failure.json` 并更新 Manifest，已经落盘的任务结果仍然保留。
+
+## 状态和错误模型
+
+Run 生命周期：
+
+```text
+CREATED → RUNNING → COMPLETED
+                  ├→ FAILED
+                  └→ INTERRUPTED
+```
+
+任务评分状态与失败原因分开保存：
+
+| 字段 | 作用 |
+|---|---|
+| `resolved_status` | `NOT_GRADED / FULL / PARTIAL / NO / AGENT_ERROR / INFRA_ERROR / DATASET_ERROR` |
+| `failure.category` | 错误责任域：`AGENT_ERROR / INFRA_ERROR / DATASET_ERROR` |
+| `failure.failure_type` | 具体错误，例如 `AGENT_TIMEOUT`、`EMPTY_PATCH`、`PATCH_APPLY_FAILURE` |
+| `failure.stage` | 失败阶段，例如 `DATASET`、`AGENT`、`PATCH_APPLY`、`TEST_EXECUTION` |
+| `failure.retryable` | 外部状态恢复后是否值得重试 |
+| `failure.details` | 可序列化的诊断数据，不存密钥或私有测试正文 |
+
+三类错误不能混合统计：
+
+- `DATASET_ERROR`：任务定义、数据泄漏、Gold/Test 数据问题；
+- `INFRA_ERROR`：provider 不可用、容器或 Harness 基础设施故障；
+- `AGENT_ERROR`：Agent 超时、工具失败、空 patch、非法 patch、安全违规或测试失败。
+
+未知的程序异常不会自动转换成普通 Agent 失败。调用方必须只捕获已知错误，并为其生成明确的 `FailureRecord`。
+
+## 公开数据目录规范
+
+公开数据是 Agent 可以读取的任务信息，目录结构如下：
 
 ```text
 evaluation/datasets/<dataset-name>/
@@ -29,25 +99,75 @@ evaluation/datasets/<dataset-name>/
     └── task.json
 ```
 
-The public tree must not contain `gold.patch`, `test.patch`, hidden test ids,
-or `FAIL_TO_PASS` / `PASS_TO_PASS`.
+各文件的职责：
 
-## Private grading layout
+| 文件 | 内容 |
+|---|---|
+| `manifest.jsonl` | 每行定义一个 Repo Task，包括 `instance_id`、仓库、`base_commit`、问题描述路径和执行环境 ID |
+| `dataset-card.md` | 记录数据集来源、任务范围、版本、限制和审核方法 |
+| `splits/dev.txt` | 开发阶段使用的任务 ID，每行一个 |
+| `splits/test.txt` | 正式测试使用的任务 ID，每行一个 |
+| `problem_statement.md` | 提供给 Agent 的问题描述，不包含正确实现和隐藏测试信息 |
+| `task.json` | 公开任务元数据，例如任务类型、难度、子系统和资源限制 |
 
-Set `ZZCODE_EVAL_PRIVATE_ROOT` to a directory outside the public dataset tree.
-The loader accepts either the dataset-specific directory directly or a parent
-containing a directory with the public dataset's name:
+公开目录不得包含以下内容：
+
+- `gold.patch`；
+- `test.patch`；
+- 隐藏测试名称或测试代码；
+- `FAIL_TO_PASS`、`PASS_TO_PASS`、`F2P`、`P2P`；
+- Grader 配置或私有评分路径；
+- 能直接暴露正确实现的提示。
+
+Dataset Loader 会递归检查公开 metadata。如果发现上述私有字段或常见别名，会拒绝加载数据集。
+
+## 私有评分目录规范
+
+私有评分数据只能由 Evaluation Harness 读取，Agent 和 inference workspace 都不能访问。
+
+通过环境变量 `ZZCODE_EVAL_PRIVATE_ROOT` 指定私有数据根目录。该目录必须与公开数据目录分离，不能是公开目录的父目录或子目录，也不应提交到公开仓库。
+
+推荐结构：
 
 ```text
-$ZZCODE_EVAL_PRIVATE_ROOT/<dataset-name>/<instance-id>/
-├── grading.json
-├── gold.patch
-└── test.patch
+$ZZCODE_EVAL_PRIVATE_ROOT/
+└── <dataset-name>/
+    └── <instance-id>/
+        ├── grading.json
+        ├── gold.patch
+        └── test.patch
 ```
 
-The private root is intentionally not created or committed by this repository.
+也可以让 `ZZCODE_EVAL_PRIVATE_ROOT` 直接指向 `<dataset-name>/`。Dataset Loader 同时支持这两种形式。
 
-## Validate a split
+各文件的职责：
+
+| 文件 | 内容 |
+|---|---|
+| `grading.json` | `instance_id`、Gold/Test patch 文件名、`FAIL_TO_PASS` 和 `PASS_TO_PASS` 列表 |
+| `gold.patch` | 已知正确的参考修复，仅用于证明任务可解和校验 Grader |
+| `test.patch` | 评分阶段注入的隐藏测试，不能进入 Agent 工作区 |
+
+`grading.json` 示例：
+
+```json
+{
+  "schema_version": 1,
+  "instance_id": "ZZCODE-BUG-001",
+  "gold_patch": "gold.patch",
+  "test_patch": "test.patch",
+  "FAIL_TO_PASS": [
+    "hidden_tests/test_memory.py::test_stale_summary"
+  ],
+  "PASS_TO_PASS": [
+    "tests/test_memory.py"
+  ]
+}
+```
+
+## 校验公开与私有数据集
+
+运行以下命令校验一个 split：
 
 ```bash
 python -m zzcode.evaluation.cli validate-dataset \
@@ -56,11 +176,39 @@ python -m zzcode.evaluation.cli validate-dataset \
   --split dev
 ```
 
-The command prints a task count and `sha256:` dataset digest. The digest changes
-when selected public task data, F2P/P2P lists, `gold.patch`, or `test.patch`
-changes.
+也可以省略 `--private-root`，让程序直接读取 `ZZCODE_EVAL_PRIVATE_ROOT`：
 
-Validate a prediction file with:
+```bash
+export ZZCODE_EVAL_PRIVATE_ROOT=/absolute/path/to/private-evaluation-data
+
+python -m zzcode.evaluation.cli validate-dataset \
+  --public-root evaluation/datasets/zzcode-bench-v1 \
+  --split dev
+```
+
+校验成功后会输出：
+
+```json
+{
+  "dataset_digest": "sha256:...",
+  "split": "dev",
+  "status": "valid",
+  "task_count": 3
+}
+```
+
+其中 `dataset_digest` 会覆盖当前 split 中的：
+
+- 公开任务定义；
+- 公开问题描述和 metadata；
+- `FAIL_TO_PASS` 与 `PASS_TO_PASS`；
+- `gold.patch` 和 `test.patch` 的内容摘要。
+
+只要这些内容发生变化，digest 就会变化。Digest 只包含私有 patch 的 SHA-256，不会输出 patch 正文。
+
+## 校验 predictions.jsonl
+
+使用以下命令检查模型输出是否和指定数据集一致：
 
 ```bash
 python -m zzcode.evaluation.cli validate-predictions \
@@ -70,5 +218,25 @@ python -m zzcode.evaluation.cli validate-predictions \
   --predictions evaluation/runs/<run-id>/predictions.jsonl
 ```
 
-`evaluation/runs/` and `evaluation/reports/` are ignored because they are
-generated artifacts.
+每行 Prediction 必须严格包含三个字段：
+
+```json
+{
+  "instance_id": "ZZCODE-BUG-001",
+  "model_name_or_path": "provider/model-name",
+  "model_patch": "diff --git a/... b/..."
+}
+```
+
+校验会拒绝：
+
+- 空 patch；
+- 缺少必需字段；
+- 出现额外字段；
+- 重复的 `instance_id`；
+- 不属于当前 split 的任务；
+- 当前 split 中缺失 Prediction 的任务。
+
+## 本地运行产物
+
+`evaluation/runs/` 和 `evaluation/reports/` 用于保存运行产物和报告，默认被 Git 忽略。正式任务数据、私有评分数据和运行产物不能混放。

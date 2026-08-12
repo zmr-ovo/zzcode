@@ -19,3 +19,11 @@ class PrivateDataLeakageError(DatasetValidationError):
 
 class PredictionValidationError(EvaluationError, ValueError):
     """A prediction or predictions file is invalid."""
+
+
+class ArtifactError(EvaluationError):
+    """An evaluation run artifact cannot be safely persisted or loaded."""
+
+
+class RunAlreadyExistsError(ArtifactError, FileExistsError):
+    """A run id already exists and must not be overwritten."""
