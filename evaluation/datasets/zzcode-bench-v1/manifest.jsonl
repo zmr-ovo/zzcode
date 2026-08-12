@@ -1,0 +1,2 @@
+{"schema_version":1,"instance_id":"ZZCODE-BUG-001","repo":"local/zzcode","base_commit":"b0f9c84b9fcec9901684c70d6c29edad5357761b","problem_statement_path":"instances/ZZCODE-BUG-001/problem_statement.md","environment_id":"zzcode-py313"}
+{"schema_version":1,"instance_id":"ZZCODE-BUG-002","repo":"local/zzcode","base_commit":"b0f9c84b9fcec9901684c70d6c29edad5357761b","problem_statement_path":"instances/ZZCODE-BUG-002/problem_statement.md","environment_id":"zzcode-py313"}

@@ -19,6 +19,7 @@ from .models import (
     TestRun,
 )
 from .patch_applier import PatchApplier
+from .runner import VerticalSliceRunner
 from .test_executor import TestExecutor
 from .workspace import WorkspaceManager
 
@@ -42,6 +43,7 @@ __all__ = [
     "TestGroupResult",
     "TestRun",
     "WorkspaceManager",
+    "VerticalSliceRunner",
     "parse_junit",
     "reconcile_expected_tests",
 ]

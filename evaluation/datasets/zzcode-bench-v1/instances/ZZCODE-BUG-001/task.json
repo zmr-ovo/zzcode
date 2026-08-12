@@ -1,0 +1,8 @@
+{
+  "instance_id": "ZZCODE-BUG-001",
+  "task_type": "bug_fix",
+  "scope": "single_file",
+  "subsystem": "model_client",
+  "difficulty": "easy",
+  "source": "zzcode_git_history"
+}

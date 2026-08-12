@@ -10,9 +10,9 @@ Phase 1 已实现评测系统的数据边界，包括：
 - 与 SWE-bench 兼容的 `predictions.jsonl` 读写；
 - Schema 校验和私有数据泄漏检查。
 
-Phase 2 已实现运行状态、错误模型和 Artifact Store。Phase 3 已实现本地干净 Workspace、严格 patch 应用、隐藏测试注入、JUnit 解析和 F2P/P2P Grader。Phase 4 已实现固定 Docker 评分环境和受限容器执行后端。
+Phase 2 已实现运行状态、错误模型和 Artifact Store。Phase 3 已实现本地干净 Workspace、严格 patch 应用、隐藏测试注入、JUnit 解析和 F2P/P2P Grader。Phase 4 已实现固定 Docker 评分环境和受限容器执行后端。Phase 5 已接入真实 zzcode Adapter。Phase 6 已加入两项真实历史 Repo Task 和完整纵向切片运行器。
 
-当前 Harness 仍只接收人工提供的 Null、Gold、Partial、Regression 和 Conflict patch，用于证明评分链路本身正确；真实 zzcode Adapter 将在 Phase 5 接入。F2P/P2P 既可使用 Phase 3 本地后端，也可使用 Phase 4 Docker 后端，正式评分应选择 Docker 后端。
+正式 F2P/P2P 使用 Phase 4 Docker 后端；本地 `TestExecutor` 只用于 Harness 自测。
 
 ## Phase 3 本地执行流程
 
@@ -183,7 +183,7 @@ PatchCollector 执行 git diff HEAD --binary
 单任务真实 inference 命令：
 
 ```bash
-python scripts/run_internal_eval.py \
+python -m zzcode.evaluation.cli run-inference \
   --public-root evaluation/datasets/zzcode-bench-v1 \
   --private-root "$ZZCODE_EVAL_PRIVATE_ROOT" \
   --split dev \
@@ -217,6 +217,79 @@ python scripts/run_internal_eval.py \
 | Worker/patch collector 基础设施异常 | `FAILED` | `INFRASTRUCTURE_ERROR` |
 
 Adapter 不读取 `PrivateTestSpec`，也不运行 F2P/P2P。Grader 只读取 patch，因此不会依赖 Agent 的 history、memory、最终回答或内部状态。
+
+## Phase 6 两项纵向切片任务
+
+公开数据位于 `evaluation/datasets/zzcode-bench-v1/`：
+
+- `ZZCODE-BUG-001`：单文件 OpenAI-compatible reasoning-only 响应缺陷；
+- `ZZCODE-BUG-002`：跨 `workspace.py` 和 `tools.py` 的 `.env` 隔离缺陷。
+
+对应 Gold Patch、hidden test patch 与 F2P/P2P 清单位于本地 `evaluation/private/zzcode-bench-v1/`。该目录已被 `.gitignore` 排除；对外发布时应通过私有对象存储或 CI Secret 单独分发，不能复制到公开数据目录。
+
+完整执行顺序：
+
+```text
+加载并校验公开任务 + 私有评分数据
+                 ↓
+Null Validation：base commit + hidden tests
+必须 F2P 非全过、P2P 全过
+                 ↓
+Gold Validation × 3：base commit + gold.patch + hidden tests
+三次必须全部 FULL，且记录相同 image digest
+                 ↓
+从 base commit 创建独立 inference workspace
+                 ↓
+真实 zzcode Agent 只读取公开题面并修改源码
+                 ↓
+git diff HEAD --binary → patch.diff → predictions.jsonl
+                 ↓
+从 base commit 再创建独立 grading workspace
+                 ↓
+Safety → git apply Agent Patch → 注入 hidden tests
+                 ↓
+Docker 分别执行 F2P/P2P → FULL/PARTIAL/NO
+                 ↓
+写入任务 report.json、批次 results.json、run_manifest.json
+```
+
+Null 或 Gold 门禁失败时，任务记录为 `DATASET_ERROR`，不会调用真实模型。Agent/provider 超时或失败同样会生成 `agent_result.json` 和 `report.json`，不会缺失任务产物。
+
+运行本地数据集稳定性门禁（不调用模型，容器禁网）：
+
+```bash
+RUN_DOCKER_TESTS=1 uv run pytest -q \
+  evaluation/tests/integration/test_phase6_dataset_docker.py
+```
+
+运行完整真实评测（会将公开题面和必要仓库上下文发送给配置的 Provider，并产生 API 成本）：
+
+```bash
+export ZZCODE_EVAL_PRIVATE_ROOT="$PWD/evaluation/private"
+
+uv run python scripts/run_internal_eval.py \
+  --provider openai \
+  --model provider/model-name \
+  --base-url https://provider.example/v1
+```
+
+默认输出目录为 `evaluation/runs/<run_id>/`，工作区位于 `evaluation/workspaces/<run_id>/`，二者都被 Git 忽略。主要产物：
+
+```text
+run_manifest.json                 固定配置、数据摘要、Git commit、镜像摘要和状态
+predictions.jsonl                 仅包含成功生成 Patch 的任务
+instance_results.jsonl            每项任务的结构化评分结果
+results.json                      批次汇总与逐任务状态
+instances/<id>/validation/        Null、Gold×3 的日志、JUnit 和 gate.json
+instances/<id>/agent/             Agent request/response、脱敏日志和 runtime 轨迹
+instances/<id>/patch.diff         Agent 的标准 Git Patch（如有）
+instances/<id>/grading/           Agent Patch 的 F2P/P2P 评分产物
+instances/<id>/report.json        单任务最终结果
+```
+
+`evaluation/configs/phase6-vertical-slice.example.json` 记录建议的面试演示参数。正式成绩应固定 provider、model、temperature、资源限制、数据摘要、Agent commit 和镜像摘要后再比较。
+
+为避免 `run_manifest.json` 记录的 commit 与实际 Agent 代码不一致，完整运行命令要求 zzcode 仓库没有已修改或未跟踪文件；请先提交 Phase 6 代码，再启动正式评测。
 
 Phase 5 Gate 已使用真实 provider 在临时 Git Repo Task 上执行 smoke：Agent 完成工具调用后生成非空 `Prediction`，同时落盘 steps、latency 和 token usage。该 smoke 只认证 Adapter 链路，不属于正式数据集成绩；正式 Pass@1 从 Phase 6 的 verified tasks 开始。
 

@@ -1,0 +1,22 @@
+{
+  "dataset": "evaluation/datasets/zzcode-bench-v1",
+  "private_root_env": "ZZCODE_EVAL_PRIVATE_ROOT",
+  "split": "dev",
+  "provider": "openai",
+  "model": "provider/model-name",
+  "temperature": 0.0,
+  "top_p": 0.9,
+  "max_steps": 30,
+  "max_new_tokens": 8192,
+  "agent_timeout_seconds": 900,
+  "provider_timeout_seconds": 300,
+  "test_timeout_seconds": 120,
+  "gold_repetitions": 3,
+  "image": "zzcode-eval-py313:phase4",
+  "resource_limits": {
+    "cpus": 1.0,
+    "memory_mb": 1024,
+    "pids_limit": 128,
+    "tmpfs_mb": 256
+  }
+}

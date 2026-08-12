@@ -1,0 +1,8 @@
+{
+  "instance_id": "ZZCODE-BUG-002",
+  "task_type": "bug_fix",
+  "scope": "multi_file",
+  "subsystem": "workspace_security",
+  "difficulty": "medium",
+  "source": "zzcode_git_history"
+}

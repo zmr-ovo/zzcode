@@ -1263,6 +1263,17 @@ Report Generation
 
 Gate：Gold 均 FULL、Null 均非 FULL；Agent 无论成败都有完整 artifacts。
 
+#### Phase 6 实现结果（2026-08-12）
+
+- 已加入 `ZZCODE-BUG-001`：真实 Git 历史中的单文件 reasoning-only 响应缺陷；
+- 已加入 `ZZCODE-BUG-002`：真实 Git 历史中的跨 `workspace.py` / `tools.py` `.env` 隔离缺陷；
+- 公开题面位于 `evaluation/datasets/zzcode-bench-v1/`；
+- 私有 Gold、hidden tests 和 F2P/P2P 位于 Git 忽略的 `evaluation/private/zzcode-bench-v1/`；
+- `execution/runner.py` 已实现 Null → Gold×3 → Real Agent → Docker Grader → Artifacts；
+- `scripts/run_internal_eval.py` 已成为两任务完整批次入口；
+- 本地禁网 Docker Gate 已验证两题 Null 非 FULL、Gold 各连续三次 FULL，镜像摘要稳定；
+- 真实模型出站运行需要使用者明确授权 Provider 数据外发和 API 成本，未授权时不伪造正式 Agent 成绩。
+
 ### Phase 7：扩展到 8 个 Internal Verified Tasks（Day 8）
 
 完成 dev/test split、Dataset Card、任务复核并冻结 `zzcode-bench-v1` digest，运行第一次正式 Pass@1。

@@ -59,8 +59,8 @@ def run_request(request_path: Path, response_path: Path) -> int:
     workspace = Path(request["workspace"]).resolve()
     artifact_dir = Path(request["artifact_dir"]).resolve()
     artifact_dir.mkdir(parents=True, exist_ok=True)
-    if Path.cwd().resolve() != workspace:
-        raise RuntimeError("inference worker cwd does not match its workspace")
+    if not workspace.is_dir():
+        raise RuntimeError("inference workspace does not exist")
 
     model = build_real_model_client(config)
     workspace_context = WorkspaceContext.build(workspace)

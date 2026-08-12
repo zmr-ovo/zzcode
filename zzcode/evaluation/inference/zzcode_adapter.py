@@ -113,10 +113,20 @@ class ZZCodeAgentAdapter:
             "--response",
             str(response_path),
         )
+        # Repo Tasks may evaluate an older revision of zzcode itself.  Without
+        # an explicit harness import root, the worker would import the target
+        # checkout's package from cwd and that revision may not contain the
+        # evaluation worker at all.  Keep the current Agent runtime external to
+        # the repository under test, as SWE-bench-style inference requires.
+        harness_import_root = str(Path(__file__).resolve().parents[3])
         try:
             process = subprocess.Popen(
                 command,
-                cwd=workspace,
+                # Do not start in the target checkout: Repo Tasks can point to
+                # a historical zzcode revision that has no evaluation package.
+                # The worker still receives and strictly anchors all Agent
+                # filesystem tools to ``workspace``.
+                cwd=harness_import_root,
                 text=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,

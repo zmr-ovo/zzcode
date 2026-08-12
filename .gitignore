@@ -40,6 +40,9 @@ artifacts/*
 readme_intro_locked/
 evaluation/runs/
 evaluation/reports/
+evaluation/workspaces/
+# 本地私有评分数据：hidden tests、Gold Patch 与 F2P/P2P 清单不得提交。
+evaluation/private/
 
 # Local docs not intended for publication
 docs/*

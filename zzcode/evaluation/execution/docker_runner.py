@@ -126,6 +126,8 @@ class DockerRunner:
             "PYTHONDONTWRITEBYTECODE=1",
             "--env",
             "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+            "--env",
+            "PYTHONPATH=/workspace",
         ]
         targets: set[str] = set()
         for mount in mounts:
