@@ -38,6 +38,8 @@ tmp/
 artifacts/*
 !artifacts/test-baseline.json
 readme_intro_locked/
+evaluation/runs/
+evaluation/reports/
 
 # Local docs not intended for publication
 docs/*

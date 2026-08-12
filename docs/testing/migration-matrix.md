@@ -26,7 +26,7 @@
 | 顺序 | Phase | 主要工作 | 输入 | 输出 | 验收标准 |
 |---:|---|---|---|---|---|
 | 0 | 冻结与审计 | 跑全量测试、逐项分类 105 tests 与 12 tasks | 当前仓库 | 本目录三份地图 + `artifacts/test-baseline.json` | 数量对齐；已知失败有记录；未改产品行为 |
-| 1 | 评测骨架 | 建 `evaluation/` 包、配置、CLI、结果模型、空目录约定 | Phase 0 文档 | 可 import 的骨架与 schema tests | `python -m evaluation.cli --help` 可用；schema round-trip 通过 |
+| 1 | 评测骨架 | 建 `zzcode/evaluation/` 包、配置、CLI、结果模型、空目录约定 | Phase 0 文档 | 可 import 的骨架与 schema tests | `python -m zzcode.evaluation.cli --help` 可用；schema round-trip 通过 |
 | 2 | 核心 harness | 实现 Dataset、WorkspaceManager、AgentAdapter、PatchCollector、PredictionWriter | Repo Task manifest | `model_patch` 与 `predictions.jsonl` | 干净 checkout；patch 非空/格式合法；禁止越界路径 |
 | 3 | Grader | 独立 checkout、apply patch、注入 private tests、F2P/P2P、分类失败 | prediction + private bundle | `grader_result.json`、`TaskResult` | agent 看不到 private tests；base fail/gold pass；超时和 apply failure 可复现 |
 | 4 | 首批数据 | 制作 3–5 个 curated Repo Tasks | zzcode 历史/人工 bug | public manifest、private bundle、gold patch | 每项通过数据 QA checklist；至少覆盖 bugfix、regression、安全/恢复中的适合项 |
@@ -72,10 +72,10 @@ pytest tests/unit tests/integration tests/security tests/contract
 pytest evaluation/tests/unit evaluation/tests/integration evaluation/tests/security
 
 # 单项 Repo Task 的数据自检
-python -m evaluation.cli validate --task ZZCODE-BUG-001
+python -m zzcode.evaluation.cli validate-dataset --public-root evaluation/datasets/zzcode-bench-v1 --private-root "$ZZCODE_EVAL_PRIVATE_ROOT" --split dev
 
 # 单项端到端，使用明确 provider 配置
-python -m evaluation.cli run --task ZZCODE-BUG-001 --config evaluation/configs/smoke.yaml
+python scripts/run_internal_eval.py --task ZZCODE-BUG-001 --config evaluation/configs/smoke.yaml
 ```
 
 在目录尚未建立时，上述命令是目标接口而非当前可执行命令。Phase 1 起每建立一层，就把对应命令加入 CI。
@@ -88,4 +88,5 @@ python -m evaluation.cli run --task ZZCODE-BUG-001 --config evaluation/configs/s
 - [x] 明确记录 2 个基线失败，未擅自修改。
 - [x] 明确 scripted/FakeModel 只能服务协议回归，不能进入 formal evaluation。
 - [x] 给出新层级、迁移顺序、退出条件和 Pass@1 边界。
-- [ ] Phase 1 尚未开始：没有创建 `evaluation/` 骨架或修改产品代码。
+- [x] Phase 1 已完成：`TaskInstance`、`PrivateTestSpec`、`Prediction`、Dataset Loader、digest、JSONL、CLI 和 public/private 隔离测试已实现。
+- [ ] Phase 2 尚未开始：没有实现 RunManifest、运行状态或统一的 Agent/Data/Infrastructure 错误结果。

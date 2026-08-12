@@ -20,5 +20,5 @@ dev = [
   "ruff>=0.4.4",
 ]
 
-[tool.setuptools]
-packages = ["zzcode"]
+[tool.setuptools.packages.find]
+include = ["zzcode*"]
