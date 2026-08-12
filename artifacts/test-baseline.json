@@ -1,0 +1,617 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-08-12T14:30:39.593978+08:00",
+  "repository": {
+    "commit": "446ba3273c6513d5a1589daf81dea86ad851ebd0",
+    "branch": "main",
+    "worktree_was_dirty": true,
+    "note": "Baseline recorded without modifying or reverting pre-existing worktree changes."
+  },
+  "environment": {
+    "host": "MiaorandeMacBook-Air.local",
+    "os": "Darwin 25.5.0",
+    "architecture": "arm64",
+    "python": "3.13.13",
+    "pytest": "9.0.3"
+  },
+  "command": ".venv/bin/python -m pytest --junitxml=/private/tmp/zzcode-phase0-baseline.xml -o junit_logging=all",
+  "summary": {
+    "total": 105,
+    "passed": 103,
+    "failed": 2,
+    "errors": 0,
+    "skipped": 0,
+    "duration_seconds": 34.251
+  },
+  "known_failures": [
+    {
+      "nodeid": "tests/test_zzcode.py::test_welcome_screen_keeps_box_shape_for_long_paths",
+      "observation": "Assertion expects the legacy '(  o o  )' welcome-screen line, which the current rendering no longer contains.",
+      "phase_0_action": "Record only; decide whether the UI contract or the assertion is authoritative during migration."
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_reviewer_skeleton_docs_exist",
+      "observation": "Required reviewer skeleton documentation is absent, including docs/review-pack/README.md.",
+      "phase_0_action": "Record only; do not create unrelated documentation as part of the evaluation refactor."
+    }
+  ],
+  "slowest_cases": [
+    {
+      "nodeid": "tests/test_metrics.py::test_write_benchmark_core_report_marks_resume_safe_metrics",
+      "outcome": "passed",
+      "duration_seconds": 10.723
+    },
+    {
+      "nodeid": "tests/test_metrics.py::test_run_memory_ablation_v2_writes_expected_artifact",
+      "outcome": "passed",
+      "duration_seconds": 7.427
+    },
+    {
+      "nodeid": "tests/test_metrics.py::test_run_context_ablation_v2_writes_expected_artifact",
+      "outcome": "passed",
+      "duration_seconds": 2.182
+    },
+    {
+      "nodeid": "tests/test_metrics.py::test_run_recovery_ablation_v2_writes_expected_artifact",
+      "outcome": "passed",
+      "duration_seconds": 1.761
+    },
+    {
+      "nodeid": "tests/test_evaluator.py::test_run_harness_regression_v2_writes_named_artifact",
+      "outcome": "passed",
+      "duration_seconds": 1.689
+    },
+    {
+      "nodeid": "tests/test_evaluator.py::test_run_fixed_benchmark_covers_recovery_and_durable_contract_rows",
+      "outcome": "passed",
+      "duration_seconds": 1.681
+    },
+    {
+      "nodeid": "tests/test_evaluator.py::test_run_fixed_benchmark_reports_metadata_and_success_definition",
+      "outcome": "passed",
+      "duration_seconds": 1.65
+    },
+    {
+      "nodeid": "tests/test_evaluator.py::test_run_fixed_benchmark_uses_fresh_fixture_copy_and_fresh_run_directory",
+      "outcome": "passed",
+      "duration_seconds": 1.602
+    },
+    {
+      "nodeid": "tests/test_safety_invariants.py::test_delegate_child_is_read_only",
+      "outcome": "passed",
+      "duration_seconds": 0.222
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_delegate_uses_child_agent",
+      "outcome": "passed",
+      "duration_seconds": 0.173
+    }
+  ],
+  "cases": [
+    {
+      "nodeid": "tests/test_context_manager.py::test_context_manager_assembles_sections_in_expected_order",
+      "outcome": "passed",
+      "duration_seconds": 0.046
+    },
+    {
+      "nodeid": "tests/test_context_manager.py::test_context_manager_reduces_relevant_memory_before_history_and_preserves_newer_context",
+      "outcome": "passed",
+      "duration_seconds": 0.036
+    },
+    {
+      "nodeid": "tests/test_context_manager.py::test_context_manager_renders_top_three_episodic_notes_per_note_under_budget",
+      "outcome": "passed",
+      "duration_seconds": 0.033
+    },
+    {
+      "nodeid": "tests/test_context_manager.py::test_context_manager_preserves_current_request_when_over_budget",
+      "outcome": "passed",
+      "duration_seconds": 0.033
+    },
+    {
+      "nodeid": "tests/test_context_manager.py::test_context_manager_collapses_older_duplicate_reads_into_one_summary_line",
+      "outcome": "passed",
+      "duration_seconds": 0.035
+    },
+    {
+      "nodeid": "tests/test_context_manager.py::test_context_manager_summarizes_older_tool_output_into_one_line",
+      "outcome": "passed",
+      "duration_seconds": 0.037
+    },
+    {
+      "nodeid": "tests/test_context_manager.py::test_context_manager_relevant_memory_can_mix_durable_notes",
+      "outcome": "passed",
+      "duration_seconds": 0.036
+    },
+    {
+      "nodeid": "tests/test_evaluator.py::test_load_benchmark_validates_fixed_schema",
+      "outcome": "passed",
+      "duration_seconds": 0.001
+    },
+    {
+      "nodeid": "tests/test_evaluator.py::test_load_benchmark_rejects_missing_required_task_fields",
+      "outcome": "passed",
+      "duration_seconds": 0.001
+    },
+    {
+      "nodeid": "tests/test_evaluator.py::test_run_fixed_benchmark_uses_fresh_fixture_copy_and_fresh_run_directory",
+      "outcome": "passed",
+      "duration_seconds": 1.602
+    },
+    {
+      "nodeid": "tests/test_evaluator.py::test_run_fixed_benchmark_reports_metadata_and_success_definition",
+      "outcome": "passed",
+      "duration_seconds": 1.65
+    },
+    {
+      "nodeid": "tests/test_evaluator.py::test_run_fixed_benchmark_covers_recovery_and_durable_contract_rows",
+      "outcome": "passed",
+      "duration_seconds": 1.681
+    },
+    {
+      "nodeid": "tests/test_evaluator.py::test_run_harness_regression_v2_writes_named_artifact",
+      "outcome": "passed",
+      "duration_seconds": 1.689
+    },
+    {
+      "nodeid": "tests/test_evaluator.py::test_run_task_anchors_paths_to_fixture_copy_even_inside_repo_workspace",
+      "outcome": "passed",
+      "duration_seconds": 0.172
+    },
+    {
+      "nodeid": "tests/test_evaluator.py::test_summarize_rows_counts_failure_categories",
+      "outcome": "passed",
+      "duration_seconds": 0
+    },
+    {
+      "nodeid": "tests/test_memory.py::test_working_memory_tracks_summary_and_recent_files",
+      "outcome": "passed",
+      "duration_seconds": 0
+    },
+    {
+      "nodeid": "tests/test_memory.py::test_episodic_notes_append_and_retrieve_deterministically",
+      "outcome": "passed",
+      "duration_seconds": 0
+    },
+    {
+      "nodeid": "tests/test_memory.py::test_file_summaries_use_canonical_paths_and_freshness",
+      "outcome": "passed",
+      "duration_seconds": 0.002
+    },
+    {
+      "nodeid": "tests/test_memory.py::test_process_notes_keep_kind_and_latest_duplicate_wins",
+      "outcome": "passed",
+      "duration_seconds": 0
+    },
+    {
+      "nodeid": "tests/test_memory.py::test_durable_memory_index_and_topic_notes_are_loaded_and_retrieved",
+      "outcome": "passed",
+      "duration_seconds": 0.001
+    },
+    {
+      "nodeid": "tests/test_metrics.py::test_run_context_ablation_v2_writes_expected_artifact",
+      "outcome": "passed",
+      "duration_seconds": 2.182
+    },
+    {
+      "nodeid": "tests/test_metrics.py::test_run_memory_ablation_v2_writes_expected_artifact",
+      "outcome": "passed",
+      "duration_seconds": 7.427
+    },
+    {
+      "nodeid": "tests/test_metrics.py::test_run_recovery_ablation_v2_writes_expected_artifact",
+      "outcome": "passed",
+      "duration_seconds": 1.761
+    },
+    {
+      "nodeid": "tests/test_metrics.py::test_write_benchmark_core_report_marks_resume_safe_metrics",
+      "outcome": "passed",
+      "duration_seconds": 10.723
+    },
+    {
+      "nodeid": "tests/test_run_store.py::test_run_store_creates_run_directory_and_state_file",
+      "outcome": "passed",
+      "duration_seconds": 0.001
+    },
+    {
+      "nodeid": "tests/test_run_store.py::test_run_store_appends_trace_jsonl",
+      "outcome": "passed",
+      "duration_seconds": 0.001
+    },
+    {
+      "nodeid": "tests/test_run_store.py::test_run_store_writes_report_json",
+      "outcome": "passed",
+      "duration_seconds": 0.001
+    },
+    {
+      "nodeid": "tests/test_run_store.py::test_run_store_tolerates_missing_final_report",
+      "outcome": "passed",
+      "duration_seconds": 0.001
+    },
+    {
+      "nodeid": "tests/test_safety_invariants.py::test_workspace_escape_is_rejected",
+      "outcome": "passed",
+      "duration_seconds": 0.039
+    },
+    {
+      "nodeid": "tests/test_safety_invariants.py::test_symlink_path_traversal_is_rejected",
+      "outcome": "passed",
+      "duration_seconds": 0.039
+    },
+    {
+      "nodeid": "tests/test_safety_invariants.py::test_risky_tool_deny_behavior",
+      "outcome": "passed",
+      "duration_seconds": 0.039
+    },
+    {
+      "nodeid": "tests/test_safety_invariants.py::test_cli_build_agent_wires_secret_env_names_from_parser",
+      "outcome": "passed",
+      "duration_seconds": 0.043
+    },
+    {
+      "nodeid": "tests/test_safety_invariants.py::test_cli_build_agent_uses_default_configured_secret_names",
+      "outcome": "passed",
+      "duration_seconds": 0.042
+    },
+    {
+      "nodeid": "tests/test_safety_invariants.py::test_cli_build_agent_reads_secret_names_from_environment_config",
+      "outcome": "passed",
+      "duration_seconds": 0.04
+    },
+    {
+      "nodeid": "tests/test_safety_invariants.py::test_run_shell_uses_allowlisted_environment_only",
+      "outcome": "passed",
+      "duration_seconds": 0.056
+    },
+    {
+      "nodeid": "tests/test_safety_invariants.py::test_bound_tool_methods_delegate_into_tools_module",
+      "outcome": "passed",
+      "duration_seconds": 0.038
+    },
+    {
+      "nodeid": "tests/test_safety_invariants.py::test_delegate_depth_limit_is_enforced",
+      "outcome": "passed",
+      "duration_seconds": 0.039
+    },
+    {
+      "nodeid": "tests/test_safety_invariants.py::test_delegate_child_is_read_only",
+      "outcome": "passed",
+      "duration_seconds": 0.222
+    },
+    {
+      "nodeid": "tests/test_safety_invariants.py::test_configured_secret_env_names_are_redacted_in_trace_and_report",
+      "outcome": "passed",
+      "duration_seconds": 0.039
+    },
+    {
+      "nodeid": "tests/test_task_state.py::test_task_state_starts_running_with_empty_progress",
+      "outcome": "passed",
+      "duration_seconds": 0
+    },
+    {
+      "nodeid": "tests/test_task_state.py::test_task_state_records_success_and_final_answer",
+      "outcome": "passed",
+      "duration_seconds": 0
+    },
+    {
+      "nodeid": "tests/test_task_state.py::test_task_state_records_step_limit_stop_reason",
+      "outcome": "passed",
+      "duration_seconds": 0
+    },
+    {
+      "nodeid": "tests/test_task_state.py::test_task_state_records_retry_limit_stop_reason",
+      "outcome": "passed",
+      "duration_seconds": 0
+    },
+    {
+      "nodeid": "tests/test_task_state.py::test_task_state_snapshot_keeps_final_answer",
+      "outcome": "passed",
+      "duration_seconds": 0
+    },
+    {
+      "nodeid": "tests/test_task_state.py::test_task_state_snapshot_keeps_checkpoint_reference_without_body",
+      "outcome": "passed",
+      "duration_seconds": 0
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_agent_runs_tool_then_final",
+      "outcome": "passed",
+      "duration_seconds": 0.141
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_agent_updates_task_summary_on_each_request",
+      "outcome": "passed",
+      "duration_seconds": 0.129
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_agent_only_stores_reusable_epistemic_notes",
+      "outcome": "passed",
+      "duration_seconds": 0.164
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_file_summary_cache_is_invalidated_on_out_of_band_edit_and_path_spelling",
+      "outcome": "passed",
+      "duration_seconds": 0.04
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_agent_retries_after_empty_model_output",
+      "outcome": "passed",
+      "duration_seconds": 0.123
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_agent_retries_after_malformed_tool_payload",
+      "outcome": "passed",
+      "duration_seconds": 0.165
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_agent_accepts_xml_write_file_tool",
+      "outcome": "passed",
+      "duration_seconds": 0.121
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_retries_do_not_consume_the_whole_budget",
+      "outcome": "passed",
+      "duration_seconds": 0.162
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_agent_gets_finalization_turn_after_tool_budget_is_exhausted",
+      "outcome": "passed",
+      "duration_seconds": 0.118
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_agent_saves_and_resumes_session",
+      "outcome": "passed",
+      "duration_seconds": 0.123
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_delegate_uses_child_agent",
+      "outcome": "passed",
+      "duration_seconds": 0.173
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_patch_file_replaces_exact_match",
+      "outcome": "passed",
+      "duration_seconds": 0.041
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_invalid_risky_tool_does_not_prompt_for_approval",
+      "outcome": "passed",
+      "duration_seconds": 0.042
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_list_files_hides_internal_agent_state",
+      "outcome": "passed",
+      "duration_seconds": 0.041
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_repeated_identical_tool_call_is_rejected",
+      "outcome": "passed",
+      "duration_seconds": 0.039
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_welcome_screen_keeps_box_shape_for_long_paths",
+      "outcome": "failed",
+      "duration_seconds": 0.04
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_ollama_client_posts_expected_payload",
+      "outcome": "passed",
+      "duration_seconds": 0
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_openai_compatible_client_posts_expected_responses_payload",
+      "outcome": "passed",
+      "duration_seconds": 0
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_openai_compatible_client_reports_reasoning_only_response",
+      "outcome": "passed",
+      "duration_seconds": 0
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_openai_compatible_client_sends_prompt_cache_fields_and_records_usage",
+      "outcome": "passed",
+      "duration_seconds": 0
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_openai_compatible_client_extracts_text_from_event_stream",
+      "outcome": "passed",
+      "duration_seconds": 0
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_openai_compatible_client_extracts_text_from_event_stream_deltas",
+      "outcome": "passed",
+      "duration_seconds": 0
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_anthropic_compatible_client_posts_expected_messages_payload",
+      "outcome": "passed",
+      "duration_seconds": 0
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_anthropic_compatible_client_extracts_first_text_block",
+      "outcome": "passed",
+      "duration_seconds": 0
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_build_agent_uses_openai_provider_and_model_override",
+      "outcome": "passed",
+      "duration_seconds": 0.039
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_build_agent_loads_global_dotenv_from_another_workspace",
+      "outcome": "passed",
+      "duration_seconds": 0.041
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_shell_env_overrides_global_and_workspace_dotenv",
+      "outcome": "passed",
+      "duration_seconds": 0.042
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_dotenv_is_hidden_and_cannot_be_read_by_agent",
+      "outcome": "passed",
+      "duration_seconds": 0.04
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_build_arg_parser_defaults_provider_to_openai",
+      "outcome": "passed",
+      "duration_seconds": 0.001
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_build_arg_parser_accepts_anthropic_provider",
+      "outcome": "passed",
+      "duration_seconds": 0.001
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_build_agent_uses_anthropic_provider_and_openai_key_fallback",
+      "outcome": "passed",
+      "duration_seconds": 0.043
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_build_agent_uses_anthropic_default_model_when_env_is_missing",
+      "outcome": "passed",
+      "duration_seconds": 0.042
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_build_agent_uses_openai_provider_by_default",
+      "outcome": "passed",
+      "duration_seconds": 0.041
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_successful_run_persists_run_artifacts_and_stop_reason",
+      "outcome": "passed",
+      "duration_seconds": 0.13
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_trace_and_report_redact_secret_env_values",
+      "outcome": "passed",
+      "duration_seconds": 0.132
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_prompt_budget_metadata_records_budget_decisions",
+      "outcome": "passed",
+      "duration_seconds": 0.086
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_prompt_metadata_refreshes_prefix_when_workspace_changes",
+      "outcome": "passed",
+      "duration_seconds": 0.156
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_agent_creates_checkpoint_when_context_reduction_happens_and_artifacts_only_reference_it",
+      "outcome": "passed",
+      "duration_seconds": 0.094
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_resume_prompt_uses_checkpoint_state_not_just_history",
+      "outcome": "passed",
+      "duration_seconds": 0.118
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_resume_invalidates_stale_file_summaries_and_marks_partial_stale",
+      "outcome": "passed",
+      "duration_seconds": 0.117
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_run_shell_nonzero_with_workspace_change_is_recorded_as_partial_success",
+      "outcome": "passed",
+      "duration_seconds": 0.042
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_resume_marks_workspace_mismatch_when_checkpoint_runtime_identity_is_stale",
+      "outcome": "passed",
+      "duration_seconds": 0.12
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_write_file_trace_records_minimum_tool_contract_fields",
+      "outcome": "passed",
+      "duration_seconds": 0.119
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_resume_marks_schema_mismatch_when_checkpoint_version_is_incompatible",
+      "outcome": "passed",
+      "duration_seconds": 0.116
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_resume_marks_no_checkpoint_when_session_has_no_checkpoint_state",
+      "outcome": "passed",
+      "duration_seconds": 0.145
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_freshness_mismatch_creates_checkpoint_before_model_completion",
+      "outcome": "passed",
+      "duration_seconds": 0.082
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_runtime_identity_persists_key_execution_metadata",
+      "outcome": "passed",
+      "duration_seconds": 0.038
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_resume_records_runtime_identity_mismatch_fields_in_metadata_and_trace",
+      "outcome": "passed",
+      "duration_seconds": 0.122
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_partial_success_creates_process_note_for_exploration_history",
+      "outcome": "passed",
+      "duration_seconds": 0.045
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_explicit_memory_promotion_persists_durable_memory_topics",
+      "outcome": "passed",
+      "duration_seconds": 0.085
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_explicit_memory_promotion_supports_chinese_intent_and_labels",
+      "outcome": "passed",
+      "duration_seconds": 0.079
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_explicit_memory_promotion_rejects_secret_shaped_and_transient_lines",
+      "outcome": "passed",
+      "duration_seconds": 0.08
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_explicit_memory_promotion_supersedes_matching_durable_fact",
+      "outcome": "passed",
+      "duration_seconds": 0.128
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_explicit_memory_promotion_dedupes_duplicate_durable_note",
+      "outcome": "passed",
+      "duration_seconds": 0.131
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_agent_records_model_cache_metadata_in_last_prompt_metadata",
+      "outcome": "passed",
+      "duration_seconds": 0.083
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_recent_transcript_entries_stay_richer_than_older_ones",
+      "outcome": "passed",
+      "duration_seconds": 0.084
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_public_api_exports_resolve_through_package_path",
+      "outcome": "passed",
+      "duration_seconds": 0
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_reviewer_skeleton_docs_exist",
+      "outcome": "failed",
+      "duration_seconds": 0
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_package_import_surface_includes_cli_entrypoints",
+      "outcome": "passed",
+      "duration_seconds": 0
+    },
+    {
+      "nodeid": "tests/test_zzcode.py::test_module_execution_help_works",
+      "outcome": "passed",
+      "duration_seconds": 0.069
+    }
+  ]
+}

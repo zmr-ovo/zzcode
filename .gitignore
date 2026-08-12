@@ -35,13 +35,19 @@ htmlcov/
 tmp/
 .worktrees/
 .zzcode/
-artifacts/
+artifacts/*
+!artifacts/test-baseline.json
 readme_intro_locked/
 
 # Local docs not intended for publication
 docs/*
 !docs/zzcode-interview-flow.md
 !docs/zzcode-interview-flow.html
+!docs/testing/
+!docs/testing/zzcode-evaluation-refactor-plan.md
+!docs/testing/current-test-map.md
+!docs/testing/current-benchmark-map.md
+!docs/testing/migration-matrix.md
 
 # OS files
 .DS_Store
