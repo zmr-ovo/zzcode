@@ -18,17 +18,17 @@ from zzcode.evaluation import (
 @pytest.mark.slow
 @pytest.mark.skipif(
     os.environ.get("RUN_DOCKER_TESTS") != "1",
-    reason="set RUN_DOCKER_TESTS=1 to validate Phase 6 Repo Tasks",
+    reason="set RUN_DOCKER_TESTS=1 to validate Internal Repo Tasks",
 )
-def test_phase6_repo_tasks_pass_null_and_gold_stability_gates(tmp_path):
+def test_internal_repo_tasks_pass_null_and_gold_stability_gates(tmp_path):
     repo = Path(__file__).resolve().parents[3]
     private_root = repo / "evaluation" / "private"
     if not private_root.is_dir():
-        pytest.skip("Phase 6 private bundle is intentionally distributed separately")
+        pytest.skip("private evaluation bundle is intentionally distributed separately")
     dataset = EvaluationDataset.load(
         repo / "evaluation" / "datasets" / "zzcode-bench-v1",
         private_root,
-        "dev",
+        "all",
     )
     docker = DockerRunner(allowed_mount_roots=(tmp_path,))
     executor = DockerTestExecutor(

@@ -95,6 +95,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             "split": dataset.split,
             "task_count": len(dataset.tasks()),
             "dataset_digest": dataset.digest(),
+            "dataset_lock_verified": dataset.verify_lock(),
         }
         if args.command == "validate-predictions":
             predictions = load_predictions(args.predictions)

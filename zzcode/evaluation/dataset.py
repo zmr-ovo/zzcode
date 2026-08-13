@@ -340,3 +340,34 @@ class EvaluationDataset:
             allow_nan=False,
         ).encode("utf-8")
         return f"sha256:{hashlib.sha256(canonical).hexdigest()}"
+
+    def verify_lock(self) -> bool:
+        """Verify this split against dataset-lock.json when the dataset is frozen."""
+
+        lock_path = self.public_root / "dataset-lock.json"
+        if not lock_path.is_file():
+            return False
+        lock = _read_json(lock_path, "dataset lock")
+        if lock.get("schema_version") != SCHEMA_VERSION:
+            raise DatasetValidationError(
+                f"unsupported dataset lock schema_version: {lock.get('schema_version')}"
+            )
+        if lock.get("dataset") != self.public_root.name:
+            raise DatasetValidationError("dataset lock name does not match public_root")
+        splits = lock.get("splits")
+        if not isinstance(splits, dict) or not isinstance(splits.get(self.split), dict):
+            raise DatasetValidationError(f"dataset lock does not contain split: {self.split}")
+        expected = splits[self.split]
+        actual_count = len(self._tasks)
+        actual_digest = self.digest()
+        if expected.get("task_count") != actual_count:
+            raise DatasetValidationError(
+                f"dataset lock task_count mismatch for {self.split}: "
+                f"expected {expected.get('task_count')}, got {actual_count}"
+            )
+        if expected.get("digest") != actual_digest:
+            raise DatasetValidationError(
+                f"dataset lock digest mismatch for {self.split}: "
+                f"expected {expected.get('digest')}, got {actual_digest}"
+            )
+        return True

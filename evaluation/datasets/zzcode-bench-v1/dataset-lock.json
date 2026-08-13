@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "dataset": "zzcode-bench-v1",
+  "base_commit": "b0f9c84b9fcec9901684c70d6c29edad5357761b",
+  "splits": {
+    "dev": {
+      "task_count": 4,
+      "digest": "sha256:5ae6985d5e64f56c9275b27796887ca5a4862878cde85059dff0ed6ef76d1ff5"
+    },
+    "test": {
+      "task_count": 4,
+      "digest": "sha256:8d3e2471b1e300e6a91aae52fd80018dc9c8b596d4d5c2f299c30d98ed266e6f"
+    },
+    "all": {
+      "task_count": 8,
+      "digest": "sha256:3195d948807346caeef494bbd8d54b9cef5daf4aa1c29dd089cb5f401406949f"
+    }
+  }
+}

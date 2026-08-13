@@ -1280,6 +1280,16 @@ Gate：Gold 均 FULL、Null 均非 FULL；Agent 无论成败都有完整 artifac
 
 Gate：8/8 Gold FULL、8/8 Null 非 FULL、0 个不稳定任务、0 个 private leakage。
 
+#### Phase 7 实现结果（2026-08-13）
+
+- 已扩展为 8 项任务：6 项来自 zzcode Git 修复历史，2 项为安全回归题；
+- `dev` 与 `test` 各 4 项且互不重叠，`all` 用于完整数据 QA；
+- `dataset-lock.json` 固定三个 split 的任务数和完整数据 digest；
+- 本地独立 Grader 已验证 8/8 Null 非 FULL、8/8 Gold FULL、F2P/P2P 全通过；
+- Docker Gate 改为对 `all` split 执行 Null + Gold×3，确认后方可发布私有评分包；
+- 每次完整运行新增 `report.md`，展示 Pass@1、逐题 F2P/P2P、错误分类和复现配置；
+- 正式真实模型 Pass@1 仍需要固定 Agent commit、模型配置和容器镜像后单独运行，不能用 Gold 或 FakeLLM 代替。
+
 ### Phase 8：官方 SWE-bench Adapter（Day 9）
 
 顺序：

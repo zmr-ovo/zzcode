@@ -47,7 +47,13 @@ from .inference import (
     collect_patch,
 )
 from .prediction import append_prediction, load_predictions, validate_predictions
-from .reporting import ArtifactStore, RunPaths, generate_run_id
+from .reporting import (
+    ArtifactStore,
+    RunPaths,
+    generate_run_id,
+    render_run_directory,
+    render_run_report,
+)
 from .schema import (
     AgentRunResult,
     EvaluationResult,
@@ -131,5 +137,7 @@ __all__ = [
     "make_failure",
     "parse_junit",
     "reconcile_expected_tests",
+    "render_run_directory",
+    "render_run_report",
     "validate_predictions",
 ]

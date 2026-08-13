@@ -10,7 +10,7 @@ Phase 1 已实现评测系统的数据边界，包括：
 - 与 SWE-bench 兼容的 `predictions.jsonl` 读写；
 - Schema 校验和私有数据泄漏检查。
 
-Phase 2 已实现运行状态、错误模型和 Artifact Store。Phase 3 已实现本地干净 Workspace、严格 patch 应用、隐藏测试注入、JUnit 解析和 F2P/P2P Grader。Phase 4 已实现固定 Docker 评分环境和受限容器执行后端。Phase 5 已接入真实 zzcode Adapter。Phase 6 已加入两项真实历史 Repo Task 和完整纵向切片运行器。
+Phase 2 已实现运行状态、错误模型和 Artifact Store。Phase 3 已实现本地干净 Workspace、严格 patch 应用、隐藏测试注入、JUnit 解析和 F2P/P2P Grader。Phase 4 已实现固定 Docker 评分环境和受限容器执行后端。Phase 5 已接入真实 zzcode Adapter。Phase 6 已打通两项任务的纵向切片；Phase 7 已扩展为 8 项 Internal Verified Tasks、dev/test split、冻结 digest 和 Markdown 批次报告。
 
 正式 F2P/P2P 使用 Phase 4 Docker 后端；本地 `TestExecutor` 只用于 Harness 自测。
 
@@ -218,12 +218,15 @@ python -m zzcode.evaluation.cli run-inference \
 
 Adapter 不读取 `PrivateTestSpec`，也不运行 F2P/P2P。Grader 只读取 patch，因此不会依赖 Agent 的 history、memory、最终回答或内部状态。
 
-## Phase 6 两项纵向切片任务
+## Phase 7：8 项 Internal Verified Tasks
 
 公开数据位于 `evaluation/datasets/zzcode-bench-v1/`：
 
-- `ZZCODE-BUG-001`：单文件 OpenAI-compatible reasoning-only 响应缺陷；
-- `ZZCODE-BUG-002`：跨 `workspace.py` 和 `tools.py` 的 `.env` 隔离缺陷。
+- `dev`：001–004，用于开发期调试；
+- `test`：005–008，用于正式 Pass@1；
+- `all`：全部 8 项，只用于数据稳定性门禁和完整演示。
+
+任务类型覆盖模型响应处理、Agent 控制循环、CLI 配置、运行预算和安全边界。逐题范围、来源和限制见 `dataset-card.md`。
 
 对应 Gold Patch、hidden test patch 与 F2P/P2P 清单位于本地 `evaluation/private/zzcode-bench-v1/`。该目录已被 `.gitignore` 排除；对外发布时应通过私有对象存储或 CI Secret 单独分发，不能复制到公开数据目录。
 
@@ -268,6 +271,7 @@ RUN_DOCKER_TESTS=1 uv run pytest -q \
 export ZZCODE_EVAL_PRIVATE_ROOT="$PWD/evaluation/private"
 
 uv run python scripts/run_internal_eval.py \
+  --split test \
   --provider openai \
   --model provider/model-name \
   --base-url https://provider.example/v1
@@ -285,11 +289,12 @@ instances/<id>/agent/             Agent request/response、脱敏日志和 runti
 instances/<id>/patch.diff         Agent 的标准 Git Patch（如有）
 instances/<id>/grading/           Agent Patch 的 F2P/P2P 评分产物
 instances/<id>/report.json        单任务最终结果
+report.md                         面向人工复核和面试展示的批次报告
 ```
 
-`evaluation/configs/phase6-vertical-slice.example.json` 记录建议的面试演示参数。正式成绩应固定 provider、model、temperature、资源限制、数据摘要、Agent commit 和镜像摘要后再比较。
+`evaluation/configs/phase7-pass1.example.json` 记录建议的正式 test split 参数。正式成绩应固定 provider、model、temperature、资源限制、数据摘要、Agent commit 和镜像摘要后再比较。
 
-为避免 `run_manifest.json` 记录的 commit 与实际 Agent 代码不一致，完整运行命令要求 zzcode 仓库没有已修改或未跟踪文件；请先提交 Phase 6 代码，再启动正式评测。
+为避免 `run_manifest.json` 记录的 commit 与实际 Agent 代码不一致，完整运行命令要求 zzcode 仓库没有已修改或未跟踪文件；请先提交 Evaluation 代码，再启动正式评测。
 
 Phase 5 Gate 已使用真实 provider 在临时 Git Repo Task 上执行 smoke：Agent 完成工具调用后生成非空 `Prediction`，同时落盘 steps、latency 和 token usage。该 smoke 只认证 Adapter 链路，不属于正式数据集成绩；正式 Pass@1 从 Phase 6 的 verified tasks 开始。
 

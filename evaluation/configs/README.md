@@ -2,7 +2,7 @@
 
 本目录保存 provider、模型、资源限制、执行环境和 release gate 配置。
 
-Phase 5 提供 `agent-zzcode.example.json`；Phase 6 提供 `phase6-vertical-slice.example.json`，记录两任务完整流水线和 Gold 重复门禁参数。复制后必须显式填写真实 provider 和 model；配置拒绝 Fake、Stub、Mock 模型名称，并强制 Agent tool plane 禁网。
+Phase 5 提供 `agent-zzcode.example.json`；Phase 6 的 `phase6-vertical-slice.example.json` 保留两任务试运行配置；Phase 7 提供 `phase7-pass1.example.json`，固定正式 `test` split、完整流水线和 Gold 重复门禁参数。复制后必须显式填写真实 provider 和 model；配置拒绝 Fake、Stub、Mock 模型名称，并强制 Agent tool plane 禁网。
 
 配置文件禁止保存 API Key 或其他凭据。密钥只能通过环境变量传入：
 

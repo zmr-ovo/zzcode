@@ -1,0 +1,8 @@
+{
+  "instance_id": "ZZCODE-BUG-008",
+  "task_type": "security_fix",
+  "scope": "single_file",
+  "subsystem": "shell_security",
+  "difficulty": "easy",
+  "source": "curated_regression"
+}

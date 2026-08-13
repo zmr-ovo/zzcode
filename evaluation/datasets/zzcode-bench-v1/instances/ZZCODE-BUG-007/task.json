@@ -1,0 +1,8 @@
+{
+  "instance_id": "ZZCODE-BUG-007",
+  "task_type": "security_fix",
+  "scope": "multi_file",
+  "subsystem": "workspace_security",
+  "difficulty": "medium",
+  "source": "curated_regression"
+}

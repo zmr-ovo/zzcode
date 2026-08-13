@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the Phase 6 Null -> Gold x3 -> real Agent -> Grader pipeline."""
+"""Run the internal Null -> Gold x3 -> real Agent -> Grader pipeline."""
 
 from __future__ import annotations
 
@@ -18,12 +18,13 @@ from zzcode.evaluation import (
     ResourceLimits,
     VerticalSliceRunner,
     ZZCodeAgentAdapter,
+    render_run_directory,
 )
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="执行 Phase 6 两项 Repo Task 的完整纵向切片评测。"
+        description="执行 Internal Repo Task 的完整纵向切片评测。"
     )
     parser.add_argument(
         "--public-root",
@@ -82,9 +83,10 @@ def main() -> int:
     artifact_root.mkdir(parents=True, exist_ok=True)
 
     dataset = EvaluationDataset.load(public_root, private_root, args.split)
+    dataset.verify_lock()
     task_repos = {task.repo for task in dataset.tasks()}
     if len(task_repos) != 1:
-        raise SystemExit("Phase 6 runner currently requires one repository per run")
+        raise SystemExit("internal runner currently requires one repository per run")
     repo_name = next(iter(task_repos))
     limits = ResourceLimits(
         cpus=args.cpus,
@@ -122,12 +124,14 @@ def main() -> int:
         test_timeout_seconds=args.test_timeout_seconds,
     )
     paths = runner.run(config, run_id=args.run_id)
+    report_path = render_run_directory(paths.root)
     payload = json.loads(paths.results.read_text(encoding="utf-8"))
     print(
         json.dumps(
             {
                 "run_id": paths.root.name,
                 "run_root": str(paths.root),
+                "report": str(report_path),
                 "summary": payload["summary"],
             },
             ensure_ascii=False,
