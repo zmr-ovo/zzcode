@@ -1287,16 +1287,6 @@ Gate：Gold 均 FULL、Null 均非 FULL；Agent 无论成败都有完整 artifac
 
 Phase 6.5 不改变 Null/Gold/F2P/P2P 评分口径，也不引入 Evaluator–Optimizer。真实模型验收继续使用 Phase 6 的两项 Repo Task，目标为两题均产生 patch 和完整 verify、无 EMPTY_PATCH，且至少一题 FULL。
 
-#### Phase 6.5.1 通用修正
-
-首次真实模型结果为 BUG-001 NO、BUG-002 PARTIAL，说明门禁能够保存 patch 并阻止未验证完成，但仅靠文字提醒不足以保证执行路径确认和多项要求闭环。因此增加以下通用机制，不写入任何题目答案或隐藏测试信息：
-
-1. 结构化 Coding Plan：编辑前记录原子要求和已确认的入口到 helper/provider 调用路径；
-2. 要求证据门禁：每项要求必须在最后修改后重新标记完成；
-3. 读取区间覆盖：同版本文件只返回未读取的新行，不能用调整 `end` 绕过；
-4. 阶段工具锁：修改后六次有效读取仍无进展，暂停探索直到修改或 verify；
-5. Git Patch Digest：验证和 Prediction 使用完全相同的 patch 内容计算摘要，忽略 Git ignored 测试产物。
-
 ### Phase 7：扩展到 8 个 Internal Verified Tasks（Day 8）
 
 完成 dev/test split、Dataset Card、任务复核并冻结 `zzcode-bench-v1` digest，运行第一次正式 Pass@1。

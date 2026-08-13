@@ -21,7 +21,6 @@ from .context_manager import ContextManager
 from .run_store import RunStore
 from .task_state import TaskState
 from .intent import TaskIntent, TaskIntentClassifier
-from .git_patch import GitPatchError, collect_worktree_patch_state
 from .verification import (
     VerificationConfig,
     VerificationResult,
@@ -169,7 +168,6 @@ class ZZCode:
         self.verification_runner = verification_runner or local_runner(self.root, self.shell_env())
         self._task_baseline_snapshot = {}
         self._read_coverage = {}
-        self._pending_read_ranges = None
 
     def _load_verification_config(self, value):
         if isinstance(value, VerificationConfig):
@@ -386,8 +384,6 @@ class ZZCode:
                 '<tool name="patch_file" path="binary_search.py"><old_text>return -1</old_text><new_text>return mid</new_text></tool>',
                 '<tool>{"name":"run_shell","args":{"command":"uv run --with pytest python -m pytest -q","timeout":20}}</tool>',
                 '<tool>{"name":"verify","args":{"profile":"test","selectors":[],"timeout":120}}</tool>',
-                '<tool>{"name":"set_coding_plan","args":{"requirements":["required behavior"],"execution_path":["named entrypoint","confirmed called helper"]}}</tool>',
-                '<tool>{"name":"mark_requirement_complete","args":{"index":1,"evidence":"implemented in module function"}}</tool>',
                 "<final>Done.</final>",
             ]
         )
@@ -412,11 +408,9 @@ class ZZCode:
             - Before writing tests for existing code, read the implementation first.
             - When writing tests, match the current implementation unless the user explicitly asked you to change the code.
             - New files should be complete and runnable, including obvious imports.
-            - Do not repeat the same tool call with the same arguments if it did not help. Choose a different useful action; return final only when the task is actually complete.
+            - Do not repeat the same tool call with the same arguments if it did not help. Choose a different tool or return a final answer.
             - Required tool arguments must not be empty. Do not call read_file, write_file, patch_file, run_shell, or delegate with args={{}}.
             - In Coding mode, use verify for public tests after the latest code change. run_shell does not satisfy the completion gate.
-            - In Coding mode, confirm the real execution path and record atomic requirements with set_coding_plan before editing.
-            - Treat every clause in the user request as a requirement. Mark each complete with concrete evidence after the latest edit.
 
             Tools:
             {tool_text}
@@ -656,14 +650,6 @@ class ZZCode:
         return changed_paths, summaries
 
     def current_patch_state(self):
-        try:
-            patch, paths = collect_worktree_patch_state(self.root)
-        except GitPatchError:
-            patch = None
-        if patch is not None:
-            if not patch.strip():
-                return "", []
-            return hashlib.sha256(patch.encode("utf-8")).hexdigest(), paths
         current = self.capture_workspace_snapshot()
         changed, _ = self.diff_workspace_snapshots(self._task_baseline_snapshot, current)
         if not changed:
@@ -671,47 +657,6 @@ class ZZCode:
         payload = [(path, current.get(path, "<deleted>")) for path in changed]
         digest = hashlib.sha256(json.dumps(payload, sort_keys=True).encode("utf-8")).hexdigest()
         return digest, changed
-
-    @staticmethod
-    def _merge_line_ranges(ranges):
-        merged = []
-        for start, end in sorted(ranges):
-            if not merged or start > merged[-1][1] + 1:
-                merged.append([start, end])
-            else:
-                merged[-1][1] = max(merged[-1][1], end)
-        return [(start, end) for start, end in merged]
-
-    def unread_file_ranges(self, path, start, end):
-        relative = path.relative_to(self.root).as_posix()
-        version = hashlib.sha256(path.read_bytes()).hexdigest()
-        state = self._read_coverage.get(relative)
-        if not state or state["version"] != version:
-            state = {"version": version, "ranges": []}
-            self._read_coverage[relative] = state
-        gaps = []
-        cursor = start
-        for covered_start, covered_end in self._merge_line_ranges(state["ranges"]):
-            if covered_end < cursor:
-                continue
-            if covered_start > end:
-                break
-            if covered_start > cursor:
-                gaps.append((cursor, min(end, covered_start - 1)))
-            cursor = max(cursor, covered_end + 1)
-            if cursor > end:
-                break
-        if cursor <= end:
-            gaps.append((cursor, end))
-        return gaps
-
-    def record_file_ranges(self, path, ranges):
-        relative = path.relative_to(self.root).as_posix()
-        version = hashlib.sha256(path.read_bytes()).hexdigest()
-        state = self._read_coverage.setdefault(relative, {"version": version, "ranges": []})
-        if state["version"] != version:
-            state.update({"version": version, "ranges": []})
-        state["ranges"] = self._merge_line_ranges([*state["ranges"], *ranges])
 
     def validate_verification_args(self, args):
         if self.verification_config is None:
@@ -764,8 +709,6 @@ class ZZCode:
         if self.current_task_state:
             progress = self.current_task_state.coding_progress
             progress.last_verification = result.to_dict()
-            progress.consecutive_read_only = 0
-            progress.exploration_locked = False
             if result.passed and result.scope == "full" and digest:
                 progress.verified_patch_digest = digest
                 progress.phase = "READY"
@@ -784,10 +727,6 @@ class ZZCode:
         progress.current_patch_digest = digest
         progress.changed_paths = changed
         failures = []
-        if not progress.requirements or not progress.execution_path:
-            failures.append("a structured coding plan with a confirmed execution path is required")
-        elif any(not item.get("completed") for item in progress.requirements):
-            failures.append("every planned requirement must be completed with evidence")
         if not digest:
             failures.append("current patch is empty")
         verification = progress.last_verification
@@ -806,46 +745,6 @@ class ZZCode:
         progress.unmet_gates = list(dict.fromkeys(failures))
         return progress.unmet_gates
 
-    def set_coding_plan(self, args):
-        progress = self.current_task_state.coding_progress
-        requirements = [str(item).strip() for item in args["requirements"]]
-        progress.requirements = [
-            {"index": index, "text": text, "completed": False, "evidence": ""}
-            for index, text in enumerate(requirements, start=1)
-        ]
-        progress.execution_path = [str(item).strip() for item in args["execution_path"]]
-        progress.plan_revision += 1
-        progress.phase = "MODIFY"
-        self.emit_trace(
-            self.current_task_state,
-            "coding_plan_recorded",
-            {
-                "plan_revision": progress.plan_revision,
-                "requirements": progress.requirements,
-                "execution_path": progress.execution_path,
-            },
-        )
-        return json.dumps(
-            {
-                "plan_revision": progress.plan_revision,
-                "requirements": progress.requirements,
-                "execution_path": progress.execution_path,
-            },
-            ensure_ascii=False,
-        )
-
-    def mark_requirement_complete(self, args):
-        progress = self.current_task_state.coding_progress
-        item = progress.requirements[int(args["index"]) - 1]
-        item["completed"] = True
-        item["evidence"] = str(args["evidence"]).strip()
-        self.emit_trace(
-            self.current_task_state,
-            "coding_requirement_completed",
-            {"index": item["index"], "text": item["text"], "evidence": item["evidence"]},
-        )
-        return f"requirement {item['index']} marked complete: {item['text']}"
-
     def coding_runtime_notice(self, tool_steps):
         state = self.current_task_state
         if state is None or state.effective_mode != "coding":
@@ -853,32 +752,12 @@ class ZZCode:
         progress = state.coding_progress
         remaining = max(0, self.max_steps - tool_steps)
         notices = [f"Coding phase: {progress.phase}. Tool steps remaining: {remaining}."]
-        if not progress.requirements:
-            notices.append(
-                "Before editing, inspect the named entrypoint, confirm the actual called helper/provider path, "
-                "then call set_coding_plan with atomic acceptance requirements and that execution path."
-            )
-        else:
-            checklist = ", ".join(
-                f"{item['index']}:{'done' if item.get('completed') else 'pending'} {item['text']}"
-                for item in progress.requirements
-            )
-            notices.append("Requirement checklist: " + checklist)
-            notices.append("Confirmed execution path: " + " -> ".join(progress.execution_path))
-            if any(not item.get("completed") for item in progress.requirements):
-                notices.append(
-                    "Implement every pending item, then mark each complete with concrete evidence before final."
-                )
         if progress.consecutive_read_only >= 6 and not progress.changed_paths:
             notices.append("You have enough read-only context; make the smallest justified code change now.")
         if tool_steps >= self.max_steps / 2 and not progress.changed_paths:
             notices.append("More than half the tool budget is used without a patch; prioritize modification.")
         if remaining <= 6:
             notices.append("Prioritize modification, verify, and repair. A successful full verify is required before final.")
-        if progress.exploration_locked:
-            notices.append(
-                "Exploration is locked after excessive post-mutation reads. Use patch_file/write_file or verify now."
-            )
         return "\n".join(notices)
 
     def create_checkpoint(self, task_state, user_message, trigger):
@@ -1070,7 +949,6 @@ class ZZCode:
         self.current_run_dir = self.run_store.start_run(task_state)
         self._task_baseline_snapshot = self.capture_workspace_snapshot()
         self._read_coverage = {}
-        self._pending_read_ranges = None
         self.emit_trace(
             task_state,
             "run_started",
@@ -1210,7 +1088,7 @@ class ZZCode:
                 metadata = dict(self._last_tool_result_metadata or {})
                 progress = task_state.coding_progress
                 if task_state.effective_mode == "coding":
-                    if name in {"write_file", "patch_file", "run_shell"} and metadata.get("workspace_changed"):
+                    if name in {"write_file", "patch_file"} and metadata.get("workspace_changed"):
                         digest, changed = self.current_patch_state()
                         progress.phase = "VERIFY"
                         progress.changed_paths = changed
@@ -1218,26 +1096,8 @@ class ZZCode:
                         progress.current_patch_digest = digest
                         progress.verified_patch_digest = ""
                         progress.consecutive_read_only = 0
-                        progress.exploration_locked = False
-                        for requirement in progress.requirements:
-                            requirement["completed"] = False
-                            requirement["evidence"] = ""
-                    elif (
-                        name in {"list_files", "read_file", "search", "delegate"}
-                        and metadata.get("tool_status") == "ok"
-                    ):
+                    elif name in {"list_files", "read_file", "search", "delegate"}:
                         progress.consecutive_read_only += 1
-                        if progress.current_patch_digest and progress.consecutive_read_only >= 6:
-                            if not progress.exploration_locked:
-                                progress.exploration_locked = True
-                                self.emit_trace(
-                                    task_state,
-                                    "coding_exploration_locked",
-                                    {
-                                        "consecutive_read_only": progress.consecutive_read_only,
-                                        "phase": progress.phase,
-                                    },
-                                )
                 self.record(
                     {
                         "role": "tool",
@@ -1501,38 +1361,6 @@ class ZZCode:
                 "task_mode_upgraded",
                 {"from": "general", "to": "coding", "trigger": name},
             )
-        if self.current_task_state is not None and self.current_task_state.effective_mode == "coding":
-            progress = self.current_task_state.coding_progress
-            if name in {"write_file", "patch_file"} and not progress.requirements:
-                self._last_tool_result_metadata = {
-                    "tool_status": "rejected",
-                    "tool_error_code": "coding_plan_required",
-                    "security_event_type": "",
-                    "risk_level": "high",
-                    "read_only": False,
-                    "affected_paths": [],
-                    "workspace_changed": False,
-                    "diff_summary": [],
-                }
-                return (
-                    "error: coding plan required before editing; inspect the actual execution path, then call "
-                    "set_coding_plan with atomic requirements and confirmed call steps"
-                )
-            if progress.exploration_locked and name in {"list_files", "read_file", "search", "delegate"}:
-                self._last_tool_result_metadata = {
-                    "tool_status": "rejected",
-                    "tool_error_code": "exploration_locked",
-                    "security_event_type": "",
-                    "risk_level": "low",
-                    "read_only": True,
-                    "affected_paths": [],
-                    "workspace_changed": False,
-                    "diff_summary": [],
-                }
-                return (
-                    "error: exploration locked after six post-mutation reads; continue with patch_file/write_file "
-                    "or run verify"
-                )
         try:
             self.validate_tool(name, args)
         except Exception as exc:
@@ -1563,12 +1391,7 @@ class ZZCode:
                 "workspace_changed": False,
                 "diff_summary": [],
             }
-            if name == "read_file":
-                return (
-                    "error: requested lines were already read at the current file version; inspect only unread "
-                    "lines, modify the code, or run verify"
-                )
-            return f"error: repeated identical tool call for {name}; choose a different useful action"
+            return f"error: repeated identical tool call for {name}; choose a different tool or return a final answer"
         if tool["risky"] and not self.approve(name, args):
             self._last_tool_result_metadata = {
                 "tool_status": "rejected",
@@ -1650,25 +1473,6 @@ class ZZCode:
             and self.current_task_state.effective_mode == "coding"
             and name in {"list_files", "read_file", "search"}
         ):
-            if name == "read_file":
-                path = self.path(args["path"])
-                gaps = self.unread_file_ranges(
-                    path, int(args.get("start", 1)), int(args.get("end", 200))
-                )
-                if not gaps:
-                    self.current_task_state.coding_progress.redundant_read_rejections += 1
-                    self.emit_trace(
-                        self.current_task_state,
-                        "redundant_read_rejected",
-                        {"name": name, "args": args, "reason": "range_already_covered"},
-                    )
-                    return True
-                self._pending_read_ranges = {
-                    "path": path.relative_to(self.root).as_posix(),
-                    "requested": [int(args.get("start", 1)), int(args.get("end", 200))],
-                    "ranges": gaps,
-                }
-                return False
             digest, _ = self.current_patch_state()
             signature = json.dumps({"name": name, "args": args}, sort_keys=True, ensure_ascii=True)
             if self._read_coverage.get(signature) == digest:
@@ -1739,12 +1543,6 @@ class ZZCode:
 
     def tool_verify(self, args):
         return toolkit.tool_verify(self, args)
-
-    def tool_set_coding_plan(self, args):
-        return toolkit.tool_set_coding_plan(self, args)
-
-    def tool_mark_requirement_complete(self, args):
-        return toolkit.tool_mark_requirement_complete(self, args)
 
     def tool_write_file(self, args):
         return toolkit.tool_write_file(self, args)
