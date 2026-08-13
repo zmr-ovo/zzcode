@@ -253,6 +253,11 @@ class ZZCodeAgentAdapter:
             "stop_reason": str(response.get("stop_reason", "")),
             "runtime_status": str(response.get("runtime_status", "")),
             "runtime_run_id": str(response.get("runtime_run_id", "")),
+            "task_mode": str(response.get("task_mode", "")),
+            "completion_gate_passed": bool(
+                response.get("completion_gate_passed", response.get("runtime_status") == "completed")
+            ),
+            "coding_progress": dict(response.get("coding_progress", {})),
         }
         final_answer = _redact(response.get("final_answer", "")) or None
         try:
@@ -297,15 +302,29 @@ class ZZCodeAgentAdapter:
             return InferenceOutcome(task, workspace, result, "", None)
 
         prediction = Prediction(task.instance_id, config.model, patch)
+        gate_passed = bool(
+            response.get("completion_gate_passed", response.get("runtime_status") == "completed")
+        )
+        failure = None
+        status = AgentRunStatus.COMPLETED
+        if not gate_passed:
+            status = AgentRunStatus.FAILED
+            failure = make_failure(
+                FailureType.AGENT_INTERRUPTED,
+                EvaluationStage.AGENT,
+                "Agent produced a patch but did not satisfy the Coding completion gate",
+                details={"stop_reason": metadata["stop_reason"]},
+            )
         result = self._result(
             task,
-            AgentRunStatus.COMPLETED,
+            status,
             started_at,
             duration,
             final_answer=final_answer,
             patch_generated=True,
             tool_steps=int(response.get("tool_steps", 0)),
             token_usage=response.get("token_usage", {}),
+            failure=failure,
             metadata=metadata,
         )
         return InferenceOutcome(task, workspace, result, patch, prediction)

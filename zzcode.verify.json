@@ -1,0 +1,19 @@
+{
+  "required_profile": "test",
+  "profiles": {
+    "test": {
+      "kind": "test",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests"
+      ],
+      "allow_selectors": true,
+      "timeout": 120
+    }
+  }
+}

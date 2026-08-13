@@ -93,3 +93,4 @@ python scripts/run_internal_eval.py --task ZZCODE-BUG-001 --config evaluation/co
 - [x] Phase 3 已完成：本地干净 Workspace、严格 patch/safety、私有测试注入、pytest/JUnit、F2P/P2P Grader 和 Golden Harness 已实现。
 - [x] Phase 4 已完成：固定 `zzcode-py313` image；评分容器禁网、只读 rootfs、非 root、CPU/内存/PID/timeout 限制、固定 mount 目标与 source allowlist；Gold 连续三次一致且 timeout 后无残留容器。
 - [x] Phase 5 已完成：真实 `ZZCodeAgentAdapter`、显式 provider/model、独立 inference workspace、禁网 Docker tool plane、进程组 timeout、Git patch/Prediction、token/step/latency 与明确错误分类已实现；不存在 Fake fallback，Grader 只依赖 patch。
+- [x] Phase 6.5 已完成：模型语义模式分类、Evaluation 强制 Coding、仓库级 verify profile、CodingProgress、patch digest 完成门禁和公开/Harness/private 测试边界已实现；历史 base 的公开 profile 为 99 passed、1 个已知陈旧文档测试 deselected。

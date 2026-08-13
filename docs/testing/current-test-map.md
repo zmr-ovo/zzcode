@@ -11,6 +11,8 @@
 - `FakeModelClient` 同时承担确定性测试桩和旧 benchmark 的“预写答案”。迁移时两者必须分开：普通 unit/integration 可使用不包含任务答案的 `DeterministicModelStub`；正式 Repo Task 评测不得使用 scripted/FakeModel 输出。
 - 机器可读的逐项结果、耗时和失败信息见 `artifacts/test-baseline.json`。
 
+> Phase 6.5 更新：旧欢迎页断言已按当前 CLI 合同更新；引用未入库 reviewer skeleton 的测试已迁为 `evaluation/tests/` 下的现行 Evaluation 文档检查。当前 `tests/` 为 Agent 公开 verify 范围，已达到 116/116 通过。Phase 0 数据仍保留为历史基线。
+
 ### 已知失败
 
 | 测试 | 当前现象 | Phase 0 处理 |

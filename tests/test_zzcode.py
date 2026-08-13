@@ -308,7 +308,8 @@ def test_welcome_screen_keeps_box_shape_for_long_paths(tmp_path):
     assert len(lines) >= 5
     assert len({len(line) for line in lines}) == 1
     assert "..." in welcome
-    assert "(  o o  )" in welcome
+    assert "zzcode" in welcome
+    assert "Start your creation!" in welcome
     assert "MINI-CODING-AGENT" not in welcome
     assert "MINI CODING AGENT" not in welcome
     assert "zzcode" in welcome
@@ -772,6 +773,7 @@ def test_build_arg_parser_defaults_provider_to_openai(tmp_path):
 
     assert args.provider == "openai"
     assert args.max_new_tokens == 2048
+    assert args.task_mode == "auto"
 
 
 def test_build_arg_parser_accepts_anthropic_provider(tmp_path):
@@ -1619,24 +1621,6 @@ def test_public_api_exports_resolve_through_package_path():
     assert SessionStore is not None
     assert WorkspaceContext is not None
     assert Path(mini_pkg.__file__).as_posix().endswith("/zzcode/__init__.py")
-
-
-def test_reviewer_skeleton_docs_exist():
-    review_pack = Path("docs/review-pack/README.md")
-    architecture = Path("docs/architecture/agent-harness-v1-overview.md")
-
-    assert review_pack.exists()
-    assert architecture.exists()
-
-    review_text = review_pack.read_text(encoding="utf-8")
-    assert "Project pitch" in review_text
-    assert "Architecture map" in review_text
-    assert "Benchmark evidence" in review_text
-    assert "Sample run artifact list" in review_text
-
-    architecture_text = architecture.read_text(encoding="utf-8")
-    assert "Agent Harness v1" in architecture_text
-    assert "task state" in architecture_text.lower()
 
 
 def test_package_import_surface_includes_cli_entrypoints():

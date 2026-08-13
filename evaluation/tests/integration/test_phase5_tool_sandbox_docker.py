@@ -36,3 +36,22 @@ def test_agent_tool_container_can_edit_workspace_but_has_no_network(tmp_path):
     assert edit.returncode == 0
     assert source.read_text(encoding="utf-8") == "VALUE = 2\n"
     assert network.returncode != 0
+
+
+def test_agent_verify_argv_runs_without_shell(tmp_path):
+    workspace = tmp_path / "workspace"
+    tests = workspace / "tests"
+    tests.mkdir(parents=True)
+    (tests / "test_public.py").write_text("def test_public():\n    assert True\n", encoding="utf-8")
+    sandbox = DockerToolSandbox(
+        workspace,
+        image=os.environ.get("ZZCODE_EVAL_IMAGE", "zzcode-eval-py313:phase4"),
+    )
+
+    result = sandbox.run_argv(
+        ["python", "-m", "pytest", "-q", "-p", "no:cacheprovider", "tests"],
+        30,
+    )
+
+    assert result.returncode == 0
+    assert "1 passed" in result.stdout

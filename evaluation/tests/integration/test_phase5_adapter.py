@@ -91,6 +91,30 @@ response_path.write_text(json.dumps({
     assert "phase5-secret-must-not-leak" not in repr(request)
 
 
+def test_adapter_keeps_patch_for_grading_when_completion_gate_failed(tmp_path, monkeypatch):
+    workspace = _workspace(tmp_path)
+    script = tmp_path / "gate_failed_worker.py"
+    _write_worker(
+        script,
+        """(workspace / 'value.py').write_text('VALUE = 2\\n', encoding='utf-8')
+response_path.write_text(json.dumps({
+    'kind': 'completed', 'final_answer': 'gate failed', 'tool_steps': 2, 'attempts': 3,
+    'stop_reason': 'completion_gate_failed', 'runtime_status': 'stopped',
+    'runtime_run_id': 'run-gate-failed', 'completion_gate_passed': False,
+    'coding_progress': {'unmet_gates': ['verification required']}, 'token_usage': {}
+}), encoding='utf-8')
+""",
+    )
+    adapter = _adapter_with_worker(monkeypatch, script)
+
+    outcome = adapter.run(_task(), workspace, _config(), tmp_path / "artifacts")
+
+    assert outcome.agent_result.status == AgentRunStatus.FAILED
+    assert outcome.agent_result.failure.failure_type == FailureType.AGENT_INTERRUPTED
+    assert outcome.prediction is not None
+    assert "+VALUE = 2" in outcome.patch
+
+
 def test_adapter_classifies_empty_patch(tmp_path, monkeypatch):
     workspace = _workspace(tmp_path)
     script = tmp_path / "empty_worker.py"

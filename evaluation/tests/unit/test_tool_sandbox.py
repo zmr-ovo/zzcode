@@ -59,3 +59,29 @@ def test_tool_sandbox_rejects_unresolved_image_before_container_create(tmp_path,
 
     with pytest.raises(ArtifactError, match="immutable tool image"):
         sandbox.run("true", timeout_seconds=1)
+
+
+def test_tool_sandbox_run_argv_does_not_use_shell(tmp_path, monkeypatch):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    sandbox = DockerToolSandbox(workspace, image="zzcode-tool:test")
+    calls = []
+
+    def fake_docker(args, *, timeout):
+        calls.append(args)
+        if args[:2] == ["image", "inspect"]:
+            return _completed(args, stdout="sha256:" + "1" * 64 + "\n")
+        if args[0] == "create":
+            return _completed(args, stdout="container-id\n")
+        if args[0] == "inspect":
+            return _completed(args, stdout=json.dumps([{"State": {"OOMKilled": False}}]))
+        return _completed(args)
+
+    monkeypatch.setattr(sandbox, "_docker", fake_docker)
+    monkeypatch.setattr(subprocess, "run", lambda args, **kwargs: _completed(args, stdout="1 passed\n"))
+
+    sandbox.run_argv(["python", "-m", "pytest", "-q", "tests"], 30)
+
+    create = next(args for args in calls if args[0] == "create")
+    assert create[create.index("--entrypoint") + 1] == "python"
+    assert create[-4:] == ["-m", "pytest", "-q", "tests"]

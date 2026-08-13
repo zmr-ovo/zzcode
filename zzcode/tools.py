@@ -32,6 +32,11 @@ BASE_TOOL_SPECS = {
         "risky": True,
         "description": "Run a shell command in the repo root.",
     },
+    "verify": {
+        "schema": {"profile": "str='test'", "selectors": "list[str]=[]", "timeout": "int=120"},
+        "risky": True,
+        "description": "Run a configured public-test verification profile for the current patch.",
+    },
     "write_file": {
         "schema": {"path": "str", "content": "str"},
         "risky": True,
@@ -55,6 +60,7 @@ TOOL_EXAMPLES = {
     "read_file": '<tool>{"name":"read_file","args":{"path":"README.md","start":1,"end":80}}</tool>',
     "search": '<tool>{"name":"search","args":{"pattern":"binary_search","path":"."}}</tool>',
     "run_shell": '<tool>{"name":"run_shell","args":{"command":"uv run --with pytest python -m pytest -q","timeout":20}}</tool>',
+    "verify": '<tool>{"name":"verify","args":{"profile":"test","selectors":[],"timeout":120}}</tool>',
     "write_file": '<tool name="write_file" path="binary_search.py"><content>def binary_search(nums, target):\n    return -1\n</content></tool>',
     "patch_file": '<tool name="patch_file" path="binary_search.py"><old_text>return -1</old_text><new_text>return mid</new_text></tool>',
     "delegate": '<tool>{"name":"delegate","args":{"task":"inspect README.md","max_steps":3}}</tool>',
@@ -118,6 +124,10 @@ def validate_tool(agent, name, args):
         timeout = int(args.get("timeout", 20))
         if timeout < 1 or timeout > 120:
             raise ValueError("timeout must be in [1, 120]")
+        return
+
+    if name == "verify":
+        agent.validate_verification_args(args)
         return
 
     if name == "write_file":
@@ -239,6 +249,10 @@ def tool_run_shell(agent, args):
     ).strip()
 
 
+def tool_verify(agent, args):
+    return agent.execute_verification(args)
+
+
 def tool_write_file(agent, args):
     path = agent.path(args["path"])
     content = str(args["content"])
@@ -284,6 +298,7 @@ def tool_delegate(agent, args):
         depth=agent.depth + 1,
         max_depth=agent.max_depth,
         read_only=True,
+        task_mode="general",
         secret_env_names=agent.secret_env_names,
         shell_env_allowlist=agent.shell_env_allowlist,
     )
@@ -299,6 +314,7 @@ _TOOL_RUNNERS = {
     "read_file": tool_read_file,
     "search": tool_search,
     "run_shell": tool_run_shell,
+    "verify": tool_verify,
     "write_file": tool_write_file,
     "patch_file": tool_patch_file,
 }

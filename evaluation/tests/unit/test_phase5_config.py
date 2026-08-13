@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 from zzcode.evaluation import AgentRunConfig
@@ -67,3 +69,13 @@ def test_adapter_module_has_no_fake_model_fallback():
 
     source = inspect.getsource(ZZCodeAgentAdapter)
     assert "FakeModelClient(" not in source
+
+
+def test_current_evaluation_guides_exist():
+    implementation = Path("docs/testing/zzcode-evaluation-refactor-plan.md")
+    usage = Path("evaluation/README.md")
+
+    assert implementation.is_file()
+    assert usage.is_file()
+    assert "Phase 6.5" in implementation.read_text(encoding="utf-8")
+    assert "Coding 执行闭环" in usage.read_text(encoding="utf-8")

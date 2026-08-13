@@ -65,6 +65,20 @@ def run_request(request_path: Path, response_path: Path) -> int:
     model = build_real_model_client(config)
     workspace_context = WorkspaceContext.build(workspace)
     runtime_root = artifact_dir / "runtime"
+    environment_path = (
+        Path(__file__).resolve().parents[3]
+        / "evaluation"
+        / "environments"
+        / task.environment_id
+        / "environment.json"
+    )
+    if not environment_path.is_file():
+        raise RuntimeError(f"evaluation environment config does not exist: {task.environment_id}")
+    environment = json.loads(environment_path.read_text(encoding="utf-8"))
+    verification_config = environment.get("agent_verification")
+    if not isinstance(verification_config, dict):
+        raise RuntimeError(f"evaluation environment has no agent_verification: {task.environment_id}")
+    tool_sandbox = DockerToolSandbox(workspace, image=config.tool_image)
     agent = ZZCode(
         model_client=model,
         workspace=workspace_context,
@@ -75,8 +89,10 @@ def run_request(request_path: Path, response_path: Path) -> int:
         max_new_tokens=config.max_new_tokens,
         secret_env_names=_PROVIDER_SECRET_NAMES,
         shell_env_allowlist=DEFAULT_SHELL_ENV_ALLOWLIST,
+        task_mode="coding",
+        verification_config=verification_config,
+        verification_runner=tool_sandbox.run_argv,
     )
-    tool_sandbox = DockerToolSandbox(workspace, image=config.tool_image)
     agent.tools["run_shell"]["run"] = tool_sandbox.run_args
     started = time.monotonic()
     try:
@@ -106,6 +122,7 @@ def run_request(request_path: Path, response_path: Path) -> int:
         return 21
 
     task_state = agent.current_task_state
+    gate_failures = agent.completion_gate_failures()
     trace_path = agent.run_store.trace_path(task_state)
     write_json_atomic(
         response_path,
@@ -118,6 +135,9 @@ def run_request(request_path: Path, response_path: Path) -> int:
             "stop_reason": task_state.stop_reason,
             "runtime_status": task_state.status,
             "runtime_run_id": task_state.run_id,
+            "task_mode": task_state.effective_mode,
+            "completion_gate_passed": task_state.status == "completed" and not bool(gate_failures),
+            "coding_progress": task_state.coding_progress.to_dict(),
             "token_usage": _token_usage(trace_path),
         },
         overwrite=False,

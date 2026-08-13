@@ -1274,6 +1274,19 @@ Gate：Gold 均 FULL、Null 均非 FULL；Agent 无论成败都有完整 artifac
 - 本地禁网 Docker Gate 已验证两题 Null 非 FULL、Gold 各连续三次 FULL，镜像摘要稳定；
 - 真实模型出站运行需要使用者明确授权 Provider 数据外发和 API 成本，未授权时不伪造正式 Agent 成绩。
 
+### Phase 6.5：自动模式、Verify 与完成门禁
+
+实现顺序：
+
+1. 普通 CLI 默认使用模型语义分类选择 General/Coding，Evaluation 强制 Coding；
+2. 增加仓库级 verification profile 和不经过 shell 的 `verify(profile, selectors, timeout)`；
+3. 增加 CodingProgress，记录阶段、修改、验证、重复读取和门禁状态；
+4. 将完整 verify 与当前 patch digest 绑定，任何后续修改都会使旧验证失效；
+5. Coding final 必须通过“非空 patch + 最后修改后的完整公开测试”门禁；
+6. `tests/`、`evaluation/tests/`、private F2P/P2P 分别承担产品自检、Harness 自检和最终隐藏评分。
+
+Phase 6.5 不改变 Null/Gold/F2P/P2P 评分口径，也不引入 Evaluator–Optimizer。真实模型验收继续使用 Phase 6 的两项 Repo Task，目标为两题均产生 patch 和完整 verify、无 EMPTY_PATCH，且至少一题 FULL。
+
 ### Phase 7：扩展到 8 个 Internal Verified Tasks（Day 8）
 
 完成 dev/test split、Dataset Card、任务复核并冻结 `zzcode-bench-v1` digest，运行第一次正式 Pass@1。

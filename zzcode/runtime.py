@@ -10,6 +10,7 @@ import re
 import textwrap
 import uuid
 import hashlib
+import subprocess
 import time
 from dataclasses import dataclass
 from datetime import datetime
@@ -19,6 +20,14 @@ from . import memory as memorylib
 from .context_manager import ContextManager
 from .run_store import RunStore
 from .task_state import TaskState
+from .intent import TaskIntent, TaskIntentClassifier
+from .verification import (
+    VerificationConfig,
+    VerificationResult,
+    local_runner,
+    parse_test_counts,
+    validate_selectors,
+)
 from . import tools as toolkit
 from .workspace import IGNORED_PATH_NAMES, MAX_HISTORY, WorkspaceContext, clip, now
 
@@ -101,6 +110,9 @@ class ZZCode:
         shell_env_allowlist=None,
         secret_env_names=None,
         feature_flags=None,
+        task_mode="auto",
+        verification_config=None,
+        verification_runner=None,
     ):
         self.model_client = model_client
         self.workspace = workspace
@@ -112,6 +124,9 @@ class ZZCode:
         self.depth = depth
         self.max_depth = max_depth
         self.read_only = read_only
+        if task_mode not in {"auto", "general", "coding"}:
+            raise ValueError("task_mode must be auto, general, or coding")
+        self.task_mode = task_mode
         self.shell_env_allowlist = tuple(shell_env_allowlist or DEFAULT_SHELL_ENV_ALLOWLIST)
         self.secret_env_names = {str(name).upper() for name in (secret_env_names or ())}
         self.feature_flags = dict(DEFAULT_FEATURE_FLAGS)
@@ -149,6 +164,40 @@ class ZZCode:
             "workspace_changed": False,
             "prefix_changed": False,
         }
+        self.verification_config = self._load_verification_config(verification_config)
+        self.verification_runner = verification_runner or local_runner(self.root, self.shell_env())
+        self._task_baseline_snapshot = {}
+        self._read_coverage = {}
+
+    def _load_verification_config(self, value):
+        if isinstance(value, VerificationConfig):
+            return value
+        if isinstance(value, dict):
+            return VerificationConfig.from_dict(value)
+        path = self.root / "zzcode.verify.json"
+        if path.is_file():
+            return VerificationConfig.from_file(path)
+        return None
+
+    def classify_task_intent(self, user_message):
+        if self.task_mode != "auto":
+            return TaskIntent(
+                mode=self.task_mode,
+                confidence="high",
+                reason="mode explicitly selected by the caller",
+                source="evaluation_forced" if self.task_mode == "coding" else "explicit",
+            )
+        # FakeModelClient is a deterministic unit-test helper, never a formal
+        # classifier. Avoid consuming scripted action outputs in legacy tests.
+        from .models import FakeModelClient
+
+        if isinstance(self.model_client, FakeModelClient):
+            return TaskIntent("general", "low", "test model does not support intent classification", "fallback")
+        summary = str(self.memory.to_dict().get("working", {}).get("task_summary", ""))
+        try:
+            return TaskIntentClassifier(self.model_client).classify(user_message, summary)
+        except Exception as exc:
+            return TaskIntent("general", "low", f"classification failed: {exc}", "fallback")
 
     @classmethod
     def from_session(cls, model_client, workspace, session_store, session_id, **kwargs):
@@ -334,6 +383,7 @@ class ZZCode:
                 '<tool name="write_file" path="binary_search.py"><content>def binary_search(nums, target):\n    return -1\n</content></tool>',
                 '<tool name="patch_file" path="binary_search.py"><old_text>return -1</old_text><new_text>return mid</new_text></tool>',
                 '<tool>{"name":"run_shell","args":{"command":"uv run --with pytest python -m pytest -q","timeout":20}}</tool>',
+                '<tool>{"name":"verify","args":{"profile":"test","selectors":[],"timeout":120}}</tool>',
                 "<final>Done.</final>",
             ]
         )
@@ -360,6 +410,7 @@ class ZZCode:
             - New files should be complete and runnable, including obvious imports.
             - Do not repeat the same tool call with the same arguments if it did not help. Choose a different tool or return a final answer.
             - Required tool arguments must not be empty. Do not call read_file, write_file, patch_file, run_shell, or delegate with args={{}}.
+            - In Coding mode, use verify for public tests after the latest code change. run_shell does not satisfy the completion gate.
 
             Tools:
             {tool_text}
@@ -598,6 +649,117 @@ class ZZCode:
                 summaries.append(f"modified:{path}")
         return changed_paths, summaries
 
+    def current_patch_state(self):
+        current = self.capture_workspace_snapshot()
+        changed, _ = self.diff_workspace_snapshots(self._task_baseline_snapshot, current)
+        if not changed:
+            return "", []
+        payload = [(path, current.get(path, "<deleted>")) for path in changed]
+        digest = hashlib.sha256(json.dumps(payload, sort_keys=True).encode("utf-8")).hexdigest()
+        return digest, changed
+
+    def validate_verification_args(self, args):
+        if self.verification_config is None:
+            raise ValueError("missing repository verification config (zzcode.verify.json)")
+        profile_name = str(args.get("profile", self.verification_config.required_profile)).strip()
+        if profile_name not in self.verification_config.profiles:
+            raise ValueError(f"unknown verification profile: {profile_name}")
+        profile = self.verification_config.profiles[profile_name]
+        selectors = validate_selectors(args.get("selectors", []))
+        if selectors and not profile.allow_selectors:
+            raise ValueError(f"verification profile {profile_name!r} does not allow selectors")
+        timeout = int(args.get("timeout", profile.timeout))
+        if timeout < 1 or timeout > min(120, profile.timeout):
+            raise ValueError(f"timeout must be in [1, {min(120, profile.timeout)}]")
+
+    def execute_verification(self, args):
+        self.validate_verification_args(args)
+        config = self.verification_config
+        profile_name = str(args.get("profile", config.required_profile)).strip()
+        profile = config.profiles[profile_name]
+        selectors = validate_selectors(args.get("selectors", []))
+        timeout = int(args.get("timeout", profile.timeout))
+        digest, _ = self.current_patch_state()
+        try:
+            process = self.verification_runner([*profile.argv, *selectors], timeout)
+            stdout, stderr = process.stdout or "", process.stderr or ""
+            exit_code = int(process.returncode)
+            timed_out = False
+        except (subprocess.TimeoutExpired, TimeoutError) as exc:
+            stdout = str(getattr(exc, "stdout", "") or "")
+            stderr = str(getattr(exc, "stderr", "") or "")
+            exit_code = 124
+            timed_out = True
+        collected, passed, failed = parse_test_counts(stdout, stderr)
+        step = self.current_task_state.tool_steps if self.current_task_state else 0
+        result = VerificationResult(
+            profile=profile_name,
+            scope="full" if not selectors else "targeted",
+            selectors=selectors,
+            exit_code=exit_code,
+            timed_out=timed_out,
+            tests_collected=collected,
+            tests_passed=passed,
+            tests_failed=failed,
+            patch_digest=digest,
+            step=step,
+            stdout=clip(stdout, 3000),
+            stderr=clip(stderr, 3000),
+        )
+        if self.current_task_state:
+            progress = self.current_task_state.coding_progress
+            progress.last_verification = result.to_dict()
+            if result.passed and result.scope == "full" and digest:
+                progress.verified_patch_digest = digest
+                progress.phase = "READY"
+            else:
+                progress.verified_patch_digest = ""
+                progress.phase = "REPAIR"
+            self.emit_trace(self.current_task_state, "verification_completed", result.to_dict())
+        return json.dumps(result.to_dict(), ensure_ascii=False, sort_keys=True)
+
+    def completion_gate_failures(self):
+        state = self.current_task_state
+        if state is None or state.effective_mode != "coding":
+            return []
+        progress = state.coding_progress
+        digest, changed = self.current_patch_state()
+        progress.current_patch_digest = digest
+        progress.changed_paths = changed
+        failures = []
+        if not digest:
+            failures.append("current patch is empty")
+        verification = progress.last_verification
+        if not verification or verification.get("scope") != "full":
+            failures.append("a full verify(profile='test', selectors=[]) is required")
+        elif verification.get("timed_out"):
+            failures.append("the full verification timed out")
+        elif int(verification.get("tests_collected", 0)) < 1:
+            failures.append("the full verification collected no tests")
+        elif int(verification.get("exit_code", 1)) != 0:
+            failures.append("the full verification did not exit successfully")
+        if digest and progress.verified_patch_digest != digest:
+            failures.append("the current patch has not been successfully verified")
+        if verification and int(verification.get("step", 0)) <= progress.last_mutation_step:
+            failures.append("verification must run after the latest modification")
+        progress.unmet_gates = list(dict.fromkeys(failures))
+        return progress.unmet_gates
+
+    def coding_runtime_notice(self, tool_steps):
+        state = self.current_task_state
+        if state is None or state.effective_mode != "coding":
+            return ""
+        progress = state.coding_progress
+        remaining = max(0, self.max_steps - tool_steps)
+        notices = [f"Coding phase: {progress.phase}. Tool steps remaining: {remaining}."]
+        if progress.consecutive_read_only >= 6 and not progress.changed_paths:
+            notices.append("You have enough read-only context; make the smallest justified code change now.")
+        if tool_steps >= self.max_steps / 2 and not progress.changed_paths:
+            notices.append("More than half the tool budget is used without a patch; prioritize modification.")
+        if remaining <= 6:
+            notices.append("Prioritize modification, verify, and repair. A successful full verify is required before final.")
+        return "\n".join(notices)
+
     def create_checkpoint(self, task_state, user_message, trigger):
         state = self.checkpoint_state()
         current = self.current_checkpoint()
@@ -774,19 +936,38 @@ class ZZCode:
         这里就是最关键的入口。
         """
         run_started_at = time.monotonic()
+        intent = self.classify_task_intent(user_message)
         self.memory.set_task_summary(user_message)
         self.record({"role": "user", "content": user_message, "created_at": now()})
 
         task_state = TaskState.create(run_id=self.new_run_id(), task_id=self.new_task_id(), user_request=user_message)
+        task_state.requested_mode = self.task_mode
+        task_state.effective_mode = intent.mode
+        task_state.intent = intent.to_dict()
         task_state.resume_status = self.resume_state.get("status", CHECKPOINT_NONE_STATUS)
         self.current_task_state = task_state
         self.current_run_dir = self.run_store.start_run(task_state)
+        self._task_baseline_snapshot = self.capture_workspace_snapshot()
+        self._read_coverage = {}
         self.emit_trace(
             task_state,
             "run_started",
             {
                 "task_id": task_state.task_id,
                 "user_request": clip(user_message, 300),
+            },
+        )
+        self.emit_trace(
+            task_state,
+            "intent_classified" if intent.source != "fallback" else "intent_classification_failed",
+            {
+                "requested_mode": self.task_mode,
+                "effective_mode": intent.mode,
+                "confidence": intent.confidence,
+                "reason": intent.reason,
+                "source": intent.source,
+                "model": str(getattr(self.model_client, "model", self.model_client.__class__.__name__)),
+                **dict(getattr(self.model_client, "last_completion_metadata", {}) or {}),
             },
         )
 
@@ -806,6 +987,9 @@ class ZZCode:
             self.run_store.write_task_state(task_state)
             prompt_started_at = time.monotonic()
             prompt, prompt_metadata = self._build_prompt_and_metadata(user_message)
+            runtime_notice = self.coding_runtime_notice(tool_steps)
+            if runtime_notice:
+                prompt += "\n\nRuntime Notice:\n" + runtime_notice
             self.emit_trace(
                 task_state,
                 "prompt_built",
@@ -901,6 +1085,19 @@ class ZZCode:
                 task_state.record_tool(name)
                 tool_started_at = time.monotonic()
                 result = self.run_tool(name, args)
+                metadata = dict(self._last_tool_result_metadata or {})
+                progress = task_state.coding_progress
+                if task_state.effective_mode == "coding":
+                    if name in {"write_file", "patch_file"} and metadata.get("workspace_changed"):
+                        digest, changed = self.current_patch_state()
+                        progress.phase = "VERIFY"
+                        progress.changed_paths = changed
+                        progress.last_mutation_step = task_state.tool_steps
+                        progress.current_patch_digest = digest
+                        progress.verified_patch_digest = ""
+                        progress.consecutive_read_only = 0
+                    elif name in {"list_files", "read_file", "search", "delegate"}:
+                        progress.consecutive_read_only += 1
                 self.record(
                     {
                         "role": "tool",
@@ -919,7 +1116,7 @@ class ZZCode:
                         "args": args,
                         "result": clip(result, 500),
                         "duration_ms": int((time.monotonic() - tool_started_at) * 1000),
-                        **dict(self._last_tool_result_metadata or {}),
+                        **metadata,
                     },
                 )
                 checkpoint = self.create_checkpoint(task_state, user_message, trigger="tool_executed")
@@ -940,6 +1137,34 @@ class ZZCode:
                 continue
 
             final = (payload or raw).strip()
+            failures = self.completion_gate_failures()
+            if failures:
+                progress = task_state.coding_progress
+                progress.final_rejections += 1
+                self.emit_trace(
+                    task_state,
+                    "completion_gate_rejected",
+                    {"rejection": progress.final_rejections, "unmet_gates": failures},
+                )
+                if progress.final_rejections < 3:
+                    notice = "Completion gate rejected the final answer:\n- " + "\n- ".join(failures)
+                    self.record(
+                        {
+                            "role": "tool",
+                            "name": "completion_gate",
+                            "args": {},
+                            "content": notice,
+                            "created_at": now(),
+                        }
+                    )
+                    self.run_store.write_task_state(task_state)
+                    continue
+                final = "Completion gate failed: " + "; ".join(failures)
+                task_state.stop_completion_gate(final)
+                self.run_store.write_task_state(task_state)
+                self.emit_trace(task_state, "run_finished", {"status": task_state.status, "stop_reason": task_state.stop_reason})
+                self.run_store.write_report(task_state, self.redact_artifact(self.build_report(task_state)))
+                return final
             self.record({"role": "assistant", "content": final, "created_at": now()})
             task_state.finish_success(final)
             self.promote_durable_memory(user_message, final)
@@ -1005,6 +1230,23 @@ class ZZCode:
             )
             if kind == "final":
                 final = (payload or raw).strip()
+                failures = self.completion_gate_failures()
+                if failures:
+                    final = "Completion gate failed after tool budget exhaustion: " + "; ".join(failures)
+                    task_state.stop_completion_gate(final)
+                    self.run_store.write_task_state(task_state)
+                    self.emit_trace(
+                        task_state,
+                        "completion_gate_rejected",
+                        {"finalization_only": True, "unmet_gates": failures},
+                    )
+                    self.emit_trace(
+                        task_state,
+                        "run_finished",
+                        {"status": task_state.status, "stop_reason": task_state.stop_reason, "final_answer": final},
+                    )
+                    self.run_store.write_report(task_state, self.redact_artifact(self.build_report(task_state)))
+                    return final
                 self.record({"role": "assistant", "content": final, "created_at": now()})
                 task_state.finish_success(final)
                 self.promote_durable_memory(user_message, final)
@@ -1097,6 +1339,28 @@ class ZZCode:
                 "diff_summary": [],
             }
             return f"error: unknown tool '{name}'"
+        if (
+            name in {"write_file", "patch_file"}
+            and self.current_task_state is not None
+            and self.current_task_state.effective_mode == "general"
+            and not self.read_only
+            and not (
+                self.task_mode == "auto"
+                and self.current_task_state.intent.get("source") == "fallback"
+            )
+        ):
+            self.current_task_state.effective_mode = "coding"
+            self.current_task_state.intent = {
+                **dict(self.current_task_state.intent),
+                "mode": "coding",
+                "source": "write_tool_upgrade",
+                "reason": "a repository mutation was requested",
+            }
+            self.emit_trace(
+                self.current_task_state,
+                "task_mode_upgraded",
+                {"from": "general", "to": "coding", "trigger": name},
+            )
         try:
             self.validate_tool(name, args)
         except Exception as exc:
@@ -1158,6 +1422,16 @@ class ZZCode:
                 elif exit_code != 0:
                     tool_status = "error"
                     tool_error_code = "tool_failed"
+            elif name == "verify":
+                verification = json.loads(result)
+                if not (
+                    verification.get("exit_code") == 0
+                    and not verification.get("timed_out")
+                    and int(verification.get("tests_collected", 0)) > 0
+                    and verification.get("patch_digest")
+                ):
+                    tool_status = "error"
+                    tool_error_code = "verification_failed"
             self.update_memory_after_tool(name, args, result)
             self._last_tool_result_metadata = {
                 "tool_status": tool_status,
@@ -1194,6 +1468,22 @@ class ZZCode:
     def repeated_tool_call(self, name, args):
         # agent 很常见的一种坏循环，是在没有新信息的情况下反复发起同一调用。
         # 这里提前挡掉最简单的这种循环。
+        if (
+            self.current_task_state is not None
+            and self.current_task_state.effective_mode == "coding"
+            and name in {"list_files", "read_file", "search"}
+        ):
+            digest, _ = self.current_patch_state()
+            signature = json.dumps({"name": name, "args": args}, sort_keys=True, ensure_ascii=True)
+            if self._read_coverage.get(signature) == digest:
+                self.current_task_state.coding_progress.redundant_read_rejections += 1
+                self.emit_trace(
+                    self.current_task_state,
+                    "redundant_read_rejected",
+                    {"name": name, "args": args, "patch_digest": digest},
+                )
+                return True
+            self._read_coverage[signature] = digest
         tool_events = [item for item in self.session["history"] if item["role"] == "tool"]
         if len(tool_events) < 2:
             return False
@@ -1250,6 +1540,9 @@ class ZZCode:
 
     def tool_run_shell(self, args):
         return toolkit.tool_run_shell(self, args)
+
+    def tool_verify(self, args):
+        return toolkit.tool_verify(self, args)
 
     def tool_write_file(self, args):
         return toolkit.tool_write_file(self, args)

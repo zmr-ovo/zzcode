@@ -293,6 +293,39 @@ instances/<id>/report.json        单任务最终结果
 
 Phase 5 Gate 已使用真实 provider 在临时 Git Repo Task 上执行 smoke：Agent 完成工具调用后生成非空 `Prediction`，同时落盘 steps、latency 和 token usage。该 smoke 只认证 Adapter 链路，不属于正式数据集成绩；正式 Pass@1 从 Phase 6 的 verified tasks 开始。
 
+## Phase 6.5：Coding 执行闭环
+
+Phase 6.5 在 Agent 推理阶段增加自动任务模式、公开测试验证和完成门禁：
+
+```text
+普通请求 → 模型语义分类 → General / Coding
+Repo Task → Evaluation 强制 Coding
+Coding → 修改代码 → verify 公开测试 → 完成门禁 → Prediction → 隐藏 Grader
+```
+
+- 普通 CLI 默认为 `--task-mode auto`，由当前真实模型根据完整语义分类，不使用关键词或正则；
+- `--task-mode general` 和 `--task-mode coding` 只用于显式覆盖；
+- Evaluation Worker 固定使用 Coding，不调用分类模型，保证正式成绩可比较；
+- 仓库级验证入口定义在根目录 `zzcode.verify.json`，评测环境使用 `environment.json` 中的 `agent_verification`；
+- zzcode 的公开验证范围固定为 `tests/`，不会收集 `evaluation/tests/` 或 `evaluation/private/`；
+- Phase 6 历史 base commit 中一个引用未入库旧文档的基线失败由环境 profile 排除；当前版本的 Evaluation 文档检查已迁入 `evaluation/tests/`；
+- `run_shell` 不能满足完成门禁，只有无 selector 的完整 `verify(profile="test")` 可以；
+- 完整验证必须在最后一次修改之后成功，且验证时和提交时的 patch digest 必须一致；
+- 门禁失败但 patch 非空时仍生成 Prediction 并交给隐藏 Grader，但 Agent 状态记录为失败。
+
+三类测试入口必须分开运行：
+
+```bash
+# Agent 修改过程中的公开产品测试
+python -m pytest -q tests
+
+# Evaluation Harness 自身测试
+python -m pytest -q evaluation/tests
+
+# 正式 Repo Task：Null、Gold、真实 Agent 和隐藏 F2P/P2P
+python scripts/run_internal_eval.py --help
+```
+
 ## Phase 2 运行产物目录
 
 一次评测对应一个不可重复的 Run ID，默认写入：

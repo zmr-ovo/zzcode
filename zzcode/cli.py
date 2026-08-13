@@ -248,6 +248,7 @@ def build_agent(args):
             max_steps=args.max_steps,
             max_new_tokens=args.max_new_tokens,
             secret_env_names=configured_secret_names,
+            task_mode=getattr(args, "task_mode", "auto"),
         )
     return ZZCode(
         model_client=model,
@@ -257,6 +258,7 @@ def build_agent(args):
         max_steps=args.max_steps,
         max_new_tokens=args.max_new_tokens,
         secret_env_names=configured_secret_names,
+        task_mode=getattr(args, "task_mode", "auto"),
     )
 
 
@@ -279,6 +281,12 @@ def build_arg_parser():
     parser.add_argument("--openai-timeout", type=int, default=300, help="OpenAI-compatible request timeout in seconds.")
     parser.add_argument("--resume", default=None, help="Session id to resume or 'latest'.")
     parser.add_argument("--approval", choices=("ask", "auto", "never"), default="ask", help="Approval policy for risky tools.")
+    parser.add_argument(
+        "--task-mode",
+        choices=("auto", "general", "coding"),
+        default="auto",
+        help="Automatically classify the request, or explicitly force analysis-only/general or code-changing/coding behavior.",
+    )
     parser.add_argument(
         "--secret-env-name",
         dest="secret_env_names",

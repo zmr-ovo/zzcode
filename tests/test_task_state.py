@@ -18,6 +18,8 @@ def test_task_state_starts_running_with_empty_progress():
     assert state.last_tool == ""
     assert state.stop_reason == ""
     assert state.final_answer == ""
+    assert state.requested_mode == "general"
+    assert state.coding_progress.phase == "EXPLORE"
 
 
 def test_task_state_records_success_and_final_answer():
