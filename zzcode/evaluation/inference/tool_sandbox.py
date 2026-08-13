@@ -60,16 +60,6 @@ class DockerToolSandbox:
         ).strip()
 
     def run(self, command: str, *, timeout_seconds: float) -> subprocess.CompletedProcess[str]:
-        return self._run_container("/bin/sh", ["-lc", command], timeout_seconds=timeout_seconds)
-
-    def run_argv(self, argv: list[str], timeout_seconds: int) -> subprocess.CompletedProcess[str]:
-        if not argv or not all(isinstance(item, str) and item for item in argv):
-            raise ValueError("verification argv must be a non-empty list of strings")
-        return self._run_container(argv[0], argv[1:], timeout_seconds=timeout_seconds)
-
-    def _run_container(
-        self, entrypoint: str, arguments: list[str], *, timeout_seconds: float
-    ) -> subprocess.CompletedProcess[str]:
         image_id = self._image_id()
         name = f"zzcode-agent-tool-{uuid4().hex[:12]}"
         uid = os.getuid() if hasattr(os, "getuid") else 65532
@@ -110,9 +100,10 @@ class DockerToolSandbox:
                 "--mount",
                 f"type=bind,src={self.workspace},dst=/workspace",
                 "--entrypoint",
-                entrypoint,
+                "/bin/sh",
                 image_id,
-                *arguments,
+                "-lc",
+                command,
             ],
             timeout=60,
         )
