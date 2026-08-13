@@ -37,6 +37,10 @@ class CodingProgress:
     redundant_read_rejections: int = 0
     final_rejections: int = 0
     unmet_gates: list[str] = field(default_factory=list)
+    requirements: list[dict] = field(default_factory=list)
+    execution_path: list[str] = field(default_factory=list)
+    plan_revision: int = 0
+    exploration_locked: bool = False
 
     @classmethod
     def from_dict(cls, value):
@@ -52,6 +56,10 @@ class CodingProgress:
             redundant_read_rejections=int(value.get("redundant_read_rejections", 0)),
             final_rejections=int(value.get("final_rejections", 0)),
             unmet_gates=list(value.get("unmet_gates", [])),
+            requirements=[dict(item) for item in value.get("requirements", [])],
+            execution_path=list(value.get("execution_path", [])),
+            plan_revision=int(value.get("plan_revision", 0)),
+            exploration_locked=bool(value.get("exploration_locked", False)),
         )
 
     def to_dict(self):

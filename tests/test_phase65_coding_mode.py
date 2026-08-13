@@ -1,9 +1,11 @@
 import json
+import hashlib
 import subprocess
 
 import pytest
 
 from zzcode.intent import TaskIntentClassifier
+from zzcode.git_patch import collect_worktree_patch
 from zzcode.models import FakeModelClient
 from zzcode.runtime import SessionStore, ZZCode
 from zzcode.task_state import STOP_REASON_COMPLETION_GATE_FAILED, TaskState
@@ -80,6 +82,9 @@ def test_auto_mode_uses_model_semantics_and_upgrades_before_mutation(tmp_path):
         [
             json.dumps({"mode": "general", "confidence": "medium", "reason": "initially analytical"}),
             '<tool name="patch_file" path="README.md"><old_text>before\n</old_text><new_text>after\n</new_text></tool>',
+            '<tool>{"name":"set_coding_plan","args":{"requirements":["update README"],"execution_path":["README.md","requested content"]}}</tool>',
+            '<tool name="patch_file" path="README.md"><old_text>before\n</old_text><new_text>after\n</new_text></tool>',
+            '<tool>{"name":"mark_requirement_complete","args":{"index":1,"evidence":"README.md now contains after"}}</tool>',
             '<tool>{"name":"verify","args":{"profile":"test","selectors":[],"timeout":120}}</tool>',
             "<final>Done.</final>",
         ]
@@ -140,11 +145,44 @@ def test_coding_mode_requires_patch_and_verify(tmp_path):
     assert agent.current_task_state.coding_progress.final_rejections == 3
 
 
+def test_coding_mode_rejects_edit_before_structured_plan(tmp_path):
+    agent = build_agent(tmp_path, [])
+    agent.current_task_state = TaskState.create("task", "request", "run")
+    agent.current_task_state.effective_mode = "coding"
+
+    result = agent.run_tool(
+        "patch_file", {"path": "README.md", "old_text": "before\n", "new_text": "after\n"}
+    )
+
+    assert "coding plan required" in result
+    assert (tmp_path / "README.md").read_text() == "before\n"
+
+
+def test_completion_gate_requires_evidence_for_every_planned_requirement(tmp_path):
+    agent = build_agent(tmp_path, [])
+    agent.current_task_state = TaskState.create("task", "request", "run")
+    agent.current_task_state.effective_mode = "coding"
+    agent._task_baseline_snapshot = agent.capture_workspace_snapshot()
+    agent.run_tool(
+        "set_coding_plan",
+        {
+            "requirements": ["first behavior", "second behavior"],
+            "execution_path": ["entrypoint", "called helper"],
+        },
+    )
+    (tmp_path / "README.md").write_text("after\n", encoding="utf-8")
+    agent.run_tool("mark_requirement_complete", {"index": 1, "evidence": "first changed"})
+
+    assert "every planned requirement must be completed with evidence" in agent.completion_gate_failures()
+
+
 def test_coding_mode_accepts_latest_patch_after_full_verify(tmp_path):
     agent = build_agent(
         tmp_path,
         [
+            '<tool>{"name":"set_coding_plan","args":{"requirements":["update README"],"execution_path":["README.md","requested content"]}}</tool>',
             '<tool name="patch_file" path="README.md"><old_text>before\n</old_text><new_text>after\n</new_text></tool>',
+            '<tool>{"name":"mark_requirement_complete","args":{"index":1,"evidence":"README.md now contains after"}}</tool>',
             '<tool>{"name":"verify","args":{"profile":"test","selectors":[],"timeout":120}}</tool>',
             "<final>Changed and verified.</final>",
         ],
@@ -163,6 +201,10 @@ def test_new_mutation_invalidates_previous_verification(tmp_path):
     agent.current_task_state = TaskState.create("task", "request", "run")
     agent.current_task_state.effective_mode = "coding"
     agent._task_baseline_snapshot = agent.capture_workspace_snapshot()
+    agent.run_tool(
+        "set_coding_plan",
+        {"requirements": ["update README"], "execution_path": ["README.md", "requested content"]},
+    )
     agent.run_tool("patch_file", {"path": "README.md", "old_text": "before\n", "new_text": "after\n"})
     agent.current_task_state.record_tool("patch_file")
     digest, changed = agent.current_patch_state()
@@ -170,6 +212,7 @@ def test_new_mutation_invalidates_previous_verification(tmp_path):
     progress.current_patch_digest = digest
     progress.changed_paths = changed
     progress.last_mutation_step = 1
+    agent.run_tool("mark_requirement_complete", {"index": 1, "evidence": "README updated"})
     agent.current_task_state.record_tool("verify")
     agent.run_tool("verify", {"profile": "test", "selectors": [], "timeout": 120})
     assert not agent.completion_gate_failures()
@@ -177,6 +220,69 @@ def test_new_mutation_invalidates_previous_verification(tmp_path):
     (tmp_path / "README.md").write_text("changed again\n", encoding="utf-8")
 
     assert "the current patch has not been successfully verified" in agent.completion_gate_failures()
+
+
+def test_read_file_returns_only_unread_overlap_and_rejects_full_coverage(tmp_path):
+    agent = build_agent(tmp_path, [])
+    source = tmp_path / "source.txt"
+    source.write_text("".join(f"line-{index}\n" for index in range(1, 201)), encoding="utf-8")
+    agent.current_task_state = TaskState.create("task", "request", "run")
+    agent.current_task_state.effective_mode = "coding"
+    agent._task_baseline_snapshot = agent.capture_workspace_snapshot()
+
+    first = agent.run_tool("read_file", {"path": "source.txt", "start": 1, "end": 100})
+    overlap = agent.run_tool("read_file", {"path": "source.txt", "start": 80, "end": 150})
+    covered = agent.run_tool("read_file", {"path": "source.txt", "start": 20, "end": 60})
+
+    assert "line-1" in first and "line-100" in first
+    assert "line-101" in overlap and "line-150" in overlap
+    assert "line-80" not in overlap
+    assert "already read" in covered
+
+
+def test_post_mutation_exploration_lock_allows_only_progress_actions(tmp_path):
+    agent = build_agent(tmp_path, [])
+    agent.current_task_state = TaskState.create("task", "request", "run")
+    agent.current_task_state.effective_mode = "coding"
+    progress = agent.current_task_state.coding_progress
+    progress.requirements = [{"index": 1, "text": "change", "completed": False, "evidence": ""}]
+    progress.execution_path = ["entrypoint", "helper"]
+    progress.current_patch_digest = "digest"
+    progress.exploration_locked = True
+
+    blocked = agent.run_tool("read_file", {"path": "README.md", "start": 1, "end": 2})
+
+    assert "exploration locked" in blocked
+
+
+def test_patch_digest_matches_prediction_patch_and_ignores_gitignored_test_artifacts(tmp_path):
+    (tmp_path / "README.md").write_text("before\n", encoding="utf-8")
+    (tmp_path / ".gitignore").write_text("generated/\n.zzcode/\n", encoding="utf-8")
+    subprocess.run(["git", "init", "--quiet"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "config", "user.name", "Phase Test"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "config", "user.email", "phase@test.invalid"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "add", "."], cwd=tmp_path, check=True)
+    subprocess.run(["git", "commit", "--quiet", "-m", "base"], cwd=tmp_path, check=True)
+    agent = ZZCode(
+        FakeModelClient([]),
+        WorkspaceContext.build(tmp_path),
+        SessionStore(tmp_path / ".zzcode" / "sessions"),
+        task_mode="coding",
+        verification_config=VERIFY_CONFIG,
+    )
+    (tmp_path / "README.md").write_text("after\n", encoding="utf-8")
+
+    digest_before, paths_before = agent.current_patch_state()
+    generated = tmp_path / "generated"
+    generated.mkdir()
+    (generated / "test-output.txt").write_text("temporary\n", encoding="utf-8")
+    digest_after, paths_after = agent.current_patch_state()
+    prediction_patch = collect_worktree_patch(tmp_path)
+
+    assert digest_after == digest_before
+    assert digest_after == hashlib.sha256(prediction_patch.encode("utf-8")).hexdigest()
+    assert paths_after == paths_before == ["README.md"]
+    assert "test-output.txt" not in collect_worktree_patch(tmp_path)
 
 
 def test_run_shell_success_cannot_satisfy_gate(tmp_path):

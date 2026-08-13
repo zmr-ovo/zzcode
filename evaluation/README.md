@@ -326,6 +326,17 @@ python -m pytest -q evaluation/tests
 python scripts/run_internal_eval.py --help
 ```
 
+### Phase 6.5.1：通用闭环强化
+
+Phase 6.5 首次真实运行发现两类通用问题：模型可能修改相似但错误的调用路径，以及修改后继续通过调整行号重复阅读。Phase 6.5.1 不加入任务特例，统一强化为：
+
+- Coding Agent 首次编辑前必须调用 `set_coding_plan`，记录原子验收要求和已经从代码确认的执行路径；
+- 修改后使用 `mark_requirement_complete` 为每项要求记录具体代码或测试证据；任何后续修改都会清除旧完成证据；
+- final 门禁要求计划存在且全部要求已有证据；
+- `read_file` 按文件内容版本和行区间记录覆盖范围，重叠请求只返回尚未读过的部分；
+- 修改后连续 6 次有效探索仍未继续修改或验证时锁定读取工具，只允许修改或 `verify`；验证失败后重新开放有限探索；
+- verify digest 与 `Prediction.model_patch` 共用 Git patch 收集器，Git ignored 缓存、fixture 和测试输出不影响验证新鲜度。
+
 ## Phase 2 运行产物目录
 
 一次评测对应一个不可重复的 Run ID，默认写入：

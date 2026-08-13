@@ -37,6 +37,16 @@ BASE_TOOL_SPECS = {
         "risky": True,
         "description": "Run a configured public-test verification profile for the current patch.",
     },
+    "set_coding_plan": {
+        "schema": {"requirements": "list[str]", "execution_path": "list[str]"},
+        "risky": False,
+        "description": "Record atomic acceptance requirements and the confirmed execution path before editing.",
+    },
+    "mark_requirement_complete": {
+        "schema": {"index": "int", "evidence": "str"},
+        "risky": False,
+        "description": "Mark one planned requirement complete with concrete code or test evidence.",
+    },
     "write_file": {
         "schema": {"path": "str", "content": "str"},
         "risky": True,
@@ -61,6 +71,8 @@ TOOL_EXAMPLES = {
     "search": '<tool>{"name":"search","args":{"pattern":"binary_search","path":"."}}</tool>',
     "run_shell": '<tool>{"name":"run_shell","args":{"command":"uv run --with pytest python -m pytest -q","timeout":20}}</tool>',
     "verify": '<tool>{"name":"verify","args":{"profile":"test","selectors":[],"timeout":120}}</tool>',
+    "set_coding_plan": '<tool>{"name":"set_coding_plan","args":{"requirements":["required behavior"],"execution_path":["entrypoint","called helper"]}}</tool>',
+    "mark_requirement_complete": '<tool>{"name":"mark_requirement_complete","args":{"index":1,"evidence":"implemented in module function"}}</tool>',
     "write_file": '<tool name="write_file" path="binary_search.py"><content>def binary_search(nums, target):\n    return -1\n</content></tool>',
     "patch_file": '<tool name="patch_file" path="binary_search.py"><old_text>return -1</old_text><new_text>return mid</new_text></tool>',
     "delegate": '<tool>{"name":"delegate","args":{"task":"inspect README.md","max_steps":3}}</tool>',
@@ -130,6 +142,27 @@ def validate_tool(agent, name, args):
         agent.validate_verification_args(args)
         return
 
+    if name == "set_coding_plan":
+        requirements = args.get("requirements")
+        execution_path = args.get("execution_path")
+        if not isinstance(requirements, list) or not 1 <= len(requirements) <= 12:
+            raise ValueError("requirements must contain 1 to 12 items")
+        if not isinstance(execution_path, list) or not 2 <= len(execution_path) <= 12:
+            raise ValueError("execution_path must contain 2 to 12 confirmed steps")
+        if not all(isinstance(item, str) and item.strip() for item in requirements + execution_path):
+            raise ValueError("plan items must be non-empty strings")
+        return
+
+    if name == "mark_requirement_complete":
+        index = int(args.get("index", 0))
+        evidence = str(args.get("evidence", "")).strip()
+        requirements = agent.current_task_state.coding_progress.requirements if agent.current_task_state else []
+        if index < 1 or index > len(requirements):
+            raise ValueError("index must identify an existing requirement")
+        if not evidence:
+            raise ValueError("evidence must not be empty")
+        return
+
     if name == "write_file":
         path = agent.path(args["path"])
         if path.exists() and path.is_dir():
@@ -186,7 +219,24 @@ def tool_read_file(agent, args):
     if start < 1 or end < start:
         raise ValueError("invalid line range")
     lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
-    body = "\n".join(f"{number:>4}: {line}" for number, line in enumerate(lines[start - 1:end], start=start))
+    ranges = [(start, end)]
+    pending = getattr(agent, "_pending_read_ranges", None)
+    relative = path.relative_to(agent.root).as_posix()
+    if pending and pending.get("path") == relative and pending.get("requested") == [start, end]:
+        ranges = [tuple(item) for item in pending["ranges"]]
+    agent._pending_read_ranges = None
+    chunks = []
+    for range_start, range_end in ranges:
+        if chunks:
+            chunks.append(f"... previously read lines omitted; continuing at {range_start} ...")
+        chunks.extend(
+            f"{number:>4}: {line}"
+            for number, line in enumerate(
+                lines[range_start - 1 : range_end], start=range_start
+            )
+        )
+    agent.record_file_ranges(path, ranges)
+    body = "\n".join(chunks)
     return f"# {path.relative_to(agent.root)}\n{body}"
 
 
@@ -253,6 +303,14 @@ def tool_verify(agent, args):
     return agent.execute_verification(args)
 
 
+def tool_set_coding_plan(agent, args):
+    return agent.set_coding_plan(args)
+
+
+def tool_mark_requirement_complete(agent, args):
+    return agent.mark_requirement_complete(args)
+
+
 def tool_write_file(agent, args):
     path = agent.path(args["path"])
     content = str(args["content"])
@@ -315,6 +373,8 @@ _TOOL_RUNNERS = {
     "search": tool_search,
     "run_shell": tool_run_shell,
     "verify": tool_verify,
+    "set_coding_plan": tool_set_coding_plan,
+    "mark_requirement_complete": tool_mark_requirement_complete,
     "write_file": tool_write_file,
     "patch_file": tool_patch_file,
 }

@@ -20,6 +20,8 @@ def test_task_state_starts_running_with_empty_progress():
     assert state.final_answer == ""
     assert state.requested_mode == "general"
     assert state.coding_progress.phase == "EXPLORE"
+    assert state.coding_progress.requirements == []
+    assert state.coding_progress.execution_path == []
 
 
 def test_task_state_records_success_and_final_answer():
