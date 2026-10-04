@@ -1,0 +1,131 @@
+{
+  "attempts": 2,
+  "checkpoint_id": "ckpt_b899a712",
+  "durable_promotions": [],
+  "durable_rejections": [],
+  "durable_superseded": [],
+  "final_answer": "Stopped after reaching the step limit without a final answer.",
+  "prompt_metadata": {
+    "budget_reductions": [],
+    "current_request": {
+      "raw_chars": 18,
+      "rendered_chars": 18,
+      "section_chars": 40,
+      "text": "Inspect sample.txt"
+    },
+    "history": {
+      "collapsed_duplicate_reads": 0,
+      "older_entries_count": 0,
+      "raw_chars": 37,
+      "rendered_chars": 37,
+      "reused_file_summary_count": 0,
+      "summarized_tool_count": 0
+    },
+    "history_chars": 25,
+    "memory_chars": 112,
+    "prefix_changed": true,
+    "prefix_chars": 6671,
+    "prefix_hash": "4c869bc015d50cbbedbb804fe4199cfaf327acb0ef5128329344fb7293b462cb",
+    "prompt_budget_chars": 12000,
+    "prompt_cache_key": "4c869bc015d50cbbedbb804fe4199cfaf327acb0ef5128329344fb7293b462cb",
+    "prompt_cache_supported": false,
+    "prompt_chars": 3820,
+    "prompt_over_budget": false,
+    "recent_commits": 5,
+    "reduction_order": [
+      "relevant_memory",
+      "history",
+      "memory",
+      "prefix"
+    ],
+    "relevant_memory": {
+      "limit": 3,
+      "raw_chars": 23,
+      "rendered_chars": 23,
+      "rendered_count": 0,
+      "rendered_notes": [],
+      "selected_count": 0,
+      "selected_durable_count": 0,
+      "selected_kinds": [],
+      "selected_notes": [],
+      "selected_sources": []
+    },
+    "request_chars": 18,
+    "resume_status": "no-checkpoint",
+    "runtime_identity_mismatch_fields": [],
+    "secret_env_count": 0,
+    "secret_env_names": [],
+    "section_budgets": {
+      "current_request": null,
+      "history": 5200,
+      "memory": 1600,
+      "prefix": 3600,
+      "relevant_memory": 1200
+    },
+    "section_order": [
+      "prefix",
+      "memory",
+      "relevant_memory",
+      "history",
+      "current_request"
+    ],
+    "sections": {
+      "current_request": {
+        "budget_chars": null,
+        "raw_chars": 40,
+        "rendered_chars": 40
+      },
+      "history": {
+        "budget_chars": 5200,
+        "raw_chars": 37,
+        "rendered_chars": 37
+      },
+      "memory": {
+        "budget_chars": 1600,
+        "raw_chars": 112,
+        "rendered_chars": 112
+      },
+      "prefix": {
+        "budget_chars": 3600,
+        "raw_chars": 6671,
+        "rendered_chars": 3600
+      },
+      "relevant_memory": {
+        "budget_chars": 1200,
+        "raw_chars": 23,
+        "rendered_chars": 23
+      }
+    },
+    "stale_paths": [],
+    "stale_summary_invalidations": 0,
+    "tool_count": 7,
+    "tool_signature": "4426765ffaaf28349778456b4696f3dae2f5ff87eb4b74ad4e8c4e86ee0437fb",
+    "workspace_changed": true,
+    "workspace_chars": 4010,
+    "workspace_docs": 2,
+    "workspace_fingerprint": "6edd4fe05d56213b0f5ea015a67d131093d9a71370399699907ebded1aea25cb"
+  },
+  "redacted_env": {
+    "secret_env_count": 0,
+    "secret_env_names": []
+  },
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261004-163214-748de7",
+  "status": "stopped",
+  "stop_reason": "step_limit_reached",
+  "task_id": "task_20261004-163214-9bbabe",
+  "task_state": {
+    "attempts": 2,
+    "checkpoint_id": "ckpt_b899a712",
+    "final_answer": "Stopped after reaching the step limit without a final answer.",
+    "last_tool": "read_file",
+    "resume_status": "no-checkpoint",
+    "run_id": "run_20261004-163214-748de7",
+    "status": "stopped",
+    "stop_reason": "step_limit_reached",
+    "task_id": "task_20261004-163214-9bbabe",
+    "tool_steps": 1,
+    "user_request": "Inspect sample.txt"
+  },
+  "tool_steps": 1
+}

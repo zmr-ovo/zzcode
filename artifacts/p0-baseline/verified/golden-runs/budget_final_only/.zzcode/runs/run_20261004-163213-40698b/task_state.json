@@ -1,0 +1,13 @@
+{
+  "attempts": 2,
+  "checkpoint_id": "ckpt_03d78e3e",
+  "final_answer": "Read with one tool.",
+  "last_tool": "read_file",
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261004-163213-40698b",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261004-163213-bc72b8",
+  "tool_steps": 1,
+  "user_request": "Inspect sample.txt"
+}

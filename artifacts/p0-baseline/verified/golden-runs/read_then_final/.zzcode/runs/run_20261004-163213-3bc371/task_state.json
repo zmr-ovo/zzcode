@@ -1,0 +1,13 @@
+{
+  "attempts": 2,
+  "checkpoint_id": "ckpt_baecc9b6",
+  "final_answer": "Read alpha and beta.",
+  "last_tool": "read_file",
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261004-163213-3bc371",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261004-163213-9f52ec",
+  "tool_steps": 1,
+  "user_request": "Inspect sample.txt"
+}

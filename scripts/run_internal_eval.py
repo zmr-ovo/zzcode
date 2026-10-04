@@ -33,6 +33,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--private-root", type=Path, default=None)
     parser.add_argument("--split", default="dev")
+    parser.add_argument(
+        "--instance-id", action="append", default=None,
+        help="Select tasks within the verified split; repeat for a fixed smoke set.",
+    )
     parser.add_argument("--repo-path", type=Path, default=Path.cwd())
     parser.add_argument(
         "--workspace-root",
@@ -84,6 +88,19 @@ def main() -> int:
 
     dataset = EvaluationDataset.load(public_root, private_root, args.split)
     dataset.verify_lock()
+    if args.instance_id:
+        selected_ids = set(args.instance_id)
+        known_ids = {task.instance_id for task in dataset.tasks()}
+        if len(selected_ids) != len(args.instance_id) or not selected_ids <= known_ids:
+            raise SystemExit("instance ids must be unique and belong to the selected split")
+        tasks = tuple(task for task in dataset.tasks() if task.instance_id in selected_ids)
+        dataset = EvaluationDataset(
+            public_root=dataset.public_root,
+            private_root=dataset.private_root,
+            split=dataset.split,
+            tasks=tasks,
+            private_specs={task.instance_id: dataset.private_spec(task.instance_id) for task in tasks},
+        )
     task_repos = {task.repo for task in dataset.tasks()}
     if len(task_repos) != 1:
         raise SystemExit("internal runner currently requires one repository per run")

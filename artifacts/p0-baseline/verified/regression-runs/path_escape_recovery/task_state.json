@@ -1,0 +1,13 @@
+{
+  "attempts": 3,
+  "checkpoint_id": "ckpt_5d9a9ab0",
+  "final_answer": "Done.",
+  "last_tool": "patch_file",
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261004-163215-41a7d2",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261004-163215-396d4f",
+  "tool_steps": 2,
+  "user_request": "Reject a path escape attempt and still finish the sample.txt patch."
+}

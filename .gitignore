@@ -7,7 +7,6 @@ __pycache__/
 # Virtual environments
 .venv/
 venv/
-uv.lock
 
 # Packaging
 *.egg-info/
@@ -37,6 +36,8 @@ tmp/
 .zzcode/
 artifacts/*
 !artifacts/test-baseline.json
+!artifacts/p0-baseline/
+artifacts/p0-baseline/workspaces/
 readme_intro_locked/
 evaluation/runs/
 evaluation/reports/
@@ -53,6 +54,9 @@ docs/*
 !docs/testing/current-test-map.md
 !docs/testing/current-benchmark-map.md
 !docs/testing/migration-matrix.md
+!docs/zzcode-upgrade-plan-v2.md
+!docs/review-pack/
+!docs/architecture/
 
 # OS files
 .DS_Store

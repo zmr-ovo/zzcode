@@ -1,0 +1,29 @@
+{
+  "actual": {
+    "answer": "Stopped after too many malformed model responses without a valid tool call or final answer.",
+    "attempts": 5,
+    "files": {
+      "sample.txt": "alpha\n"
+    },
+    "stop_reason": "retry_limit_reached",
+    "tool_steps": 0,
+    "tools": []
+  },
+  "id": "malformed_retry_limit",
+  "passed": true,
+  "run_dir": ".zzcode/runs/run_20261004-163214-416398",
+  "tool_results": [],
+  "transcript": {
+    "outputs": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "prompt": "Give a valid answer"
+  }
+}

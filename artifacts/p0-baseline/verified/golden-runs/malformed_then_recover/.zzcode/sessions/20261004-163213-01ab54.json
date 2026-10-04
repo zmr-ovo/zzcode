@@ -1,0 +1,221 @@
+{
+  "id": "20261004-163213-01ab54",
+  "created_at": "2026-10-04T08:32:13.610860+00:00",
+  "workspace_root": "/Users/miaoran/Documents/Program/zzcode/artifacts/p0-baseline/verified/golden-runs/malformed_then_recover",
+  "history": [
+    {
+      "role": "user",
+      "content": "Inspect sample.txt",
+      "created_at": "2026-10-04T08:32:13.611306+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "Runtime notice: model returned malformed tool JSON. Reply with a valid <tool> call or a non-empty <final> answer. For multi-line files, prefer <tool name=\"write_file\" path=\"file.py\"><content>...</content></tool>.",
+      "created_at": "2026-10-04T08:32:13.664606+00:00"
+    },
+    {
+      "role": "tool",
+      "name": "read_file",
+      "args": {
+        "path": "sample.txt"
+      },
+      "content": "# sample.txt\n   1: alpha",
+      "created_at": "2026-10-04T08:32:13.722204+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "Recovered.",
+      "created_at": "2026-10-04T08:32:13.793271+00:00"
+    }
+  ],
+  "memory": {
+    "working": {
+      "task_summary": "Inspect sample.txt",
+      "recent_files": [
+        "sample.txt"
+      ]
+    },
+    "episodic_notes": [
+      {
+        "text": "1: alpha",
+        "tags": [
+          "sample.txt"
+        ],
+        "source": "sample.txt",
+        "created_at": "2026-10-04T08:32:13.722184+00:00",
+        "note_index": 0,
+        "kind": "episodic"
+      }
+    ],
+    "file_summaries": {
+      "sample.txt": {
+        "summary": "1: alpha",
+        "created_at": "2026-10-04T08:32:13.721705+00:00",
+        "freshness": "b6a98d9ce9a2d9149288fa3df42d377c3e42737afdcdaf714e33c0a100b51060"
+      }
+    },
+    "task": "Inspect sample.txt",
+    "files": [
+      "sample.txt"
+    ],
+    "notes": [
+      "1: alpha"
+    ],
+    "next_note_index": 1,
+    "durable_topics": []
+  },
+  "checkpoints": {
+    "current_id": "ckpt_e3529bf4",
+    "items": {
+      "ckpt_567e11d3": {
+        "checkpoint_id": "ckpt_567e11d3",
+        "parent_checkpoint_id": "",
+        "schema_version": "phase1-v1",
+        "created_at": "2026-10-04T08:32:13.723531+00:00",
+        "current_goal": "Inspect sample.txt",
+        "completed": [],
+        "excluded": [],
+        "current_blocker": "",
+        "next_step": "Decide the next action after read_file.",
+        "key_files": [
+          {
+            "path": "sample.txt",
+            "freshness": "b6a98d9ce9a2d9149288fa3df42d377c3e42737afdcdaf714e33c0a100b51060"
+          }
+        ],
+        "freshness": {
+          "sample.txt": "b6a98d9ce9a2d9149288fa3df42d377c3e42737afdcdaf714e33c0a100b51060"
+        },
+        "summary": "tool_executed: Inspect sample.txt",
+        "runtime_identity": {
+          "session_id": "20261004-163213-01ab54",
+          "cwd": "/Users/miaoran/Documents/Program/zzcode/artifacts/p0-baseline/verified/golden-runs/malformed_then_recover",
+          "model": "",
+          "model_client": "FakeModelClient",
+          "approval_policy": "auto",
+          "read_only": false,
+          "max_steps": 5,
+          "max_new_tokens": 2048,
+          "feature_flags": {
+            "memory": true,
+            "relevant_memory": true,
+            "context_reduction": true,
+            "prompt_cache": true
+          },
+          "shell_env_allowlist": [
+            "HOME",
+            "LANG",
+            "LC_ALL",
+            "LC_CTYPE",
+            "LOGNAME",
+            "PATH",
+            "PWD",
+            "SHELL",
+            "TERM",
+            "TMPDIR",
+            "TMP",
+            "TEMP",
+            "USER"
+          ],
+          "workspace_fingerprint": "9c7e16281c63bb11d50eb33bc22744ba32d9be249fe8d97f2ceecf3955cfcd86",
+          "tool_signature": "4426765ffaaf28349778456b4696f3dae2f5ff87eb4b74ad4e8c4e86ee0437fb"
+        }
+      },
+      "ckpt_e3529bf4": {
+        "checkpoint_id": "ckpt_e3529bf4",
+        "parent_checkpoint_id": "ckpt_567e11d3",
+        "schema_version": "phase1-v1",
+        "created_at": "2026-10-04T08:32:13.794419+00:00",
+        "current_goal": "Inspect sample.txt",
+        "completed": [
+          "Recovered."
+        ],
+        "excluded": [],
+        "current_blocker": "",
+        "next_step": "No next step recorded.",
+        "key_files": [
+          {
+            "path": "sample.txt",
+            "freshness": "b6a98d9ce9a2d9149288fa3df42d377c3e42737afdcdaf714e33c0a100b51060"
+          }
+        ],
+        "freshness": {
+          "sample.txt": "b6a98d9ce9a2d9149288fa3df42d377c3e42737afdcdaf714e33c0a100b51060"
+        },
+        "summary": "run_finished: Inspect sample.txt",
+        "runtime_identity": {
+          "session_id": "20261004-163213-01ab54",
+          "cwd": "/Users/miaoran/Documents/Program/zzcode/artifacts/p0-baseline/verified/golden-runs/malformed_then_recover",
+          "model": "",
+          "model_client": "FakeModelClient",
+          "approval_policy": "auto",
+          "read_only": false,
+          "max_steps": 5,
+          "max_new_tokens": 2048,
+          "feature_flags": {
+            "memory": true,
+            "relevant_memory": true,
+            "context_reduction": true,
+            "prompt_cache": true
+          },
+          "shell_env_allowlist": [
+            "HOME",
+            "LANG",
+            "LC_ALL",
+            "LC_CTYPE",
+            "LOGNAME",
+            "PATH",
+            "PWD",
+            "SHELL",
+            "TERM",
+            "TMPDIR",
+            "TMP",
+            "TEMP",
+            "USER"
+          ],
+          "workspace_fingerprint": "9c7e16281c63bb11d50eb33bc22744ba32d9be249fe8d97f2ceecf3955cfcd86",
+          "tool_signature": "4426765ffaaf28349778456b4696f3dae2f5ff87eb4b74ad4e8c4e86ee0437fb"
+        }
+      }
+    }
+  },
+  "runtime_identity": {
+    "session_id": "20261004-163213-01ab54",
+    "cwd": "/Users/miaoran/Documents/Program/zzcode/artifacts/p0-baseline/verified/golden-runs/malformed_then_recover",
+    "model": "",
+    "model_client": "FakeModelClient",
+    "approval_policy": "auto",
+    "read_only": false,
+    "max_steps": 5,
+    "max_new_tokens": 2048,
+    "feature_flags": {
+      "memory": true,
+      "relevant_memory": true,
+      "context_reduction": true,
+      "prompt_cache": true
+    },
+    "shell_env_allowlist": [
+      "HOME",
+      "LANG",
+      "LC_ALL",
+      "LC_CTYPE",
+      "LOGNAME",
+      "PATH",
+      "PWD",
+      "SHELL",
+      "TERM",
+      "TMPDIR",
+      "TMP",
+      "TEMP",
+      "USER"
+    ],
+    "workspace_fingerprint": "9c7e16281c63bb11d50eb33bc22744ba32d9be249fe8d97f2ceecf3955cfcd86",
+    "tool_signature": "4426765ffaaf28349778456b4696f3dae2f5ff87eb4b74ad4e8c4e86ee0437fb"
+  },
+  "resume_state": {
+    "status": "full-valid",
+    "stale_paths": [],
+    "runtime_identity_mismatch_fields": [],
+    "stale_summary_invalidations": 0
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "attempts": 5,
+  "checkpoint_id": "",
+  "final_answer": "Stopped after too many malformed model responses without a valid tool call or final answer.",
+  "last_tool": "",
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261004-163214-416398",
+  "status": "stopped",
+  "stop_reason": "retry_limit_reached",
+  "task_id": "task_20261004-163214-1574c6",
+  "tool_steps": 0,
+  "user_request": "Give a valid answer"
+}

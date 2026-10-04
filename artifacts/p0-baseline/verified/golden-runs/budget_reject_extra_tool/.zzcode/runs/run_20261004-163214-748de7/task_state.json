@@ -1,0 +1,13 @@
+{
+  "attempts": 2,
+  "checkpoint_id": "ckpt_8fcec678",
+  "final_answer": "Stopped after reaching the step limit without a final answer.",
+  "last_tool": "read_file",
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261004-163214-748de7",
+  "status": "stopped",
+  "stop_reason": "step_limit_reached",
+  "task_id": "task_20261004-163214-9bbabe",
+  "tool_steps": 1,
+  "user_request": "Inspect sample.txt"
+}

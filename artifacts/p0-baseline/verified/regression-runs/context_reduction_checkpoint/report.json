@@ -1,0 +1,156 @@
+{
+  "attempts": 1,
+  "checkpoint_id": "ckpt_3abd9700",
+  "durable_promotions": [],
+  "durable_rejections": [],
+  "durable_superseded": [],
+  "final_answer": "Done.",
+  "prompt_metadata": {
+    "budget_reductions": [
+      {
+        "after_chars": 200,
+        "before_chars": 800,
+        "overflow_chars": 2227,
+        "section": "relevant_memory"
+      },
+      {
+        "after_chars": 600,
+        "before_chars": 2400,
+        "overflow_chars": 2227,
+        "section": "history"
+      },
+      {
+        "after_chars": 200,
+        "before_chars": 800,
+        "overflow_chars": 982,
+        "section": "memory"
+      },
+      {
+        "after_chars": 200,
+        "before_chars": 800,
+        "overflow_chars": 982,
+        "section": "prefix"
+      }
+    ],
+    "current_request": {
+      "raw_chars": 71,
+      "rendered_chars": 71,
+      "section_chars": 93,
+      "text": "Finish the README update after prompt compression creates a checkpoint."
+    },
+    "history": {
+      "collapsed_duplicate_reads": 0,
+      "older_entries_count": 0,
+      "raw_chars": 3098,
+      "rendered_chars": 593,
+      "reused_file_summary_count": 0,
+      "summarized_tool_count": 0
+    },
+    "history_chars": 3114,
+    "memory_chars": 165,
+    "prefix_changed": true,
+    "prefix_chars": 7067,
+    "prefix_hash": "24d9811a7f43672fab5082b5b227e91444d711ed5a3410a6ae55a6886c28aeda",
+    "prompt_budget_chars": 700,
+    "prompt_cache_key": "24d9811a7f43672fab5082b5b227e91444d711ed5a3410a6ae55a6886c28aeda",
+    "prompt_cache_supported": false,
+    "prompt_chars": 1082,
+    "prompt_over_budget": true,
+    "recent_commits": 5,
+    "reduction_order": [
+      "relevant_memory",
+      "history",
+      "memory",
+      "prefix"
+    ],
+    "relevant_memory": {
+      "limit": 3,
+      "raw_chars": 23,
+      "rendered_chars": 23,
+      "rendered_count": 0,
+      "rendered_notes": [],
+      "selected_count": 0,
+      "selected_durable_count": 0,
+      "selected_kinds": [],
+      "selected_notes": [],
+      "selected_sources": []
+    },
+    "request_chars": 71,
+    "resume_status": "no-checkpoint",
+    "runtime_identity_mismatch_fields": [],
+    "secret_env_count": 0,
+    "secret_env_names": [],
+    "section_budgets": {
+      "current_request": null,
+      "history": 600,
+      "memory": 200,
+      "prefix": 200,
+      "relevant_memory": 200
+    },
+    "section_order": [
+      "prefix",
+      "memory",
+      "relevant_memory",
+      "history",
+      "current_request"
+    ],
+    "sections": {
+      "current_request": {
+        "budget_chars": null,
+        "raw_chars": 93,
+        "rendered_chars": 93
+      },
+      "history": {
+        "budget_chars": 600,
+        "raw_chars": 3098,
+        "rendered_chars": 593
+      },
+      "memory": {
+        "budget_chars": 200,
+        "raw_chars": 165,
+        "rendered_chars": 165
+      },
+      "prefix": {
+        "budget_chars": 200,
+        "raw_chars": 7067,
+        "rendered_chars": 200
+      },
+      "relevant_memory": {
+        "budget_chars": 200,
+        "raw_chars": 23,
+        "rendered_chars": 23
+      }
+    },
+    "stale_paths": [],
+    "stale_summary_invalidations": 0,
+    "tool_count": 7,
+    "tool_signature": "4426765ffaaf28349778456b4696f3dae2f5ff87eb4b74ad4e8c4e86ee0437fb",
+    "workspace_changed": true,
+    "workspace_chars": 4406,
+    "workspace_docs": 3,
+    "workspace_fingerprint": "84596a1fe91475d3e086830591728c8b5c960e0117de911e2f2234877a3a8680"
+  },
+  "redacted_env": {
+    "secret_env_count": 0,
+    "secret_env_names": []
+  },
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261004-163216-b63ae1",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261004-163216-94c8a7",
+  "task_state": {
+    "attempts": 1,
+    "checkpoint_id": "ckpt_3abd9700",
+    "final_answer": "Done.",
+    "last_tool": "",
+    "resume_status": "no-checkpoint",
+    "run_id": "run_20261004-163216-b63ae1",
+    "status": "completed",
+    "stop_reason": "final_answer_returned",
+    "task_id": "task_20261004-163216-94c8a7",
+    "tool_steps": 0,
+    "user_request": "Finish the README update after prompt compression creates a checkpoint."
+  },
+  "tool_steps": 0
+}

@@ -1,0 +1,14 @@
+[
+  {
+    "case": "unknown",
+    "exit_code": 1,
+    "passed": true,
+    "reason": "instance ids must be unique and belong to the selected split"
+  },
+  {
+    "case": "duplicate",
+    "exit_code": 1,
+    "passed": true,
+    "reason": "instance ids must be unique and belong to the selected split"
+  }
+]

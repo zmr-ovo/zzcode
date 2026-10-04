@@ -1,0 +1,13 @@
+{
+  "attempts": 2,
+  "checkpoint_id": "ckpt_2737337d",
+  "final_answer": "Write denied.",
+  "last_tool": "write_file",
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261004-163213-62fe98",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261004-163213-3640c2",
+  "tool_steps": 1,
+  "user_request": "Write changed content to sample.txt"
+}

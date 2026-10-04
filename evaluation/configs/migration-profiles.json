@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "default": "legacy",
+  "profiles": {
+    "legacy": {
+      "implemented": true,
+      "features": {
+        "memory": true,
+        "relevant_memory": true,
+        "context_reduction": true,
+        "prompt_cache": true
+      }
+    }
+  },
+  "reserved_profiles": ["structured", "reliable_tools", "token_context"]
+}

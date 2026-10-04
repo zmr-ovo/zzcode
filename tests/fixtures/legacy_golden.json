@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "read_then_final",
+      "prompt": "Inspect sample.txt",
+      "files": {"sample.txt": "alpha\nbeta\n"},
+      "outputs": ["<tool>{\"name\":\"read_file\",\"args\":{\"path\":\"sample.txt\",\"start\":1,\"end\":2}}</tool>", "<final>Read alpha and beta.</final>"],
+      "expected": {"answer": "Read alpha and beta.", "stop_reason": "final_answer_returned", "attempts": 2, "tool_steps": 1, "tools": ["read_file"], "tool_contains": ["alpha"], "files": {"sample.txt": "alpha\nbeta\n"}}
+    },
+    {
+      "id": "xml_patch_then_final",
+      "prompt": "Replace beta with gamma in sample.txt",
+      "files": {"sample.txt": "alpha\nbeta\n"},
+      "outputs": ["<tool name=\"patch_file\" path=\"sample.txt\"><old_text>beta</old_text><new_text>gamma</new_text></tool>", "<final>Patched.</final>"],
+      "expected": {"answer": "Patched.", "stop_reason": "final_answer_returned", "attempts": 2, "tool_steps": 1, "tools": ["patch_file"], "tool_contains": ["patched sample.txt"], "files": {"sample.txt": "alpha\ngamma\n"}}
+    },
+    {
+      "id": "malformed_then_recover",
+      "prompt": "Inspect sample.txt",
+      "files": {"sample.txt": "alpha\n"},
+      "outputs": ["<tool>{broken}</tool>", "<tool>{\"name\":\"read_file\",\"args\":{\"path\":\"sample.txt\"}}</tool>", "<final>Recovered.</final>"],
+      "expected": {"answer": "Recovered.", "stop_reason": "final_answer_returned", "attempts": 3, "tool_steps": 1, "tools": ["read_file"], "tool_contains": ["alpha"], "files": {"sample.txt": "alpha\n"}}
+    },
+    {
+      "id": "approval_denied",
+      "prompt": "Write changed content to sample.txt",
+      "approval_policy": "never",
+      "files": {"sample.txt": "alpha\n"},
+      "outputs": ["<tool>{\"name\":\"write_file\",\"args\":{\"path\":\"sample.txt\",\"content\":\"changed\"}}</tool>", "<final>Write denied.</final>"],
+      "expected": {"answer": "Write denied.", "stop_reason": "final_answer_returned", "attempts": 2, "tool_steps": 1, "tools": ["write_file"], "tool_contains": ["approval denied"], "files": {"sample.txt": "alpha\n"}}
+    },
+    {
+      "id": "budget_final_only",
+      "prompt": "Inspect sample.txt",
+      "max_steps": 1,
+      "files": {"sample.txt": "alpha\n"},
+      "outputs": ["<tool>{\"name\":\"read_file\",\"args\":{\"path\":\"sample.txt\"}}</tool>", "<final>Read with one tool.</final>"],
+      "expected": {"answer": "Read with one tool.", "stop_reason": "final_answer_returned", "attempts": 2, "tool_steps": 1, "tools": ["read_file"], "tool_contains": ["alpha"], "files": {"sample.txt": "alpha\n"}}
+    },
+    {
+      "id": "budget_reject_extra_tool",
+      "prompt": "Inspect sample.txt",
+      "max_steps": 1,
+      "files": {"sample.txt": "alpha\n"},
+      "outputs": ["<tool>{\"name\":\"read_file\",\"args\":{\"path\":\"sample.txt\"}}</tool>", "<tool>{\"name\":\"write_file\",\"args\":{\"path\":\"sample.txt\",\"content\":\"should not execute\"}}</tool>"],
+      "expected": {"answer": "Stopped after reaching the step limit without a final answer.", "stop_reason": "step_limit_reached", "attempts": 2, "tool_steps": 1, "tools": ["read_file"], "tool_contains": ["alpha"], "files": {"sample.txt": "alpha\n"}}
+    },
+    {
+      "id": "malformed_retry_limit",
+      "prompt": "Give a valid answer",
+      "max_steps": 1,
+      "files": {"sample.txt": "alpha\n"},
+      "outputs": ["", "", "", "", "", "", "", ""],
+      "expected": {"answer": "Stopped after too many malformed model responses without a valid tool call or final answer.", "stop_reason": "retry_limit_reached", "attempts": 5, "tool_steps": 0, "tools": [], "tool_contains": [], "files": {"sample.txt": "alpha\n"}}
+    }
+  ]
+}

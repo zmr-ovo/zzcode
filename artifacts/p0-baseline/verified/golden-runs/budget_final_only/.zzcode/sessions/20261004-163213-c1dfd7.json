@@ -1,0 +1,216 @@
+{
+  "id": "20261004-163213-c1dfd7",
+  "created_at": "2026-10-04T08:32:13.998565+00:00",
+  "workspace_root": "/Users/miaoran/Documents/Program/zzcode/artifacts/p0-baseline/verified/golden-runs/budget_final_only",
+  "history": [
+    {
+      "role": "user",
+      "content": "Inspect sample.txt",
+      "created_at": "2026-10-04T08:32:13.999169+00:00"
+    },
+    {
+      "role": "tool",
+      "name": "read_file",
+      "args": {
+        "path": "sample.txt"
+      },
+      "content": "# sample.txt\n   1: alpha",
+      "created_at": "2026-10-04T08:32:14.054071+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "Read with one tool.",
+      "created_at": "2026-10-04T08:32:14.110135+00:00"
+    }
+  ],
+  "memory": {
+    "working": {
+      "task_summary": "Inspect sample.txt",
+      "recent_files": [
+        "sample.txt"
+      ]
+    },
+    "episodic_notes": [
+      {
+        "text": "1: alpha",
+        "tags": [
+          "sample.txt"
+        ],
+        "source": "sample.txt",
+        "created_at": "2026-10-04T08:32:14.054050+00:00",
+        "note_index": 0,
+        "kind": "episodic"
+      }
+    ],
+    "file_summaries": {
+      "sample.txt": {
+        "summary": "1: alpha",
+        "created_at": "2026-10-04T08:32:14.053726+00:00",
+        "freshness": "b6a98d9ce9a2d9149288fa3df42d377c3e42737afdcdaf714e33c0a100b51060"
+      }
+    },
+    "task": "Inspect sample.txt",
+    "files": [
+      "sample.txt"
+    ],
+    "notes": [
+      "1: alpha"
+    ],
+    "next_note_index": 1,
+    "durable_topics": []
+  },
+  "checkpoints": {
+    "current_id": "ckpt_03d78e3e",
+    "items": {
+      "ckpt_d148f427": {
+        "checkpoint_id": "ckpt_d148f427",
+        "parent_checkpoint_id": "",
+        "schema_version": "phase1-v1",
+        "created_at": "2026-10-04T08:32:14.055320+00:00",
+        "current_goal": "Inspect sample.txt",
+        "completed": [],
+        "excluded": [],
+        "current_blocker": "",
+        "next_step": "Decide the next action after read_file.",
+        "key_files": [
+          {
+            "path": "sample.txt",
+            "freshness": "b6a98d9ce9a2d9149288fa3df42d377c3e42737afdcdaf714e33c0a100b51060"
+          }
+        ],
+        "freshness": {
+          "sample.txt": "b6a98d9ce9a2d9149288fa3df42d377c3e42737afdcdaf714e33c0a100b51060"
+        },
+        "summary": "tool_executed: Inspect sample.txt",
+        "runtime_identity": {
+          "session_id": "20261004-163213-c1dfd7",
+          "cwd": "/Users/miaoran/Documents/Program/zzcode/artifacts/p0-baseline/verified/golden-runs/budget_final_only",
+          "model": "",
+          "model_client": "FakeModelClient",
+          "approval_policy": "auto",
+          "read_only": false,
+          "max_steps": 1,
+          "max_new_tokens": 2048,
+          "feature_flags": {
+            "memory": true,
+            "relevant_memory": true,
+            "context_reduction": true,
+            "prompt_cache": true
+          },
+          "shell_env_allowlist": [
+            "HOME",
+            "LANG",
+            "LC_ALL",
+            "LC_CTYPE",
+            "LOGNAME",
+            "PATH",
+            "PWD",
+            "SHELL",
+            "TERM",
+            "TMPDIR",
+            "TMP",
+            "TEMP",
+            "USER"
+          ],
+          "workspace_fingerprint": "7aa4af507bc84206afd6346d0c2560a71cb2e8febf7996568934bc989d980452",
+          "tool_signature": "4426765ffaaf28349778456b4696f3dae2f5ff87eb4b74ad4e8c4e86ee0437fb"
+        }
+      },
+      "ckpt_03d78e3e": {
+        "checkpoint_id": "ckpt_03d78e3e",
+        "parent_checkpoint_id": "ckpt_d148f427",
+        "schema_version": "phase1-v1",
+        "created_at": "2026-10-04T08:32:14.111530+00:00",
+        "current_goal": "Inspect sample.txt",
+        "completed": [
+          "Read with one tool."
+        ],
+        "excluded": [],
+        "current_blocker": "",
+        "next_step": "No next step recorded.",
+        "key_files": [
+          {
+            "path": "sample.txt",
+            "freshness": "b6a98d9ce9a2d9149288fa3df42d377c3e42737afdcdaf714e33c0a100b51060"
+          }
+        ],
+        "freshness": {
+          "sample.txt": "b6a98d9ce9a2d9149288fa3df42d377c3e42737afdcdaf714e33c0a100b51060"
+        },
+        "summary": "run_finished: Inspect sample.txt",
+        "runtime_identity": {
+          "session_id": "20261004-163213-c1dfd7",
+          "cwd": "/Users/miaoran/Documents/Program/zzcode/artifacts/p0-baseline/verified/golden-runs/budget_final_only",
+          "model": "",
+          "model_client": "FakeModelClient",
+          "approval_policy": "auto",
+          "read_only": false,
+          "max_steps": 1,
+          "max_new_tokens": 2048,
+          "feature_flags": {
+            "memory": true,
+            "relevant_memory": true,
+            "context_reduction": true,
+            "prompt_cache": true
+          },
+          "shell_env_allowlist": [
+            "HOME",
+            "LANG",
+            "LC_ALL",
+            "LC_CTYPE",
+            "LOGNAME",
+            "PATH",
+            "PWD",
+            "SHELL",
+            "TERM",
+            "TMPDIR",
+            "TMP",
+            "TEMP",
+            "USER"
+          ],
+          "workspace_fingerprint": "7aa4af507bc84206afd6346d0c2560a71cb2e8febf7996568934bc989d980452",
+          "tool_signature": "4426765ffaaf28349778456b4696f3dae2f5ff87eb4b74ad4e8c4e86ee0437fb"
+        }
+      }
+    }
+  },
+  "runtime_identity": {
+    "session_id": "20261004-163213-c1dfd7",
+    "cwd": "/Users/miaoran/Documents/Program/zzcode/artifacts/p0-baseline/verified/golden-runs/budget_final_only",
+    "model": "",
+    "model_client": "FakeModelClient",
+    "approval_policy": "auto",
+    "read_only": false,
+    "max_steps": 1,
+    "max_new_tokens": 2048,
+    "feature_flags": {
+      "memory": true,
+      "relevant_memory": true,
+      "context_reduction": true,
+      "prompt_cache": true
+    },
+    "shell_env_allowlist": [
+      "HOME",
+      "LANG",
+      "LC_ALL",
+      "LC_CTYPE",
+      "LOGNAME",
+      "PATH",
+      "PWD",
+      "SHELL",
+      "TERM",
+      "TMPDIR",
+      "TMP",
+      "TEMP",
+      "USER"
+    ],
+    "workspace_fingerprint": "7aa4af507bc84206afd6346d0c2560a71cb2e8febf7996568934bc989d980452",
+    "tool_signature": "4426765ffaaf28349778456b4696f3dae2f5ff87eb4b74ad4e8c4e86ee0437fb"
+  },
+  "resume_state": {
+    "status": "full-valid",
+    "stale_paths": [],
+    "runtime_identity_mismatch_fields": [],
+    "stale_summary_invalidations": 0
+  }
+}

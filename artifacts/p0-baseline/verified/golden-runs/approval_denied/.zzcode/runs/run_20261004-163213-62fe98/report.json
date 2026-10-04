@@ -1,0 +1,131 @@
+{
+  "attempts": 2,
+  "checkpoint_id": "ckpt_2737337d",
+  "durable_promotions": [],
+  "durable_rejections": [],
+  "durable_superseded": [],
+  "final_answer": "Write denied.",
+  "prompt_metadata": {
+    "budget_reductions": [],
+    "current_request": {
+      "raw_chars": 35,
+      "rendered_chars": 35,
+      "section_chars": 57,
+      "text": "Write changed content to sample.txt"
+    },
+    "history": {
+      "collapsed_duplicate_reads": 0,
+      "older_entries_count": 0,
+      "raw_chars": 155,
+      "rendered_chars": 155,
+      "reused_file_summary_count": 0,
+      "summarized_tool_count": 0
+    },
+    "history_chars": 143,
+    "memory_chars": 129,
+    "prefix_changed": false,
+    "prefix_chars": 6662,
+    "prefix_hash": "deb780d69b80c8ae9cda3273f58ed8b29d4bc5ec68a789ff37d1eef12d0fa966",
+    "prompt_budget_chars": 12000,
+    "prompt_cache_key": "deb780d69b80c8ae9cda3273f58ed8b29d4bc5ec68a789ff37d1eef12d0fa966",
+    "prompt_cache_supported": false,
+    "prompt_chars": 3972,
+    "prompt_over_budget": false,
+    "recent_commits": 5,
+    "reduction_order": [
+      "relevant_memory",
+      "history",
+      "memory",
+      "prefix"
+    ],
+    "relevant_memory": {
+      "limit": 3,
+      "raw_chars": 23,
+      "rendered_chars": 23,
+      "rendered_count": 0,
+      "rendered_notes": [],
+      "selected_count": 0,
+      "selected_durable_count": 0,
+      "selected_kinds": [],
+      "selected_notes": [],
+      "selected_sources": []
+    },
+    "request_chars": 35,
+    "resume_status": "full-valid",
+    "runtime_identity_mismatch_fields": [],
+    "secret_env_count": 0,
+    "secret_env_names": [],
+    "section_budgets": {
+      "current_request": null,
+      "history": 5200,
+      "memory": 1600,
+      "prefix": 3600,
+      "relevant_memory": 1200
+    },
+    "section_order": [
+      "prefix",
+      "memory",
+      "relevant_memory",
+      "history",
+      "current_request"
+    ],
+    "sections": {
+      "current_request": {
+        "budget_chars": null,
+        "raw_chars": 57,
+        "rendered_chars": 57
+      },
+      "history": {
+        "budget_chars": 5200,
+        "raw_chars": 155,
+        "rendered_chars": 155
+      },
+      "memory": {
+        "budget_chars": 1600,
+        "raw_chars": 129,
+        "rendered_chars": 129
+      },
+      "prefix": {
+        "budget_chars": 3600,
+        "raw_chars": 6912,
+        "rendered_chars": 3600
+      },
+      "relevant_memory": {
+        "budget_chars": 1200,
+        "raw_chars": 23,
+        "rendered_chars": 23
+      }
+    },
+    "stale_paths": [],
+    "stale_summary_invalidations": 0,
+    "tool_count": 7,
+    "tool_signature": "4426765ffaaf28349778456b4696f3dae2f5ff87eb4b74ad4e8c4e86ee0437fb",
+    "workspace_changed": false,
+    "workspace_chars": 4001,
+    "workspace_docs": 2,
+    "workspace_fingerprint": "90137eabbe3f7a1b6fa6ae95beafb9b2130541900c98573f43a4771dd1d699c4"
+  },
+  "redacted_env": {
+    "secret_env_count": 0,
+    "secret_env_names": []
+  },
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261004-163213-62fe98",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261004-163213-3640c2",
+  "task_state": {
+    "attempts": 2,
+    "checkpoint_id": "ckpt_2737337d",
+    "final_answer": "Write denied.",
+    "last_tool": "write_file",
+    "resume_status": "no-checkpoint",
+    "run_id": "run_20261004-163213-62fe98",
+    "status": "completed",
+    "stop_reason": "final_answer_returned",
+    "task_id": "task_20261004-163213-3640c2",
+    "tool_steps": 1,
+    "user_request": "Write changed content to sample.txt"
+  },
+  "tool_steps": 1
+}

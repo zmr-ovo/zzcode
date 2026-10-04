@@ -1,0 +1,13 @@
+{
+  "attempts": 2,
+  "checkpoint_id": "ckpt_e0f08019",
+  "final_answer": "Patched.",
+  "last_tool": "patch_file",
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261004-163213-925168",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261004-163213-5f8d33",
+  "tool_steps": 1,
+  "user_request": "Replace beta with gamma in sample.txt"
+}

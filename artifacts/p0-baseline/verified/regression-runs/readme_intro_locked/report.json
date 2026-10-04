@@ -1,0 +1,133 @@
+{
+  "attempts": 2,
+  "checkpoint_id": "ckpt_cead96bc",
+  "durable_promotions": [],
+  "durable_rejections": [],
+  "durable_superseded": [],
+  "final_answer": "Done.",
+  "prompt_metadata": {
+    "budget_reductions": [],
+    "current_request": {
+      "raw_chars": 116,
+      "rendered_chars": 116,
+      "section_chars": 138,
+      "text": "In the README fixture, replace the placeholder opening sentence with 'This fixture is a locked benchmark workspace.'"
+    },
+    "history": {
+      "collapsed_duplicate_reads": 0,
+      "older_entries_count": 0,
+      "raw_chars": 310,
+      "rendered_chars": 310,
+      "reused_file_summary_count": 0,
+      "summarized_tool_count": 0
+    },
+    "history_chars": 298,
+    "memory_chars": 218,
+    "prefix_changed": true,
+    "prefix_chars": 7054,
+    "prefix_hash": "e44b0a584a7d453f634e3dc65f771ea56d4d4a7f394dad3ff7a8d3e2f2ee3b5d",
+    "prompt_budget_chars": 12000,
+    "prompt_cache_key": "e44b0a584a7d453f634e3dc65f771ea56d4d4a7f394dad3ff7a8d3e2f2ee3b5d",
+    "prompt_cache_supported": false,
+    "prompt_chars": 4297,
+    "prompt_over_budget": false,
+    "recent_commits": 5,
+    "reduction_order": [
+      "relevant_memory",
+      "history",
+      "memory",
+      "prefix"
+    ],
+    "relevant_memory": {
+      "limit": 3,
+      "raw_chars": 23,
+      "rendered_chars": 23,
+      "rendered_count": 0,
+      "rendered_notes": [],
+      "selected_count": 0,
+      "selected_durable_count": 0,
+      "selected_kinds": [],
+      "selected_notes": [],
+      "selected_sources": []
+    },
+    "request_chars": 116,
+    "resume_status": "workspace-mismatch",
+    "runtime_identity_mismatch_fields": [
+      "workspace_fingerprint"
+    ],
+    "secret_env_count": 0,
+    "secret_env_names": [],
+    "section_budgets": {
+      "current_request": null,
+      "history": 5200,
+      "memory": 1600,
+      "prefix": 3600,
+      "relevant_memory": 1200
+    },
+    "section_order": [
+      "prefix",
+      "memory",
+      "relevant_memory",
+      "history",
+      "current_request"
+    ],
+    "sections": {
+      "current_request": {
+        "budget_chars": null,
+        "raw_chars": 138,
+        "rendered_chars": 138
+      },
+      "history": {
+        "budget_chars": 5200,
+        "raw_chars": 310,
+        "rendered_chars": 310
+      },
+      "memory": {
+        "budget_chars": 1600,
+        "raw_chars": 218,
+        "rendered_chars": 218
+      },
+      "prefix": {
+        "budget_chars": 3600,
+        "raw_chars": 7482,
+        "rendered_chars": 3600
+      },
+      "relevant_memory": {
+        "budget_chars": 1200,
+        "raw_chars": 23,
+        "rendered_chars": 23
+      }
+    },
+    "stale_paths": [],
+    "stale_summary_invalidations": 0,
+    "tool_count": 7,
+    "tool_signature": "4426765ffaaf28349778456b4696f3dae2f5ff87eb4b74ad4e8c4e86ee0437fb",
+    "workspace_changed": true,
+    "workspace_chars": 4393,
+    "workspace_docs": 3,
+    "workspace_fingerprint": "f3bf9f403206c40eb57d6ca08d3265f252f59e66d5fd0d8dc1db1f5582aa8584"
+  },
+  "redacted_env": {
+    "secret_env_count": 0,
+    "secret_env_names": []
+  },
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261004-163214-edda8d",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261004-163214-bb0821",
+  "task_state": {
+    "attempts": 2,
+    "checkpoint_id": "ckpt_cead96bc",
+    "final_answer": "Done.",
+    "last_tool": "patch_file",
+    "resume_status": "no-checkpoint",
+    "run_id": "run_20261004-163214-edda8d",
+    "status": "completed",
+    "stop_reason": "final_answer_returned",
+    "task_id": "task_20261004-163214-bb0821",
+    "tool_steps": 1,
+    "user_request": "In the README fixture, replace the placeholder opening sentence with 'This fixture is a locked benchmark workspace.'"
+  },
+  "tool_steps": 1
+}
