@@ -1,0 +1,194 @@
+[
+  {
+    "actual": {
+      "answer": "Read alpha and beta.",
+      "attempts": 2,
+      "files": {
+        "sample.txt": "alpha\nbeta\n"
+      },
+      "stop_reason": "final_answer_returned",
+      "tool_steps": 1,
+      "tools": [
+        "read_file"
+      ]
+    },
+    "id": "read_then_final",
+    "passed": true,
+    "run_dir": ".zzcode/runs/run_20261004-162812-9c9734",
+    "tool_results": [
+      "# sample.txt\n   1: alpha\n   2: beta"
+    ],
+    "transcript": {
+      "outputs": [
+        "<tool>{\"name\":\"read_file\",\"args\":{\"path\":\"sample.txt\",\"start\":1,\"end\":2}}</tool>",
+        "<final>Read alpha and beta.</final>"
+      ],
+      "prompt": "Inspect sample.txt"
+    }
+  },
+  {
+    "actual": {
+      "answer": "Patched.",
+      "attempts": 2,
+      "files": {
+        "sample.txt": "alpha\ngamma\n"
+      },
+      "stop_reason": "final_answer_returned",
+      "tool_steps": 1,
+      "tools": [
+        "patch_file"
+      ]
+    },
+    "id": "xml_patch_then_final",
+    "passed": true,
+    "run_dir": ".zzcode/runs/run_20261004-162812-35b6d2",
+    "tool_results": [
+      "patched sample.txt"
+    ],
+    "transcript": {
+      "outputs": [
+        "<tool name=\"patch_file\" path=\"sample.txt\"><old_text>beta</old_text><new_text>gamma</new_text></tool>",
+        "<final>Patched.</final>"
+      ],
+      "prompt": "Replace beta with gamma in sample.txt"
+    }
+  },
+  {
+    "actual": {
+      "answer": "Recovered.",
+      "attempts": 3,
+      "files": {
+        "sample.txt": "alpha\n"
+      },
+      "stop_reason": "final_answer_returned",
+      "tool_steps": 1,
+      "tools": [
+        "read_file"
+      ]
+    },
+    "id": "malformed_then_recover",
+    "passed": true,
+    "run_dir": ".zzcode/runs/run_20261004-162812-fa64ba",
+    "tool_results": [
+      "# sample.txt\n   1: alpha"
+    ],
+    "transcript": {
+      "outputs": [
+        "<tool>{broken}</tool>",
+        "<tool>{\"name\":\"read_file\",\"args\":{\"path\":\"sample.txt\"}}</tool>",
+        "<final>Recovered.</final>"
+      ],
+      "prompt": "Inspect sample.txt"
+    }
+  },
+  {
+    "actual": {
+      "answer": "Write denied.",
+      "attempts": 2,
+      "files": {
+        "sample.txt": "alpha\n"
+      },
+      "stop_reason": "final_answer_returned",
+      "tool_steps": 1,
+      "tools": [
+        "write_file"
+      ]
+    },
+    "id": "approval_denied",
+    "passed": true,
+    "run_dir": ".zzcode/runs/run_20261004-162813-7d0fce",
+    "tool_results": [
+      "error: approval denied for write_file"
+    ],
+    "transcript": {
+      "outputs": [
+        "<tool>{\"name\":\"write_file\",\"args\":{\"path\":\"sample.txt\",\"content\":\"changed\"}}</tool>",
+        "<final>Write denied.</final>"
+      ],
+      "prompt": "Write changed content to sample.txt"
+    }
+  },
+  {
+    "actual": {
+      "answer": "Read with one tool.",
+      "attempts": 2,
+      "files": {
+        "sample.txt": "alpha\n"
+      },
+      "stop_reason": "final_answer_returned",
+      "tool_steps": 1,
+      "tools": [
+        "read_file"
+      ]
+    },
+    "id": "budget_final_only",
+    "passed": true,
+    "run_dir": ".zzcode/runs/run_20261004-162813-da4a9c",
+    "tool_results": [
+      "# sample.txt\n   1: alpha"
+    ],
+    "transcript": {
+      "outputs": [
+        "<tool>{\"name\":\"read_file\",\"args\":{\"path\":\"sample.txt\"}}</tool>",
+        "<final>Read with one tool.</final>"
+      ],
+      "prompt": "Inspect sample.txt"
+    }
+  },
+  {
+    "actual": {
+      "answer": "Stopped after reaching the step limit without a final answer.",
+      "attempts": 2,
+      "files": {
+        "sample.txt": "alpha\n"
+      },
+      "stop_reason": "step_limit_reached",
+      "tool_steps": 1,
+      "tools": [
+        "read_file"
+      ]
+    },
+    "id": "budget_reject_extra_tool",
+    "passed": true,
+    "run_dir": ".zzcode/runs/run_20261004-162813-2c47d5",
+    "tool_results": [
+      "# sample.txt\n   1: alpha"
+    ],
+    "transcript": {
+      "outputs": [
+        "<tool>{\"name\":\"read_file\",\"args\":{\"path\":\"sample.txt\"}}</tool>",
+        "<tool>{\"name\":\"write_file\",\"args\":{\"path\":\"sample.txt\",\"content\":\"should not execute\"}}</tool>"
+      ],
+      "prompt": "Inspect sample.txt"
+    }
+  },
+  {
+    "actual": {
+      "answer": "Stopped after too many malformed model responses without a valid tool call or final answer.",
+      "attempts": 5,
+      "files": {
+        "sample.txt": "alpha\n"
+      },
+      "stop_reason": "retry_limit_reached",
+      "tool_steps": 0,
+      "tools": []
+    },
+    "id": "malformed_retry_limit",
+    "passed": true,
+    "run_dir": ".zzcode/runs/run_20261004-162813-4318b9",
+    "tool_results": [],
+    "transcript": {
+      "outputs": [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "prompt": "Give a valid answer"
+    }
+  }
+]

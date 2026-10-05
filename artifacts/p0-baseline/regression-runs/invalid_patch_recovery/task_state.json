@@ -1,0 +1,13 @@
+{
+  "attempts": 3,
+  "checkpoint_id": "ckpt_9a883b5c",
+  "final_answer": "Done.",
+  "last_tool": "patch_file",
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261004-162814-d6ebc0",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261004-162814-b1f561",
+  "tool_steps": 2,
+  "user_request": "Recover after invalid patch arguments and finish the README patch."
+}

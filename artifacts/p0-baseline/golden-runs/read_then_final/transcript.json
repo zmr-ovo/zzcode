@@ -1,0 +1,27 @@
+{
+  "actual": {
+    "answer": "Read alpha and beta.",
+    "attempts": 2,
+    "files": {
+      "sample.txt": "alpha\nbeta\n"
+    },
+    "stop_reason": "final_answer_returned",
+    "tool_steps": 1,
+    "tools": [
+      "read_file"
+    ]
+  },
+  "id": "read_then_final",
+  "passed": true,
+  "run_dir": ".zzcode/runs/run_20261004-162812-9c9734",
+  "tool_results": [
+    "# sample.txt\n   1: alpha\n   2: beta"
+  ],
+  "transcript": {
+    "outputs": [
+      "<tool>{\"name\":\"read_file\",\"args\":{\"path\":\"sample.txt\",\"start\":1,\"end\":2}}</tool>",
+      "<final>Read alpha and beta.</final>"
+    ],
+    "prompt": "Inspect sample.txt"
+  }
+}

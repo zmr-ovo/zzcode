@@ -1,0 +1,91 @@
+diff --git a/.gitignore b/.gitignore
+index 14b1477..be8b1d4 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -7,7 +7,6 @@ __pycache__/
+ # Virtual environments
+ .venv/
+ venv/
+-uv.lock
+ 
+ # Packaging
+ *.egg-info/
+@@ -37,6 +36,8 @@ tmp/
+ .zzcode/
+ artifacts/*
+ !artifacts/test-baseline.json
++!artifacts/p0-baseline/
++artifacts/p0-baseline/workspaces/
+ readme_intro_locked/
+ evaluation/runs/
+ evaluation/reports/
+@@ -53,6 +54,9 @@ docs/*
+ !docs/testing/current-test-map.md
+ !docs/testing/current-benchmark-map.md
+ !docs/testing/migration-matrix.md
++!docs/zzcode-upgrade-plan-v2.md
++!docs/review-pack/
++!docs/architecture/
+ 
+ # OS files
+ .DS_Store
+diff --git a/pyproject.toml b/pyproject.toml
+index 2986bcd..2144062 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -24,6 +24,7 @@ dev = [
+ include = ["zzcode*"]
+ 
+ [tool.pytest.ini_options]
++pythonpath = ["."]
+ markers = [
+   "unit: fast isolated tests",
+   "integration: component integration tests",
+diff --git a/scripts/run_internal_eval.py b/scripts/run_internal_eval.py
+index b4277a5..3f90e3a 100644
+--- a/scripts/run_internal_eval.py
++++ b/scripts/run_internal_eval.py
+@@ -33,6 +33,10 @@ def build_parser() -> argparse.ArgumentParser:
+     )
+     parser.add_argument("--private-root", type=Path, default=None)
+     parser.add_argument("--split", default="dev")
++    parser.add_argument(
++        "--instance-id", action="append", default=None,
++        help="Select tasks within the verified split; repeat for a fixed smoke set.",
++    )
+     parser.add_argument("--repo-path", type=Path, default=Path.cwd())
+     parser.add_argument(
+         "--workspace-root",
+@@ -84,6 +88,19 @@ def main() -> int:
+ 
+     dataset = EvaluationDataset.load(public_root, private_root, args.split)
+     dataset.verify_lock()
++    if args.instance_id:
++        selected_ids = set(args.instance_id)
++        known_ids = {task.instance_id for task in dataset.tasks()}
++        if len(selected_ids) != len(args.instance_id) or not selected_ids <= known_ids:
++            raise SystemExit("instance ids must be unique and belong to the selected split")
++        tasks = tuple(task for task in dataset.tasks() if task.instance_id in selected_ids)
++        dataset = EvaluationDataset(
++            public_root=dataset.public_root,
++            private_root=dataset.private_root,
++            split=dataset.split,
++            tasks=tasks,
++            private_specs={task.instance_id: dataset.private_spec(task.instance_id) for task in tasks},
++        )
+     task_repos = {task.repo for task in dataset.tasks()}
+     if len(task_repos) != 1:
+         raise SystemExit("internal runner currently requires one repository per run")
+diff --git a/tests/test_zzcode.py b/tests/test_zzcode.py
+index 85baf21..686be6c 100644
+--- a/tests/test_zzcode.py
++++ b/tests/test_zzcode.py
+@@ -308,7 +308,7 @@ def test_welcome_screen_keeps_box_shape_for_long_paths(tmp_path):
+     assert len(lines) >= 5
+     assert len({len(line) for line in lines}) == 1
+     assert "..." in welcome
+-    assert "(  o o  )" in welcome
++    assert "Start your creation!" in welcome
+     assert "MINI-CODING-AGENT" not in welcome
+     assert "MINI CODING AGENT" not in welcome
+     assert "zzcode" in welcome

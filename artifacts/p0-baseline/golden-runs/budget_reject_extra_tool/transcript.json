@@ -1,0 +1,27 @@
+{
+  "actual": {
+    "answer": "Stopped after reaching the step limit without a final answer.",
+    "attempts": 2,
+    "files": {
+      "sample.txt": "alpha\n"
+    },
+    "stop_reason": "step_limit_reached",
+    "tool_steps": 1,
+    "tools": [
+      "read_file"
+    ]
+  },
+  "id": "budget_reject_extra_tool",
+  "passed": true,
+  "run_dir": ".zzcode/runs/run_20261004-162813-2c47d5",
+  "tool_results": [
+    "# sample.txt\n   1: alpha"
+  ],
+  "transcript": {
+    "outputs": [
+      "<tool>{\"name\":\"read_file\",\"args\":{\"path\":\"sample.txt\"}}</tool>",
+      "<tool>{\"name\":\"write_file\",\"args\":{\"path\":\"sample.txt\",\"content\":\"should not execute\"}}</tool>"
+    ],
+    "prompt": "Inspect sample.txt"
+  }
+}

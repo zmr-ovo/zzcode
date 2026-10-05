@@ -1,0 +1,27 @@
+{
+  "actual": {
+    "answer": "Write denied.",
+    "attempts": 2,
+    "files": {
+      "sample.txt": "alpha\n"
+    },
+    "stop_reason": "final_answer_returned",
+    "tool_steps": 1,
+    "tools": [
+      "write_file"
+    ]
+  },
+  "id": "approval_denied",
+  "passed": true,
+  "run_dir": ".zzcode/runs/run_20261004-162813-7d0fce",
+  "tool_results": [
+    "error: approval denied for write_file"
+  ],
+  "transcript": {
+    "outputs": [
+      "<tool>{\"name\":\"write_file\",\"args\":{\"path\":\"sample.txt\",\"content\":\"changed\"}}</tool>",
+      "<final>Write denied.</final>"
+    ],
+    "prompt": "Write changed content to sample.txt"
+  }
+}

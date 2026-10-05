@@ -1,0 +1,27 @@
+{
+  "actual": {
+    "answer": "Patched.",
+    "attempts": 2,
+    "files": {
+      "sample.txt": "alpha\ngamma\n"
+    },
+    "stop_reason": "final_answer_returned",
+    "tool_steps": 1,
+    "tools": [
+      "patch_file"
+    ]
+  },
+  "id": "xml_patch_then_final",
+  "passed": true,
+  "run_dir": ".zzcode/runs/run_20261004-162812-35b6d2",
+  "tool_results": [
+    "patched sample.txt"
+  ],
+  "transcript": {
+    "outputs": [
+      "<tool name=\"patch_file\" path=\"sample.txt\"><old_text>beta</old_text><new_text>gamma</new_text></tool>",
+      "<final>Patched.</final>"
+    ],
+    "prompt": "Replace beta with gamma in sample.txt"
+  }
+}
