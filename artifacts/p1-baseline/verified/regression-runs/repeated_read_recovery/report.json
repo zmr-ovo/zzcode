@@ -1,0 +1,142 @@
+{
+  "attempts": 5,
+  "checkpoint_id": "ckpt_71e48749",
+  "durable_promotions": [],
+  "durable_rejections": [],
+  "durable_superseded": [],
+  "final_answer": "Done.",
+  "prompt_metadata": {
+    "budget_reductions": [],
+    "current_request": {
+      "raw_chars": 77,
+      "rendered_chars": 77,
+      "section_chars": 99,
+      "text": "Recover after repeated identical reads and still finish the sample.txt patch."
+    },
+    "history": {
+      "collapsed_duplicate_reads": 0,
+      "older_entries_count": 1,
+      "raw_chars": 683,
+      "rendered_chars": 600,
+      "reused_file_summary_count": 0,
+      "summarized_tool_count": 1
+    },
+    "history_chars": 671,
+    "memory_chars": 180,
+    "native_history_messages": 9,
+    "native_request_chars": 6970,
+    "native_request_over_budget": false,
+    "prefix_changed": false,
+    "prefix_chars": 5816,
+    "prefix_hash": "ad0d2e93284c382659cc4936bbfeb40652eaae52c2c8f759f123d4faaf872742",
+    "prompt_budget_chars": 12000,
+    "prompt_cache_key": "ad0d2e93284c382659cc4936bbfeb40652eaae52c2c8f759f123d4faaf872742",
+    "prompt_cache_supported": false,
+    "prompt_chars": 4535,
+    "prompt_over_budget": false,
+    "recent_commits": 5,
+    "reduction_order": [
+      "relevant_memory",
+      "history",
+      "memory",
+      "prefix"
+    ],
+    "relevant_memory": {
+      "limit": 3,
+      "raw_chars": 48,
+      "rendered_chars": 48,
+      "rendered_count": 1,
+      "rendered_notes": [
+        "1: alpha | 2: beta | 3: gamma"
+      ],
+      "selected_count": 1,
+      "selected_durable_count": 0,
+      "selected_kinds": [
+        "episodic"
+      ],
+      "selected_notes": [
+        "1: alpha | 2: beta | 3: gamma"
+      ],
+      "selected_sources": [
+        "sample.txt"
+      ]
+    },
+    "request_chars": 77,
+    "resume_status": "full-valid",
+    "runtime_identity_mismatch_fields": [],
+    "secret_env_count": 0,
+    "secret_env_names": [],
+    "section_budgets": {
+      "current_request": null,
+      "history": 5200,
+      "memory": 1600,
+      "prefix": 3600,
+      "relevant_memory": 1200
+    },
+    "section_order": [
+      "prefix",
+      "memory",
+      "relevant_memory",
+      "history",
+      "current_request"
+    ],
+    "sections": {
+      "current_request": {
+        "budget_chars": null,
+        "raw_chars": 99,
+        "rendered_chars": 99
+      },
+      "history": {
+        "budget_chars": 5200,
+        "raw_chars": 683,
+        "rendered_chars": 600
+      },
+      "memory": {
+        "budget_chars": 1600,
+        "raw_chars": 180,
+        "rendered_chars": 180
+      },
+      "prefix": {
+        "budget_chars": 3600,
+        "raw_chars": 6159,
+        "rendered_chars": 3600
+      },
+      "relevant_memory": {
+        "budget_chars": 1200,
+        "raw_chars": 48,
+        "rendered_chars": 48
+      }
+    },
+    "stale_paths": [],
+    "stale_summary_invalidations": 0,
+    "tool_count": 7,
+    "tool_signature": "ad7bba32d6a57b928241098e9f84174b74ffe5160602a4338c42217eed92f4ad",
+    "workspace_changed": false,
+    "workspace_chars": 4202,
+    "workspace_docs": 2,
+    "workspace_fingerprint": "2bdb6b2415bdd838933aa0df0639e82e343a1b00ffeb692e998ddff6e939b9e8"
+  },
+  "redacted_env": {
+    "secret_env_count": 0,
+    "secret_env_names": []
+  },
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261005-150023-aa960b",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261005-150023-45d64f",
+  "task_state": {
+    "attempts": 5,
+    "checkpoint_id": "ckpt_71e48749",
+    "final_answer": "Done.",
+    "last_tool": "patch_file",
+    "resume_status": "no-checkpoint",
+    "run_id": "run_20261005-150023-aa960b",
+    "status": "completed",
+    "stop_reason": "final_answer_returned",
+    "task_id": "task_20261005-150023-45d64f",
+    "tool_steps": 4,
+    "user_request": "Recover after repeated identical reads and still finish the sample.txt patch."
+  },
+  "tool_steps": 4
+}

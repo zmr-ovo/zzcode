@@ -1,0 +1,134 @@
+{
+  "attempts": 3,
+  "checkpoint_id": "ckpt_fb955954",
+  "durable_promotions": [],
+  "durable_rejections": [],
+  "durable_superseded": [],
+  "final_answer": "Done.",
+  "prompt_metadata": {
+    "budget_reductions": [],
+    "current_request": {
+      "raw_chars": 67,
+      "rendered_chars": 67,
+      "section_chars": 89,
+      "text": "Reject a path escape attempt and still finish the sample.txt patch."
+    },
+    "history": {
+      "collapsed_duplicate_reads": 0,
+      "older_entries_count": 0,
+      "raw_chars": 421,
+      "rendered_chars": 421,
+      "reused_file_summary_count": 0,
+      "summarized_tool_count": 0
+    },
+    "history_chars": 409,
+    "memory_chars": 170,
+    "native_history_messages": 5,
+    "native_request_chars": 6070,
+    "native_request_over_budget": false,
+    "prefix_changed": false,
+    "prefix_chars": 5814,
+    "prefix_hash": "8722c0eadc14eae4edbbd5d9a4989a3f669a1b34ac9077dc4aa9d3593be5d30c",
+    "prompt_budget_chars": 12000,
+    "prompt_cache_key": "8722c0eadc14eae4edbbd5d9a4989a3f669a1b34ac9077dc4aa9d3593be5d30c",
+    "prompt_cache_supported": false,
+    "prompt_chars": 4311,
+    "prompt_over_budget": false,
+    "recent_commits": 5,
+    "reduction_order": [
+      "relevant_memory",
+      "history",
+      "memory",
+      "prefix"
+    ],
+    "relevant_memory": {
+      "limit": 3,
+      "raw_chars": 23,
+      "rendered_chars": 23,
+      "rendered_count": 0,
+      "rendered_notes": [],
+      "selected_count": 0,
+      "selected_durable_count": 0,
+      "selected_kinds": [],
+      "selected_notes": [],
+      "selected_sources": []
+    },
+    "request_chars": 67,
+    "resume_status": "full-valid",
+    "runtime_identity_mismatch_fields": [],
+    "secret_env_count": 0,
+    "secret_env_names": [],
+    "section_budgets": {
+      "current_request": null,
+      "history": 5200,
+      "memory": 1600,
+      "prefix": 3600,
+      "relevant_memory": 1200
+    },
+    "section_order": [
+      "prefix",
+      "memory",
+      "relevant_memory",
+      "history",
+      "current_request"
+    ],
+    "sections": {
+      "current_request": {
+        "budget_chars": null,
+        "raw_chars": 89,
+        "rendered_chars": 89
+      },
+      "history": {
+        "budget_chars": 5200,
+        "raw_chars": 421,
+        "rendered_chars": 421
+      },
+      "memory": {
+        "budget_chars": 1600,
+        "raw_chars": 170,
+        "rendered_chars": 170
+      },
+      "prefix": {
+        "budget_chars": 3600,
+        "raw_chars": 6137,
+        "rendered_chars": 3600
+      },
+      "relevant_memory": {
+        "budget_chars": 1200,
+        "raw_chars": 23,
+        "rendered_chars": 23
+      }
+    },
+    "stale_paths": [],
+    "stale_summary_invalidations": 0,
+    "tool_count": 7,
+    "tool_signature": "ad7bba32d6a57b928241098e9f84174b74ffe5160602a4338c42217eed92f4ad",
+    "workspace_changed": false,
+    "workspace_chars": 4200,
+    "workspace_docs": 2,
+    "workspace_fingerprint": "74c473acf66b621d4700cb2277a1f42b43296720fe167965fd1f21f8eb9c6b8a"
+  },
+  "redacted_env": {
+    "secret_env_count": 0,
+    "secret_env_names": []
+  },
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261005-150022-38a2ab",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261005-150022-e3d70c",
+  "task_state": {
+    "attempts": 3,
+    "checkpoint_id": "ckpt_fb955954",
+    "final_answer": "Done.",
+    "last_tool": "patch_file",
+    "resume_status": "no-checkpoint",
+    "run_id": "run_20261005-150022-38a2ab",
+    "status": "completed",
+    "stop_reason": "final_answer_returned",
+    "task_id": "task_20261005-150022-e3d70c",
+    "tool_steps": 2,
+    "user_request": "Reject a path escape attempt and still finish the sample.txt patch."
+  },
+  "tool_steps": 2
+}

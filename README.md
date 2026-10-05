@@ -34,6 +34,8 @@ flowchart LR
 - 基于显式 Agent Loop 调度模型调用、工具执行、step budget 与停止条件。
 - 提供 `list_files`、`read_file`、`search`、`write_file`、`patch_file`、`run_shell` 等仓库工具。
 - 所有工具统一经过参数校验、路径约束和风险控制，高风险操作支持 `ask / auto / never` 三种审批策略。
+- 使用原生工具协议：OpenAI Responses、Claude Messages、Ollama Chat。一次响应可包含多个工具调用，按顺序执行并关联结果。
+- 最终答案为普通文本；已移除自定义文本标签与 XML 工具解析。后端需要支持原生 Tool Calling。
 
 ### Context & Memory
 
@@ -132,3 +134,16 @@ zzcode/
 uv run pytest
 uv run ruff check .
 ```
+
+### Native protocol validation
+
+```bash
+uv run pytest tests/test_native_protocol.py tests/test_protocol_golden.py
+uv run python scripts/freeze_p1_baseline.py --output artifacts/p1-baseline/verified
+# Uses the configured backend for a read-only tool round trip:
+uv run python scripts/run_native_smoke.py --provider openai --output artifacts/p1-baseline/native-smoke.json
+```
+
+原生消息保存完整内容块与工具 call ID。恢复旧会话时，旧工具文本作为历史观察，不会重新解析或执行。中断批次的未配对调用记为 `unknown`，需要先检查工作区；P2 将补充独立操作账本。签名思考内容只保存在权限为 `0600` 的 Session 中，不进入公开 Trace、Report 或记忆摘要。
+
+P0 历史证据保留在 `artifacts/p0-baseline/verified/`；重放旧协议需使用提交 `464428c`。当前默认配置为 `structured`。

@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "default": "legacy",
+  "default": "structured",
   "profiles": {
-    "legacy": {
+    "structured": {
       "implemented": true,
       "features": {
         "memory": true,
@@ -12,5 +12,8 @@
       }
     }
   },
-  "reserved_profiles": ["structured", "reliable_tools", "token_context"]
+  "reserved_profiles": [
+    "reliable_tools",
+    "token_context"
+  ]
 }

@@ -63,3 +63,8 @@ docs/*
 
 # Packaging metadata
 zzcode.egg-info/
+
+# Native protocol validation evidence (sessions and workspaces stay private).
+!artifacts/p1-baseline/
+artifacts/p1-baseline/workspaces/
+artifacts/p1-baseline/verified/workspaces/

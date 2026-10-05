@@ -1,4 +1,4 @@
-"""Execute fixed legacy transcripts against the unchanged production loop."""
+"""Execute fixed native transcripts against the production loop."""
 
 import json
 from pathlib import Path
@@ -12,16 +12,20 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
 def load_cases():
-    return json.loads((PROJECT_ROOT / "tests/fixtures/legacy_golden.json").read_text())["cases"]
+    return json.loads((PROJECT_ROOT / "tests/fixtures/native_golden.json").read_text())[
+        "cases"
+    ]
 
 
-def load_profile(name="legacy"):
-    config = json.loads((PROJECT_ROOT / "evaluation/configs/migration-profiles.json").read_text())
+def load_profile(name="structured"):
+    config = json.loads(
+        (PROJECT_ROOT / "evaluation/configs/migration-profiles.json").read_text()
+    )
     profile = config["profiles"].get(name)
     if not profile or not profile["implemented"]:
         raise ValueError(f"migration profile is not implemented: {name}")
     if profile["features"] != DEFAULT_FEATURE_FLAGS:
-        raise ValueError("legacy feature profile drifted from the P0 contract")
+        raise ValueError("structured feature profile drifted")
     return profile["features"]
 
 
@@ -54,7 +58,9 @@ def run_case(case, root):
     expected = case["expected"]
     for key, value in actual.items():
         if value != expected[key]:
-            raise AssertionError(f"{case['id']}.{key}: expected {expected[key]!r}, got {value!r}")
+            raise AssertionError(
+                f"{case['id']}.{key}: expected {expected[key]!r}, got {value!r}"
+            )
     for item, needle in zip(tools, expected["tool_contains"], strict=True):
         if needle not in item["content"]:
             raise AssertionError(f"{case['id']}: missing {needle!r} in tool result")

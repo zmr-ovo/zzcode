@@ -7,6 +7,10 @@
 from __future__ import annotations
 
 import json
+
+from .core.messages import Message, TextBlock, ToolResult, ModelRequest, ProviderProtocolError
+from . import tools as toolkit
+from .workspace import now
 from dataclasses import dataclass
 
 
@@ -442,6 +446,7 @@ class ContextManager:
         return [f"[{item['role']}] {_tail_clip(item['content'], line_limit)}"]
 
     def _assemble_prompt(self, rendered):
+        self._native_system = "\n\n".join(rendered[section].rendered for section in ("prefix", "memory", "relevant_memory")).strip()
         # 顺序是刻意设计的：稳定规则放前面，最新请求放最后。
         return "\n\n".join(
             [
@@ -507,3 +512,59 @@ class ContextManager:
                 "section_chars": len(rendered[CURRENT_REQUEST_SECTION].rendered),
             },
         }
+
+    def build_request(self, user_message, prompt, metadata, finalization=False):
+        # Native call/result groups are indivisible: never truncate JSON or orphan a result.
+        groups = []
+        pending = set()
+        for item in self.agent.session["history"]:
+            if "message" in item:
+                message = Message.from_dict(item["message"])
+            elif item["role"] == "tool":
+                message = Message("user", (TextBlock("Historical tool observation: " + item["content"]),))
+            else:
+                message = Message(item["role"], (TextBlock(item["content"]),))
+            if not message.content or (not message.tool_calls and message.role == "assistant" and not message.text and not any(block.type == "opaque" for block in message.content)):
+                continue
+            if pending:
+                if message.role != "tool":
+                    raise ProviderProtocolError("incomplete tool batch in saved session; start a new session")
+                for block in message.content:
+                    if not isinstance(block, ToolResult) or block.call_id not in pending:
+                        raise ProviderProtocolError("unmatched saved tool result")
+                    pending.remove(block.call_id)
+                groups[-1].append(message)
+            else:
+                groups.append([message])
+                pending.update(call.call_id for call in message.tool_calls)
+        if pending:
+            # Interrupted batches must never replay potentially completed side effects.
+            calls = {call.call_id: call for message in groups[-1] for call in message.tool_calls}
+            for call_id in sorted(pending):
+                call = calls[call_id]
+                result = ToolResult(call_id, call.name, "Execution outcome unknown after interruption; inspect workspace before repeating.", "unknown")
+                message = Message("tool", (result,))
+                self.agent.record({"role": "tool", "name": call.name, "args": call.arguments, "content": result.content,
+                             "message": message.to_dict(), "created_at": now()})
+                groups[-1].append(message)
+        # Existing character budget is a soft history limit; P3 will add token accounting.
+        budget = max(1000, self.section_budgets["history"])
+        current_start = 0
+        for index, group in enumerate(groups):
+            if group[0].role == "user" and group[0].text == user_message:
+                current_start = index
+        selected = [message for group in groups[current_start:] for message in group]
+        size = sum(len(json.dumps(message.to_dict())) for message in selected)
+        for group in reversed(groups[:current_start]):
+            group_size = sum(len(json.dumps(message.to_dict())) for message in group)
+            if size + group_size > budget:
+                break
+            selected[0:0] = group
+            size += group_size
+        system = self._native_system
+        if finalization:
+            system += "\nTool budget exhausted. Based on available results, give the best concise answer and mention any incomplete work."
+        cache = metadata.get("prompt_cache_key") if getattr(self.agent.model_client, "supports_prompt_cache", False) and not finalization else None
+        return ModelRequest(system=system, messages=tuple(selected), tools=toolkit.native_tool_specs(self.agent.tools),
+                            max_output_tokens=self.agent.max_new_tokens, tool_choice="none" if finalization else "auto",
+                            cache_key=cache, cache_retention="in_memory" if cache else None, debug_text=prompt)

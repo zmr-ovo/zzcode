@@ -1,0 +1,136 @@
+{
+  "attempts": 1,
+  "checkpoint_id": "ckpt_131695cf",
+  "durable_promotions": [],
+  "durable_rejections": [],
+  "durable_superseded": [],
+  "final_answer": "Done.",
+  "prompt_metadata": {
+    "budget_reductions": [],
+    "current_request": {
+      "raw_chars": 65,
+      "rendered_chars": 65,
+      "section_chars": 87,
+      "text": "Resume after benchmark workspace drift and rebuild runtime state."
+    },
+    "history": {
+      "collapsed_duplicate_reads": 0,
+      "older_entries_count": 0,
+      "raw_chars": 84,
+      "rendered_chars": 84,
+      "reused_file_summary_count": 0,
+      "summarized_tool_count": 0
+    },
+    "history_chars": 72,
+    "memory_chars": 159,
+    "native_history_messages": 1,
+    "native_request_chars": 5109,
+    "native_request_over_budget": false,
+    "prefix_changed": true,
+    "prefix_chars": 6071,
+    "prefix_hash": "1ad5e28a7c8c912ac52c38d243b62932ac52d6397d05d1417c4fe7f63e6bf968",
+    "prompt_budget_chars": 12000,
+    "prompt_cache_key": "1ad5e28a7c8c912ac52c38d243b62932ac52d6397d05d1417c4fe7f63e6bf968",
+    "prompt_cache_supported": false,
+    "prompt_chars": 3961,
+    "prompt_over_budget": false,
+    "recent_commits": 5,
+    "reduction_order": [
+      "relevant_memory",
+      "history",
+      "memory",
+      "prefix"
+    ],
+    "relevant_memory": {
+      "limit": 3,
+      "raw_chars": 23,
+      "rendered_chars": 23,
+      "rendered_count": 0,
+      "rendered_notes": [],
+      "selected_count": 0,
+      "selected_durable_count": 0,
+      "selected_kinds": [],
+      "selected_notes": [],
+      "selected_sources": []
+    },
+    "request_chars": 65,
+    "resume_status": "workspace-mismatch",
+    "runtime_identity_mismatch_fields": [
+      "workspace_fingerprint"
+    ],
+    "secret_env_count": 0,
+    "secret_env_names": [],
+    "section_budgets": {
+      "current_request": null,
+      "history": 5200,
+      "memory": 1600,
+      "prefix": 3600,
+      "relevant_memory": 1200
+    },
+    "section_order": [
+      "prefix",
+      "memory",
+      "relevant_memory",
+      "history",
+      "current_request"
+    ],
+    "sections": {
+      "current_request": {
+        "budget_chars": null,
+        "raw_chars": 87,
+        "rendered_chars": 87
+      },
+      "history": {
+        "budget_chars": 5200,
+        "raw_chars": 84,
+        "rendered_chars": 84
+      },
+      "memory": {
+        "budget_chars": 1600,
+        "raw_chars": 159,
+        "rendered_chars": 159
+      },
+      "prefix": {
+        "budget_chars": 3600,
+        "raw_chars": 6324,
+        "rendered_chars": 3600
+      },
+      "relevant_memory": {
+        "budget_chars": 1200,
+        "raw_chars": 23,
+        "rendered_chars": 23
+      }
+    },
+    "stale_paths": [],
+    "stale_summary_invalidations": 0,
+    "tool_count": 7,
+    "tool_signature": "ad7bba32d6a57b928241098e9f84174b74ffe5160602a4338c42217eed92f4ad",
+    "workspace_changed": true,
+    "workspace_chars": 4457,
+    "workspace_docs": 3,
+    "workspace_fingerprint": "6ab2e4146232afe5e51252d5350b3d3e41b11562a7494af8236fada6d0a2a85f"
+  },
+  "redacted_env": {
+    "secret_env_count": 0,
+    "secret_env_names": []
+  },
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261005-150023-8a8352",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261005-150023-a56dd8",
+  "task_state": {
+    "attempts": 1,
+    "checkpoint_id": "ckpt_131695cf",
+    "final_answer": "Done.",
+    "last_tool": "",
+    "resume_status": "no-checkpoint",
+    "run_id": "run_20261005-150023-8a8352",
+    "status": "completed",
+    "stop_reason": "final_answer_returned",
+    "task_id": "task_20261005-150023-a56dd8",
+    "tool_steps": 0,
+    "user_request": "Resume after benchmark workspace drift and rebuild runtime state."
+  },
+  "tool_steps": 0
+}

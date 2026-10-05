@@ -1,0 +1,307 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "read_then_final",
+      "prompt": "Inspect sample.txt",
+      "files": {
+        "sample.txt": "alpha\nbeta\n"
+      },
+      "outputs": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "tool_call",
+                "call_id": "call_0",
+                "name": "read_file",
+                "arguments": {
+                  "path": "sample.txt",
+                  "start": 1,
+                  "end": 2
+                }
+              }
+            ]
+          },
+          "stop_reason": "tool_call"
+        },
+        "Read alpha and beta."
+      ],
+      "expected": {
+        "answer": "Read alpha and beta.",
+        "stop_reason": "final_answer_returned",
+        "attempts": 2,
+        "tool_steps": 1,
+        "tools": [
+          "read_file"
+        ],
+        "tool_contains": [
+          "alpha"
+        ],
+        "files": {
+          "sample.txt": "alpha\nbeta\n"
+        }
+      }
+    },
+    {
+      "id": "native_patch_then_final",
+      "prompt": "Replace beta with gamma in sample.txt",
+      "files": {
+        "sample.txt": "alpha\nbeta\n"
+      },
+      "outputs": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "tool_call",
+                "call_id": "call_0",
+                "name": "patch_file",
+                "arguments": {
+                  "path": "sample.txt",
+                  "old_text": "beta",
+                  "new_text": "gamma"
+                }
+              }
+            ]
+          },
+          "stop_reason": "tool_call"
+        },
+        "Patched."
+      ],
+      "expected": {
+        "answer": "Patched.",
+        "stop_reason": "final_answer_returned",
+        "attempts": 2,
+        "tool_steps": 1,
+        "tools": [
+          "patch_file"
+        ],
+        "tool_contains": [
+          "patched sample.txt"
+        ],
+        "files": {
+          "sample.txt": "alpha\ngamma\n"
+        }
+      }
+    },
+    {
+      "id": "malformed_then_recover",
+      "prompt": "Inspect sample.txt",
+      "files": {
+        "sample.txt": "alpha\n"
+      },
+      "outputs": [
+        "",
+        {
+          "message": {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "tool_call",
+                "call_id": "call_1",
+                "name": "read_file",
+                "arguments": {
+                  "path": "sample.txt"
+                }
+              }
+            ]
+          },
+          "stop_reason": "tool_call"
+        },
+        "Recovered."
+      ],
+      "expected": {
+        "answer": "Recovered.",
+        "stop_reason": "final_answer_returned",
+        "attempts": 3,
+        "tool_steps": 1,
+        "tools": [
+          "read_file"
+        ],
+        "tool_contains": [
+          "alpha"
+        ],
+        "files": {
+          "sample.txt": "alpha\n"
+        }
+      }
+    },
+    {
+      "id": "approval_denied",
+      "prompt": "Write changed content to sample.txt",
+      "approval_policy": "never",
+      "files": {
+        "sample.txt": "alpha\n"
+      },
+      "outputs": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "tool_call",
+                "call_id": "call_0",
+                "name": "write_file",
+                "arguments": {
+                  "path": "sample.txt",
+                  "content": "changed"
+                }
+              }
+            ]
+          },
+          "stop_reason": "tool_call"
+        },
+        "Write denied."
+      ],
+      "expected": {
+        "answer": "Write denied.",
+        "stop_reason": "final_answer_returned",
+        "attempts": 2,
+        "tool_steps": 1,
+        "tools": [
+          "write_file"
+        ],
+        "tool_contains": [
+          "approval denied"
+        ],
+        "files": {
+          "sample.txt": "alpha\n"
+        }
+      }
+    },
+    {
+      "id": "budget_final_only",
+      "prompt": "Inspect sample.txt",
+      "max_steps": 1,
+      "files": {
+        "sample.txt": "alpha\n"
+      },
+      "outputs": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "tool_call",
+                "call_id": "call_0",
+                "name": "read_file",
+                "arguments": {
+                  "path": "sample.txt"
+                }
+              }
+            ]
+          },
+          "stop_reason": "tool_call"
+        },
+        "Read with one tool."
+      ],
+      "expected": {
+        "answer": "Read with one tool.",
+        "stop_reason": "final_answer_returned",
+        "attempts": 2,
+        "tool_steps": 1,
+        "tools": [
+          "read_file"
+        ],
+        "tool_contains": [
+          "alpha"
+        ],
+        "files": {
+          "sample.txt": "alpha\n"
+        }
+      }
+    },
+    {
+      "id": "budget_reject_extra_tool",
+      "prompt": "Inspect sample.txt",
+      "max_steps": 1,
+      "files": {
+        "sample.txt": "alpha\n"
+      },
+      "outputs": [
+        {
+          "message": {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "tool_call",
+                "call_id": "call_0",
+                "name": "read_file",
+                "arguments": {
+                  "path": "sample.txt"
+                }
+              }
+            ]
+          },
+          "stop_reason": "tool_call"
+        },
+        {
+          "message": {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "tool_call",
+                "call_id": "call_1",
+                "name": "write_file",
+                "arguments": {
+                  "path": "sample.txt",
+                  "content": "should not execute"
+                }
+              }
+            ]
+          },
+          "stop_reason": "tool_call"
+        }
+      ],
+      "expected": {
+        "answer": "Stopped after reaching the step limit without a final answer.",
+        "stop_reason": "step_limit_reached",
+        "attempts": 2,
+        "tool_steps": 1,
+        "tools": [
+          "read_file",
+          "write_file"
+        ],
+        "tool_contains": [
+          "alpha",
+          "cancelled"
+        ],
+        "files": {
+          "sample.txt": "alpha\n"
+        }
+      }
+    },
+    {
+      "id": "malformed_retry_limit",
+      "prompt": "Give a valid answer",
+      "max_steps": 1,
+      "files": {
+        "sample.txt": "alpha\n"
+      },
+      "outputs": [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "expected": {
+        "answer": "Stopped after too many malformed model responses without a valid tool call or final answer.",
+        "stop_reason": "retry_limit_reached",
+        "attempts": 5,
+        "tool_steps": 0,
+        "tools": [],
+        "tool_contains": [],
+        "files": {
+          "sample.txt": "alpha\n"
+        }
+      }
+    }
+  ]
+}

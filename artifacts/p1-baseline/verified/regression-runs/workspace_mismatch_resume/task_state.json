@@ -1,0 +1,13 @@
+{
+  "attempts": 1,
+  "checkpoint_id": "ckpt_131695cf",
+  "final_answer": "Done.",
+  "last_tool": "",
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261005-150023-8a8352",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261005-150023-a56dd8",
+  "tool_steps": 0,
+  "user_request": "Resume after benchmark workspace drift and rebuild runtime state."
+}

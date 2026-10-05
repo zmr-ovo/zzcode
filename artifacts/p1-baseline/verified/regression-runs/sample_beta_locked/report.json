@@ -1,0 +1,134 @@
+{
+  "attempts": 2,
+  "checkpoint_id": "ckpt_b9815463",
+  "durable_promotions": [],
+  "durable_rejections": [],
+  "durable_superseded": [],
+  "final_answer": "Done.",
+  "prompt_metadata": {
+    "budget_reductions": [],
+    "current_request": {
+      "raw_chars": 45,
+      "rendered_chars": 45,
+      "section_chars": 67,
+      "text": "In sample.txt, replace beta with beta-locked."
+    },
+    "history": {
+      "collapsed_duplicate_reads": 0,
+      "older_entries_count": 0,
+      "raw_chars": 184,
+      "rendered_chars": 184,
+      "reused_file_summary_count": 0,
+      "summarized_tool_count": 0
+    },
+    "history_chars": 172,
+    "memory_chars": 148,
+    "native_history_messages": 3,
+    "native_request_chars": 5501,
+    "native_request_over_budget": false,
+    "prefix_changed": false,
+    "prefix_chars": 5812,
+    "prefix_hash": "fea3606c519cbc054ffc79d425c15496259fa24f3fa9e95b7a9a681090ebf0d3",
+    "prompt_budget_chars": 12000,
+    "prompt_cache_key": "fea3606c519cbc054ffc79d425c15496259fa24f3fa9e95b7a9a681090ebf0d3",
+    "prompt_cache_supported": false,
+    "prompt_chars": 4030,
+    "prompt_over_budget": false,
+    "recent_commits": 5,
+    "reduction_order": [
+      "relevant_memory",
+      "history",
+      "memory",
+      "prefix"
+    ],
+    "relevant_memory": {
+      "limit": 3,
+      "raw_chars": 23,
+      "rendered_chars": 23,
+      "rendered_count": 0,
+      "rendered_notes": [],
+      "selected_count": 0,
+      "selected_durable_count": 0,
+      "selected_kinds": [],
+      "selected_notes": [],
+      "selected_sources": []
+    },
+    "request_chars": 45,
+    "resume_status": "full-valid",
+    "runtime_identity_mismatch_fields": [],
+    "secret_env_count": 0,
+    "secret_env_names": [],
+    "section_budgets": {
+      "current_request": null,
+      "history": 5200,
+      "memory": 1600,
+      "prefix": 3600,
+      "relevant_memory": 1200
+    },
+    "section_order": [
+      "prefix",
+      "memory",
+      "relevant_memory",
+      "history",
+      "current_request"
+    ],
+    "sections": {
+      "current_request": {
+        "budget_chars": null,
+        "raw_chars": 67,
+        "rendered_chars": 67
+      },
+      "history": {
+        "budget_chars": 5200,
+        "raw_chars": 184,
+        "rendered_chars": 184
+      },
+      "memory": {
+        "budget_chars": 1600,
+        "raw_chars": 148,
+        "rendered_chars": 148
+      },
+      "prefix": {
+        "budget_chars": 3600,
+        "raw_chars": 6091,
+        "rendered_chars": 3600
+      },
+      "relevant_memory": {
+        "budget_chars": 1200,
+        "raw_chars": 23,
+        "rendered_chars": 23
+      }
+    },
+    "stale_paths": [],
+    "stale_summary_invalidations": 0,
+    "tool_count": 7,
+    "tool_signature": "ad7bba32d6a57b928241098e9f84174b74ffe5160602a4338c42217eed92f4ad",
+    "workspace_changed": false,
+    "workspace_chars": 4198,
+    "workspace_docs": 2,
+    "workspace_fingerprint": "89be38524d249a643cc058460b65f48020019478b4cc99a96bf7a57a28300f5e"
+  },
+  "redacted_env": {
+    "secret_env_count": 0,
+    "secret_env_names": []
+  },
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261005-150022-6bbb08",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261005-150022-59e915",
+  "task_state": {
+    "attempts": 2,
+    "checkpoint_id": "ckpt_b9815463",
+    "final_answer": "Done.",
+    "last_tool": "patch_file",
+    "resume_status": "no-checkpoint",
+    "run_id": "run_20261005-150022-6bbb08",
+    "status": "completed",
+    "stop_reason": "final_answer_returned",
+    "task_id": "task_20261005-150022-59e915",
+    "tool_steps": 1,
+    "user_request": "In sample.txt, replace beta with beta-locked."
+  },
+  "tool_steps": 1
+}

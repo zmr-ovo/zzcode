@@ -15,6 +15,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
+from .core.messages import (Message, ToolResult, ModelResponse, ProviderProtocolError)
 from . import memory as memorylib
 from .context_manager import ContextManager
 from .run_store import RunStore
@@ -73,7 +74,12 @@ class SessionStore:
 
     def save(self, session):
         path = self.path(session["id"])
-        path.write_text(json.dumps(session, indent=2), encoding="utf-8")
+        temporary = path.with_suffix(".tmp")
+        descriptor = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+            json.dump(session, handle, indent=2)
+        os.chmod(temporary, 0o600)
+        os.replace(temporary, path)
         return path
 
     def load(self, session_id):
@@ -323,20 +329,9 @@ class ZZCode:
     def build_prefix(self):
         tool_lines = []
         for name, tool in self.tools.items():
-            fields = ", ".join(f"{key}: {value}" for key, value in tool["schema"].items())
             risk = "approval required" if tool["risky"] else "safe"
-            tool_lines.append(f"- {name}({fields}) [{risk}] {tool['description']}")
+            tool_lines.append(f"- {name} [{risk}] {tool['description']}")
         tool_text = "\n".join(tool_lines)
-        examples = "\n".join(
-            [
-                '<tool>{"name":"list_files","args":{"path":"."}}</tool>',
-                '<tool>{"name":"read_file","args":{"path":"README.md","start":1,"end":80}}</tool>',
-                '<tool name="write_file" path="binary_search.py"><content>def binary_search(nums, target):\n    return -1\n</content></tool>',
-                '<tool name="patch_file" path="binary_search.py"><old_text>return -1</old_text><new_text>return mid</new_text></tool>',
-                '<tool>{"name":"run_shell","args":{"command":"uv run --with pytest python -m pytest -q","timeout":20}}</tool>',
-                "<final>Done.</final>",
-            ]
-        )
         # prefix 可以理解成 agent 的“工作手册”：
         # 它是谁、工具怎么调用、当前仓库是什么状态，都写在这里。
         text = textwrap.dedent(
@@ -345,13 +340,8 @@ class ZZCode:
 
             Rules:
             - Use tools instead of guessing about the workspace.
-            - Return exactly one <tool>...</tool> or one <final>...</final>.
-            - Tool calls must look like:
-              <tool>{{"name":"tool_name","args":{{...}}}}</tool>
-            - For write_file and patch_file with multi-line text, prefer XML style:
-              <tool name="write_file" path="file.py"><content>...</content></tool>
-            - Final answers must look like:
-              <final>your answer</final>
+            - Call registered tools using the native tool calling interface.
+            - Return your final answer as ordinary text when finished.
             - Never invent tool results.
             - Keep answers concise and concrete.
             - If the user asks you to create or update a specific file and the path is clear, use write_file or patch_file instead of repeatedly listing files.
@@ -363,9 +353,6 @@ class ZZCode:
 
             Tools:
             {tool_text}
-
-            Valid response examples:
-            {examples}
 
             {self.workspace.text()}
             """
@@ -774,6 +761,18 @@ class ZZCode:
         这里就是最关键的入口。
         """
         run_started_at = time.monotonic()
+        pending = {}
+        for item in self.session["history"]:
+            for block in item.get("message", {}).get("content", []):
+                if block["type"] == "tool_call":
+                    pending[block["call_id"]] = block
+                elif block["type"] == "tool_result":
+                    pending.pop(block["call_id"], None)
+        for call_id, call in pending.items():
+            result = ToolResult(call_id, call["name"], "Execution outcome unknown after interruption; inspect workspace before repeating.", "unknown")
+            self.record({"role": "tool", "name": call["name"], "args": call["arguments"], "content": result.content,
+                         "message": Message("tool", (result,)).to_dict(), "created_at": now()})
+        self.session["protocol_version"] = 2
         self.memory.set_task_summary(user_message)
         self.record({"role": "user", "content": user_message, "created_at": now()})
 
@@ -793,6 +792,7 @@ class ZZCode:
         tool_steps = 0
         attempts = 0
         max_attempts = max(self.max_steps * 3, self.max_steps + 4)
+        finalization_attempted = False
 
         # 这是 agent 的主循环，可以按“感知 -> 决策 -> 行动 -> 记录”来理解：
         # 1. 感知：重新组 prompt，把当前状态整理给模型看
@@ -800,7 +800,7 @@ class ZZCode:
         # 3. 行动：如果是工具调用，就执行工具
         # 4. 记录：把结果写回 history / task_state / trace / memory
         # 然后进入下一轮，直到停机条件满足
-        while tool_steps < self.max_steps and attempts < max_attempts:
+        while attempts < max_attempts or (tool_steps >= self.max_steps and not finalization_attempted):
             attempts += 1
             task_state.record_attempt()
             self.run_store.write_task_state(task_state)
@@ -858,63 +858,94 @@ class ZZCode:
                 task_state,
                 "model_requested",
                 {
+                    "finalization_only": tool_steps >= self.max_steps,
                     "attempts": task_state.attempts,
                     "tool_steps": task_state.tool_steps,
                     "prompt_cache_key": prompt_metadata.get("prompt_cache_key"),
                 },
             )
-            prompt_cache_key = None
-            prompt_cache_retention = None
-            if getattr(self.model_client, "supports_prompt_cache", False):
-                # 只有后端明确支持时，才把稳定前缀的 hash 作为 cache key 发出去。
-                prompt_cache_key = prompt_metadata.get("prompt_cache_key")
-                prompt_cache_retention = "in_memory"
+            finalization_only = tool_steps >= self.max_steps
+            finalization_attempted = finalization_attempted or finalization_only
             model_started_at = time.monotonic()
-            raw = self.model_client.complete(
-                prompt,
-                self.max_new_tokens,
-                prompt_cache_key=prompt_cache_key,
-                prompt_cache_retention=prompt_cache_retention,
-            )
-            completion_metadata = dict(getattr(self.model_client, "last_completion_metadata", {}) or {})
+            try:
+                request = self.context_manager.build_request(user_message, prompt, prompt_metadata, finalization_only)
+                request.validate()
+                prompt_metadata["native_request_chars"] = len(request.system) + sum(len(json.dumps(message.to_dict())) for message in request.messages) + sum(len(json.dumps(spec.input_schema)) for spec in request.tools)
+                prompt_metadata["native_request_over_budget"] = prompt_metadata["native_request_chars"] > self.context_manager.total_budget
+                prompt_metadata["native_history_messages"] = len(request.messages)
+                response = self.model_client.complete(request)
+                if not isinstance(response, ModelResponse):
+                    raise ProviderProtocolError("provider must return ModelResponse")
+                response.validate()
+                previous_ids = {block["call_id"] for item in self.session["history"]
+                                for block in item.get("message", {}).get("content", []) if block.get("type") == "tool_call"}
+                if any(call.call_id in previous_ids for call in response.tool_calls):
+                    raise ProviderProtocolError("provider reused a tool call ID")
+            except ProviderProtocolError as exc:
+                self.record({"role": "user", "content": self.retry_notice(str(exc)), "created_at": now()})
+                if finalization_only:
+                    break
+                continue
+            except RuntimeError as exc:
+                task_state.stop_model_error(str(exc))
+                self.run_store.write_task_state(task_state)
+                self.run_store.write_report(task_state, self.redact_artifact(self.build_report(task_state)))
+                raise
+            public_fields = {"input_tokens", "output_tokens", "cached_tokens", "total_tokens", "cache_hit",
+                             "prompt_cache_supported", "prompt_cache_key", "prompt_cache_retention"}
+            completion_metadata = {key: value for key, value in dict(getattr(self.model_client, "last_completion_metadata", {}) or {}).items() if key in public_fields}
+            completion_metadata.update(response.usage.metadata())
+            completion_metadata.update({key: value for key, value in response.metadata.items() if key in {"input_tokens", "output_tokens", "cached_tokens", "total_tokens", "cache_hit", "prompt_cache_supported"}})
             if completion_metadata:
                 # 把后端返回的 usage/cache 统计并回 prompt_metadata，
                 # 方便统一写入 report 和 trace。
                 prompt_metadata.update(completion_metadata)
             self.last_completion_metadata = completion_metadata
             self.last_prompt_metadata = prompt_metadata
-            kind, payload = self.parse(raw)
+            self.record({"role": "assistant", "content": response.text, "message": response.message.to_dict(), "created_at": now()})
+            kind = "tool" if response.tool_calls else "final"
+            if response.stop_reason not in {"end_turn", "tool_call"}:
+                kind = "stopped"
+            elif not response.tool_calls and not response.text.strip():
+                kind = "retry"
             self.emit_trace(
                 task_state,
                 "model_parsed",
                 {
                     "kind": kind,
+                    "stop_reason": response.stop_reason,
+                    "finalization_only": finalization_only,
                     "completion_metadata": completion_metadata,
                     "duration_ms": int((time.monotonic() - model_started_at) * 1000),
                 },
             )
 
-            if kind == "tool":
+            for call in response.tool_calls:
+                name, args = call.name, call.arguments
+                if kind == "stopped" or tool_steps >= self.max_steps:
+                    result = "Tool call cancelled: " + (response.stop_reason if kind == "stopped" else "tool budget exhausted")
+                    self.record({"role": "tool", "name": name, "args": args, "content": result, "created_at": now(),
+                                 "message": Message("tool", (ToolResult(call.call_id, name, result, "cancelled"),)).to_dict()})
+                    self.emit_trace(task_state, "tool_cancelled", {"call_id": call.call_id, "name": name, "reason": result})
+                    continue
                 tool_steps += 1
-                name = payload.get("name", "")
-                args = payload.get("args", {})
                 task_state.record_tool(name)
                 tool_started_at = time.monotonic()
-                result = self.run_tool(name, args)
-                self.record(
-                    {
-                        "role": "tool",
-                        "name": name,
-                        "args": args,
-                        "content": result,
-                        "created_at": now(),
-                    }
-                )
+                if call.argument_error:
+                    result = "error: " + call.argument_error
+                    self._last_tool_result_metadata = {"tool_status": "error"}
+                else:
+                    result = self.run_tool(name, args)
+                status = {"ok": "succeeded", "error": "failed"}.get(self._last_tool_result_metadata.get("tool_status"), self._last_tool_result_metadata.get("tool_status", "succeeded"))
+                result_message = Message("tool", (ToolResult(call.call_id, name, result, status),))
+                self.record({"role": "tool", "name": name, "args": args, "content": result,
+                             "message": result_message.to_dict(), "created_at": now()})
                 self.run_store.write_task_state(task_state)
                 self.emit_trace(
                     task_state,
                     "tool_executed",
                     {
+                        "call_id": call.call_id,
                         "name": name,
                         "args": args,
                         "result": clip(result, 500),
@@ -932,15 +963,24 @@ class ZZCode:
                         "trigger": "tool_executed",
                     },
                 )
+
+            if kind == "stopped":
+                final = response.text.strip() or f"Stopped: model returned {response.stop_reason}."
+                task_state.stop(response.stop_reason, final_answer=final)
+                break
+            if kind == "tool":
+                if finalization_only:
+                    break
                 continue
 
             if kind == "retry":
-                self.record({"role": "assistant", "content": payload, "created_at": now()})
+                if finalization_only:
+                    break
+                self.record({"role": "user", "content": self.retry_notice("empty response"), "created_at": now()})
                 self.run_store.write_task_state(task_state)
                 continue
 
-            final = (payload or raw).strip()
-            self.record({"role": "assistant", "content": final, "created_at": now()})
+            final = response.text.strip()
             task_state.finish_success(final)
             self.promote_durable_memory(user_message, final)
             checkpoint = self.create_checkpoint(task_state, user_message, trigger="run_finished")
@@ -966,72 +1006,9 @@ class ZZCode:
             self.run_store.write_report(task_state, self.redact_artifact(self.build_report(task_state)))
             return final
 
-        if tool_steps >= self.max_steps:
-            attempts += 1
-            task_state.record_attempt()
-            self.run_store.write_task_state(task_state)
-            prompt, prompt_metadata = self._build_prompt_and_metadata(user_message)
-            prompt += textwrap.dedent(
-                """
-
-                Tool budget exhausted. Do not call another tool. Based only on the tool results already
-                available, return the best concise answer you can now using exactly one <final>...</final>.
-                Clearly mention any file or detail that could not be inspected.
-                """
-            )
-            self.emit_trace(
-                task_state,
-                "model_requested",
-                {
-                    "attempts": task_state.attempts,
-                    "tool_steps": task_state.tool_steps,
-                    "finalization_only": True,
-                },
-            )
-            raw = self.model_client.complete(
-                prompt,
-                self.max_new_tokens,
-                prompt_cache_key=None,
-                prompt_cache_retention=None,
-            )
-            kind, payload = self.parse(raw)
-            self.emit_trace(
-                task_state,
-                "model_parsed",
-                {
-                    "kind": kind,
-                    "finalization_only": True,
-                },
-            )
-            if kind == "final":
-                final = (payload or raw).strip()
-                self.record({"role": "assistant", "content": final, "created_at": now()})
-                task_state.finish_success(final)
-                self.promote_durable_memory(user_message, final)
-                checkpoint = self.create_checkpoint(task_state, user_message, trigger="run_finished")
-                self.run_store.write_task_state(task_state)
-                self.emit_trace(
-                    task_state,
-                    "checkpoint_created",
-                    {
-                        "checkpoint_id": checkpoint["checkpoint_id"],
-                        "trigger": "run_finished",
-                    },
-                )
-                self.emit_trace(
-                    task_state,
-                    "run_finished",
-                    {
-                        "status": task_state.status,
-                        "stop_reason": task_state.stop_reason,
-                        "final_answer": final,
-                        "run_duration_ms": int((time.monotonic() - run_started_at) * 1000),
-                    },
-                )
-                self.run_store.write_report(task_state, self.redact_artifact(self.build_report(task_state)))
-                return final
-
-        if attempts >= max_attempts and tool_steps < self.max_steps:
+        if task_state.status == "stopped":
+            final = task_state.final_answer
+        elif attempts >= max_attempts and tool_steps < self.max_steps:
             final = "Stopped after too many malformed model responses without a valid tool call or final answer."
             task_state.stop_retry_limit(final)
         else:
@@ -1234,10 +1211,9 @@ class ZZCode:
 
     def validate_tool(self, name, args):
         """把通用工具校验和 runtime 级额外约束串起来。"""
+        if name == "delegate" and self.depth >= self.max_depth:
+            raise ValueError("delegate depth exceeded")
         toolkit.validate_tool(self, name, args)
-        if name == "delegate":
-            if self.depth >= self.max_depth:
-                raise ValueError("delegate depth exceeded")
 
     def tool_list_files(self, args):
         return toolkit.tool_list_files(self, args)
@@ -1274,124 +1250,8 @@ class ZZCode:
         return answer.strip().lower() in {"y", "yes"}
 
     @staticmethod
-    def parse(raw):
-        """把模型原始输出解析成 runtime 可执行的动作或最终答案。
-
-        为什么存在：
-        模型输出首先是自然语言文本，而 runtime 需要的是结构化决策：
-        “这是工具调用”还是“这是最终答案”。如果没有这层解析，后面的工具校验、
-        审批和执行链路就没法可靠工作。
-
-        输入 / 输出：
-        - 输入：模型返回的原始文本 `raw`
-        - 输出：`(kind, payload)`，其中 `kind` 可能是 `tool`、`final`、`retry`
-
-        在 agent 链路里的位置：
-        它位于 `model_client.complete()` 之后、`run_tool()` 之前，是模型输出
-        进入平台控制流的第一道结构化关口。
-        """
-        raw = str(raw)
-        # 这里支持两种工具格式：
-        # 1. <tool>...</tool> 里包 JSON，适合简短调用
-        # 2. XML 风格属性/子标签，适合写文件这类多行内容
-        if "<tool>" in raw and ("<final>" not in raw or raw.find("<tool>") < raw.find("<final>")):
-            body = ZZCode.extract(raw, "tool")
-            try:
-                payload = json.loads(body)
-            except Exception:
-                return "retry", ZZCode.retry_notice("model returned malformed tool JSON")
-            if not isinstance(payload, dict):
-                return "retry", ZZCode.retry_notice("tool payload must be a JSON object")
-            if not str(payload.get("name", "")).strip():
-                return "retry", ZZCode.retry_notice("tool payload is missing a tool name")
-            args = payload.get("args", {})
-            if args is None:
-                payload["args"] = {}
-            elif not isinstance(args, dict):
-                return "retry", ZZCode.retry_notice()
-            return "tool", payload
-        if "<tool" in raw and ("<final>" not in raw or raw.find("<tool") < raw.find("<final>")):
-            payload = ZZCode.parse_xml_tool(raw)
-            if payload is not None:
-                return "tool", payload
-            return "retry", ZZCode.retry_notice()
-        if "<final>" in raw:
-            final = ZZCode.extract(raw, "final").strip()
-            if final:
-                return "final", final
-            return "retry", ZZCode.retry_notice("model returned an empty <final> answer")
-        raw = raw.strip()
-        if raw:
-            return "final", raw
-        return "retry", ZZCode.retry_notice("model returned an empty response")
-
-    @staticmethod
     def retry_notice(problem=None):
-        prefix = "Runtime notice"
-        if problem:
-            prefix += f": {problem}"
-        else:
-            prefix += ": model returned malformed tool output"
-        return (
-            f"{prefix}. Reply with a valid <tool> call or a non-empty <final> answer. "
-            'For multi-line files, prefer <tool name="write_file" path="file.py"><content>...</content></tool>.'
-        )
-
-    @staticmethod
-    def parse_xml_tool(raw):
-        match = re.search(r"<tool(?P<attrs>[^>]*)>(?P<body>.*?)</tool>", raw, re.S)
-        if not match:
-            return None
-        attrs = ZZCode.parse_attrs(match.group("attrs"))
-        name = str(attrs.pop("name", "")).strip()
-        if not name:
-            return None
-
-        body = match.group("body")
-        args = dict(attrs)
-        for key in ("content", "old_text", "new_text", "command", "task", "pattern", "path"):
-            if f"<{key}>" in body:
-                args[key] = ZZCode.extract_raw(body, key)
-
-        body_text = body.strip("\n")
-        if name == "write_file" and "content" not in args and body_text:
-            args["content"] = body_text
-        if name == "delegate" and "task" not in args and body_text:
-            args["task"] = body_text.strip()
-        return {"name": name, "args": args}
-
-    @staticmethod
-    def parse_attrs(text):
-        attrs = {}
-        for match in re.finditer(r"""([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(?:"([^"]*)"|'([^']*)')""", text):
-            attrs[match.group(1)] = match.group(2) if match.group(2) is not None else match.group(3)
-        return attrs
-
-    @staticmethod
-    def extract(text, tag):
-        start_tag = f"<{tag}>"
-        end_tag = f"</{tag}>"
-        start = text.find(start_tag)
-        if start == -1:
-            return text
-        start += len(start_tag)
-        end = text.find(end_tag, start)
-        if end == -1:
-            return text[start:].strip()
-        return text[start:end].strip()
-
-    @staticmethod
-    def extract_raw(text, tag):
-        start_tag = f"<{tag}>"
-        end_tag = f"</{tag}>"
-        start = text.find(start_tag)
-        if start == -1:
-            return text
-        start += len(start_tag)
-        end = text.find(end_tag, start)
-        if end == -1:
-            return text[start:]
-        return text[start:end]
+        return f"Runtime notice: {problem or 'invalid model response'}. Use native tool calls or return a non-empty answer."
 
     def reset(self):
         self.session["history"] = []

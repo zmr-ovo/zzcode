@@ -1,0 +1,138 @@
+{
+  "attempts": 1,
+  "checkpoint_id": "ckpt_e8182a49",
+  "durable_promotions": [],
+  "durable_rejections": [],
+  "durable_superseded": [],
+  "final_answer": "Done.",
+  "prompt_metadata": {
+    "budget_reductions": [],
+    "current_request": {
+      "raw_chars": 76,
+      "rendered_chars": 76,
+      "section_chars": 98,
+      "text": "Resume the stale benchmark task and finish without trusting the old summary."
+    },
+    "history": {
+      "collapsed_duplicate_reads": 0,
+      "older_entries_count": 0,
+      "raw_chars": 95,
+      "rendered_chars": 95,
+      "reused_file_summary_count": 0,
+      "summarized_tool_count": 0
+    },
+    "history_chars": 83,
+    "memory_chars": 179,
+    "native_history_messages": 1,
+    "native_request_chars": 5140,
+    "native_request_over_budget": false,
+    "prefix_changed": true,
+    "prefix_chars": 5819,
+    "prefix_hash": "5e6a35d663db6a4f2c612fb16e093883d1a04c51fb90664702506e0532c843be",
+    "prompt_budget_chars": 12000,
+    "prompt_cache_key": "5e6a35d663db6a4f2c612fb16e093883d1a04c51fb90664702506e0532c843be",
+    "prompt_cache_supported": false,
+    "prompt_chars": 4003,
+    "prompt_over_budget": false,
+    "recent_commits": 5,
+    "reduction_order": [
+      "relevant_memory",
+      "history",
+      "memory",
+      "prefix"
+    ],
+    "relevant_memory": {
+      "limit": 3,
+      "raw_chars": 23,
+      "rendered_chars": 23,
+      "rendered_count": 0,
+      "rendered_notes": [],
+      "selected_count": 0,
+      "selected_durable_count": 0,
+      "selected_kinds": [],
+      "selected_notes": [],
+      "selected_sources": []
+    },
+    "request_chars": 76,
+    "resume_status": "partial-stale",
+    "runtime_identity_mismatch_fields": [
+      "workspace_fingerprint"
+    ],
+    "secret_env_count": 0,
+    "secret_env_names": [],
+    "section_budgets": {
+      "current_request": null,
+      "history": 5200,
+      "memory": 1600,
+      "prefix": 3600,
+      "relevant_memory": 1200
+    },
+    "section_order": [
+      "prefix",
+      "memory",
+      "relevant_memory",
+      "history",
+      "current_request"
+    ],
+    "sections": {
+      "current_request": {
+        "budget_chars": null,
+        "raw_chars": 98,
+        "rendered_chars": 98
+      },
+      "history": {
+        "budget_chars": 5200,
+        "raw_chars": 95,
+        "rendered_chars": 95
+      },
+      "memory": {
+        "budget_chars": 1600,
+        "raw_chars": 179,
+        "rendered_chars": 179
+      },
+      "prefix": {
+        "budget_chars": 3600,
+        "raw_chars": 6062,
+        "rendered_chars": 3600
+      },
+      "relevant_memory": {
+        "budget_chars": 1200,
+        "raw_chars": 23,
+        "rendered_chars": 23
+      }
+    },
+    "stale_paths": [
+      "sample.txt"
+    ],
+    "stale_summary_invalidations": 1,
+    "tool_count": 7,
+    "tool_signature": "ad7bba32d6a57b928241098e9f84174b74ffe5160602a4338c42217eed92f4ad",
+    "workspace_changed": true,
+    "workspace_chars": 4205,
+    "workspace_docs": 2,
+    "workspace_fingerprint": "127821870423b8e647efe38ae99b570fa602dd6cc5a7192298cb8cb81498e4b4"
+  },
+  "redacted_env": {
+    "secret_env_count": 0,
+    "secret_env_names": []
+  },
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261005-150023-592f97",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261005-150023-09ac77",
+  "task_state": {
+    "attempts": 1,
+    "checkpoint_id": "ckpt_e8182a49",
+    "final_answer": "Done.",
+    "last_tool": "",
+    "resume_status": "no-checkpoint",
+    "run_id": "run_20261005-150023-592f97",
+    "status": "completed",
+    "stop_reason": "final_answer_returned",
+    "task_id": "task_20261005-150023-09ac77",
+    "tool_steps": 0,
+    "user_request": "Resume the stale benchmark task and finish without trusting the old summary."
+  },
+  "tool_steps": 0
+}

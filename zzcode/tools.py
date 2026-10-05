@@ -4,7 +4,9 @@
 如何做参数校验，以及最终如何执行，都是在这里定义的。
 """
 
+import json
 import shutil
+from .core.messages import ToolSpec
 import subprocess
 import textwrap
 from functools import partial
@@ -13,52 +15,120 @@ from .workspace import IGNORED_PATH_NAMES, PRIVATE_PATH_NAMES, clip
 
 BASE_TOOL_SPECS = {
     "list_files": {
-        "schema": {"path": "str='.'"},
+        "schema": {
+            "type": "object",
+            "properties": {"path": {"type": "string", "default": "."}},
+            "required": [],
+            "additionalProperties": False,
+        },
         "risky": False,
         "description": "List files in the workspace.",
     },
     "read_file": {
-        "schema": {"path": "str", "start": "int=1", "end": "int=200"},
+        "schema": {
+            "type": "object",
+            "properties": {
+                "path": {"type": "string"},
+                "start": {"type": "integer", "default": 1},
+                "end": {"type": "integer", "default": 200},
+            },
+            "required": ["path"],
+            "additionalProperties": False,
+        },
         "risky": False,
         "description": "Read a UTF-8 file by line range.",
     },
     "search": {
-        "schema": {"pattern": "str", "path": "str='.'"},
+        "schema": {
+            "type": "object",
+            "properties": {
+                "pattern": {"type": "string"},
+                "path": {"type": "string", "default": "."},
+            },
+            "required": ["pattern"],
+            "additionalProperties": False,
+        },
         "risky": False,
         "description": "Search the workspace with rg or a simple fallback.",
     },
     "run_shell": {
-        "schema": {"command": "str", "timeout": "int=20"},
+        "schema": {
+            "type": "object",
+            "properties": {
+                "command": {"type": "string"},
+                "timeout": {"type": "integer", "default": 20},
+            },
+            "required": ["command"],
+            "additionalProperties": False,
+        },
         "risky": True,
         "description": "Run a shell command in the repo root.",
     },
     "write_file": {
-        "schema": {"path": "str", "content": "str"},
+        "schema": {
+            "type": "object",
+            "properties": {"path": {"type": "string"}, "content": {"type": "string"}},
+            "required": ["path", "content"],
+            "additionalProperties": False,
+        },
         "risky": True,
         "description": "Write a text file.",
     },
     "patch_file": {
-        "schema": {"path": "str", "old_text": "str", "new_text": "str"},
+        "schema": {
+            "type": "object",
+            "properties": {
+                "path": {"type": "string"},
+                "old_text": {"type": "string"},
+                "new_text": {"type": "string"},
+            },
+            "required": ["path", "old_text", "new_text"],
+            "additionalProperties": False,
+        },
         "risky": True,
         "description": "Replace one exact text block in a file.",
     },
 }
 
 DELEGATE_TOOL_SPEC = {
-    "schema": {"task": "str", "max_steps": "int=3"},
+    "schema": {
+        "type": "object",
+        "properties": {
+            "task": {"type": "string"},
+            "max_steps": {"type": "integer", "default": 3},
+        },
+        "required": ["task"],
+        "additionalProperties": False,
+    },
     "risky": False,
     "description": "Ask a bounded read-only child agent to investigate.",
 }
 
 TOOL_EXAMPLES = {
-    "list_files": '<tool>{"name":"list_files","args":{"path":"."}}</tool>',
-    "read_file": '<tool>{"name":"read_file","args":{"path":"README.md","start":1,"end":80}}</tool>',
-    "search": '<tool>{"name":"search","args":{"pattern":"binary_search","path":"."}}</tool>',
-    "run_shell": '<tool>{"name":"run_shell","args":{"command":"uv run --with pytest python -m pytest -q","timeout":20}}</tool>',
-    "write_file": '<tool name="write_file" path="binary_search.py"><content>def binary_search(nums, target):\n    return -1\n</content></tool>',
-    "patch_file": '<tool name="patch_file" path="binary_search.py"><old_text>return -1</old_text><new_text>return mid</new_text></tool>',
-    "delegate": '<tool>{"name":"delegate","args":{"task":"inspect README.md","max_steps":3}}</tool>',
+    "list_files": {"path": "."},
+    "read_file": {"path": "README.md", "start": 1, "end": 80},
+    "search": {"pattern": "binary_search", "path": "."},
+    "run_shell": {"command": "python -m pytest -q", "timeout": 20},
+    "write_file": {"path": "file.py", "content": "print('hello')\n"},
+    "patch_file": {"path": "file.py", "old_text": "hello", "new_text": "world"},
+    "delegate": {"task": "inspect README.md", "max_steps": 3},
 }
+
+
+def native_tool_specs(registry):
+    specs = []
+    for name, tool in registry.items():
+        schema = tool["schema"]
+        specs.append(
+            ToolSpec(
+                name,
+                tool["description"],
+                schema,
+                "write" if tool["risky"] else "none",
+                "high" if tool["risky"] else "low",
+            )
+        )
+    return tuple(specs)
 
 
 def build_tool_registry(agent):
@@ -76,11 +146,29 @@ def build_tool_registry(agent):
 
 
 def tool_example(name):
-    return TOOL_EXAMPLES.get(name, "")
+    return json.dumps(TOOL_EXAMPLES.get(name, {}), ensure_ascii=False)
 
 
 def validate_tool(agent, name, args):
-    args = args or {}
+    if not isinstance(args, dict):
+        raise ValueError("arguments must be a JSON object")
+    schema = next(
+        spec.input_schema
+        for spec in native_tool_specs(agent.tools)
+        if spec.name == name
+    )
+    for required in schema["required"]:
+        if required not in args:
+            raise ValueError(f"missing {required}")
+    for key, value in args.items():
+        if key not in schema["properties"]:
+            raise ValueError(f"unexpected argument: {key}")
+        kind = schema["properties"][key]["type"]
+        if (kind == "string" and not isinstance(value, str)) or (
+            kind == "integer"
+            and (not isinstance(value, int) or isinstance(value, bool))
+        ):
+            raise ValueError(f"{key} must be {kind}")
 
     def reject_private_path(path):
         relative_parts = path.relative_to(agent.root).parts
@@ -157,7 +245,10 @@ def tool_list_files(agent, args):
     if not path.is_dir():
         raise ValueError("path is not a directory")
     entries = [
-        item for item in sorted(path.iterdir(), key=lambda item: (item.is_file(), item.name.lower()))
+        item
+        for item in sorted(
+            path.iterdir(), key=lambda item: (item.is_file(), item.name.lower())
+        )
         if item.name not in IGNORED_PATH_NAMES
     ]
     lines = []
@@ -176,7 +267,10 @@ def tool_read_file(agent, args):
     if start < 1 or end < start:
         raise ValueError("invalid line range")
     lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
-    body = "\n".join(f"{number:>4}: {line}" for number, line in enumerate(lines[start - 1:end], start=start))
+    body = "\n".join(
+        f"{number:>4}: {line}"
+        for number, line in enumerate(lines[start - 1 : end], start=start)
+    )
     return f"# {path.relative_to(agent.root)}\n{body}"
 
 
@@ -197,12 +291,24 @@ def tool_search(agent, args):
         return result.stdout.strip() or result.stderr.strip() or "(no matches)"
 
     matches = []
-    files = [path] if path.is_file() else [
-        item for item in path.rglob("*")
-        if item.is_file() and not any(part in IGNORED_PATH_NAMES for part in item.relative_to(agent.root).parts)
-    ]
+    files = (
+        [path]
+        if path.is_file()
+        else [
+            item
+            for item in path.rglob("*")
+            if item.is_file()
+            and not any(
+                part in IGNORED_PATH_NAMES
+                for part in item.relative_to(agent.root).parts
+            )
+        ]
+    )
     for file_path in files:
-        for number, line in enumerate(file_path.read_text(encoding="utf-8", errors="replace").splitlines(), start=1):
+        for number, line in enumerate(
+            file_path.read_text(encoding="utf-8", errors="replace").splitlines(),
+            start=1,
+        ):
             if pattern.lower() in line.lower():
                 matches.append(f"{file_path.relative_to(agent.root)}:{number}:{line}")
                 if len(matches) >= 200:

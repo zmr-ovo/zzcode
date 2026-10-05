@@ -1,0 +1,136 @@
+{
+  "attempts": 3,
+  "checkpoint_id": "ckpt_d72fc607",
+  "durable_promotions": [],
+  "durable_rejections": [],
+  "durable_superseded": [],
+  "final_answer": "Done.",
+  "prompt_metadata": {
+    "budget_reductions": [],
+    "current_request": {
+      "raw_chars": 66,
+      "rendered_chars": 66,
+      "section_chars": 88,
+      "text": "Recover after invalid patch arguments and finish the README patch."
+    },
+    "history": {
+      "collapsed_duplicate_reads": 0,
+      "older_entries_count": 0,
+      "raw_chars": 514,
+      "rendered_chars": 514,
+      "reused_file_summary_count": 0,
+      "summarized_tool_count": 0
+    },
+    "history_chars": 502,
+    "memory_chars": 168,
+    "native_history_messages": 5,
+    "native_request_chars": 6166,
+    "native_request_over_budget": false,
+    "prefix_changed": true,
+    "prefix_chars": 6073,
+    "prefix_hash": "357da26f3992b5e037352f565321d60e8274916bf23da519d184cb27a5637d4b",
+    "prompt_budget_chars": 12000,
+    "prompt_cache_key": "357da26f3992b5e037352f565321d60e8274916bf23da519d184cb27a5637d4b",
+    "prompt_cache_supported": false,
+    "prompt_chars": 4401,
+    "prompt_over_budget": false,
+    "recent_commits": 5,
+    "reduction_order": [
+      "relevant_memory",
+      "history",
+      "memory",
+      "prefix"
+    ],
+    "relevant_memory": {
+      "limit": 3,
+      "raw_chars": 23,
+      "rendered_chars": 23,
+      "rendered_count": 0,
+      "rendered_notes": [],
+      "selected_count": 0,
+      "selected_durable_count": 0,
+      "selected_kinds": [],
+      "selected_notes": [],
+      "selected_sources": []
+    },
+    "request_chars": 66,
+    "resume_status": "workspace-mismatch",
+    "runtime_identity_mismatch_fields": [
+      "workspace_fingerprint"
+    ],
+    "secret_env_count": 0,
+    "secret_env_names": [],
+    "section_budgets": {
+      "current_request": null,
+      "history": 5200,
+      "memory": 1600,
+      "prefix": 3600,
+      "relevant_memory": 1200
+    },
+    "section_order": [
+      "prefix",
+      "memory",
+      "relevant_memory",
+      "history",
+      "current_request"
+    ],
+    "sections": {
+      "current_request": {
+        "budget_chars": null,
+        "raw_chars": 88,
+        "rendered_chars": 88
+      },
+      "history": {
+        "budget_chars": 5200,
+        "raw_chars": 514,
+        "rendered_chars": 514
+      },
+      "memory": {
+        "budget_chars": 1600,
+        "raw_chars": 168,
+        "rendered_chars": 168
+      },
+      "prefix": {
+        "budget_chars": 3600,
+        "raw_chars": 6401,
+        "rendered_chars": 3600
+      },
+      "relevant_memory": {
+        "budget_chars": 1200,
+        "raw_chars": 23,
+        "rendered_chars": 23
+      }
+    },
+    "stale_paths": [],
+    "stale_summary_invalidations": 0,
+    "tool_count": 7,
+    "tool_signature": "ad7bba32d6a57b928241098e9f84174b74ffe5160602a4338c42217eed92f4ad",
+    "workspace_changed": true,
+    "workspace_chars": 4459,
+    "workspace_docs": 3,
+    "workspace_fingerprint": "df809285ae8d25a1654939f7b17e4ac2d05af622329e120e2cea9446589831d3"
+  },
+  "redacted_env": {
+    "secret_env_count": 0,
+    "secret_env_names": []
+  },
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261005-150022-d883c5",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261005-150022-a614f5",
+  "task_state": {
+    "attempts": 3,
+    "checkpoint_id": "ckpt_d72fc607",
+    "final_answer": "Done.",
+    "last_tool": "patch_file",
+    "resume_status": "no-checkpoint",
+    "run_id": "run_20261005-150022-d883c5",
+    "status": "completed",
+    "stop_reason": "final_answer_returned",
+    "task_id": "task_20261005-150022-a614f5",
+    "tool_steps": 2,
+    "user_request": "Recover after invalid patch arguments and finish the README patch."
+  },
+  "tool_steps": 2
+}

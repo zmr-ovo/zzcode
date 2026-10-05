@@ -74,7 +74,7 @@ Skills 可以作为独立增量接入，不依赖完整 Event Bus。Session 的�
 - 保留 `ZZCode.ask()` 外观，避免 CLI 和 Evaluation 同时大改。
 - 不要求先移动所有目录；仅在边界稳定后迁移文件。
 - 新旧副作用路径使用不同工作区，不进行双重真实执行。
-- 使用少量命名配置：`legacy`、`structured`、`reliable_tools`、`token_context`；内部可有开关，但只支持明确测试过的组合，非法组合启动时拒绝。
+- 使用少量命名配置：`structured`、`reliable_tools`、`token_context`（历史 `legacy` 仅在 P0 冻结提交重放）；内部可有开关，但只支持明确测试过的组合，非法组合启动时拒绝。
 - 状态 Schema 版本独立于功能配置；回滚不能通过关闭开关假装 v2 数据是 v1。
 - 各阶段均做相关测试；真实模型和 Docker 检查按涉及范围运行。
 
@@ -187,12 +187,12 @@ Provider 异常使用类型化错误与重试类别，不制造正常 Final。`m
 
 ### 7.2 会话与 Provider 兼容
 
-- Legacy Adapter 包装原 `parse()`，继续保留 FakeModel 的确定性测试能力。
+- 按当前实现决策直接移除原 `parse()` 和文本标签协议，不保留 Legacy Adapter。FakeModel 使用结构化响应，字符串只表示普通文本。
 - 同时迁移请求历史：system/user/assistant/tool 分角色表示；不能只改变返回类型。
 - Provider Adapter 保存其续接所必需的 reasoning、签名或不透明状态。核心只存储/传递，不解释它们；普通 metadata 使用允许字段集，禁止记录完整原始响应。
 - `provider_state` 与可公开 metadata 分开，采用受限存储，不输出到 Trace、JSONL 或 Durable Memory；必要状态无法保存/重放时明确拒绝恢复，不能静默丢弃。
-- 显式声明 API 家族与工具能力。OpenAI-compatible 不等于支持 Responses 全部功能；根据配置选择适配器。
-- Fallback 只在请求前或明确能力错误时决定；不能在工具已执行后重新走 Legacy 路径。
+- 显式声明 API 家族与工具能力：OpenAI 使用 Responses `function_call/function_call_output`，Claude 使用 Messages `tool_use/tool_result`，Ollama 使用 `/api/chat`。
+- OpenAI-compatible 不等于支持 Responses 全部功能。端点必须支持对应原生工具协议；不支持时明确报错，不能回退到文本解析。
 
 ### 7.3 多调用批次
 
@@ -202,11 +202,11 @@ Provider 异常使用类型化错误与重试类别，不制造正常 Final。`m
 
 ### 7.4 纵向切片与验收
 
-1. Message + Legacy Adapter + Golden 测试。
+1. Message + 原生 FakeModel + Golden 测试。
 2. 一个 OpenAI Responses Provider + `read_file` + Tool Result 回传。
-3. 写工具纵向切片接入 P2 Gateway 后扩大覆盖。
+3. 写工具沿用现有审批、路径与只读护栏；P2 再抽取 Gateway 与恢复账本。
 4. Anthropic Tool Use 适配。
-5. Ollama 原生工具或显式 Legacy 配置。
+5. Ollama 原生 `/api/chat` 工具调用。
 
 覆盖内容块顺序、工具 ID 绑定、多调用、非法参数、空响应、截断、Provider 错误和恢复重放。确定性 HTTP 契约测试必须通过；真实网络 Smoke 单独标记，未运行不算通过。
 
