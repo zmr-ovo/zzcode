@@ -155,3 +155,9 @@ P0 历史证据保留在 `artifacts/p0-baseline/verified/`；重放旧协议需�
 交互模式下用 `/operations` 查看待核对操作；确认实际结果后，输入 `/resolve 操作ID succeeded|failed|cancelled 核对证据`。请先检查文件、进程及外部副作用，再明确记录结果。`--max-run-seconds 300` 设置调用之间检查的时间预算。
 
 输出采用有限读取与脱敏 Artifact，模型可调用 `read_artifact` 分段查看保留内容。恢复边界与验证说明见 [P2 实现记录](docs/testing/p2-result.md)。
+
+### 长会话与上下文压缩（P3）
+
+会话使用版本化 JSONL 保存，旧 JSON 会话首次读取时会备份并迁移，原始历史保留。发送请求前按完整请求估算 Token；超过预算时将旧的完整工具批次转为有来源的事实摘要，保留当前输入和近期结果。
+
+可使用 `--context-window 32768 --max-output-tokens 4096` 显式配置模型容量。默认容量未经后端确认；UTF-8 字节估算较保守。无法容纳必要输入时会明确停止。详见 [P3 实现记录](docs/testing/p3-result.md)。

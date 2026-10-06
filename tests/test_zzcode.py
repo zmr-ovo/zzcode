@@ -336,6 +336,8 @@ def test_build_agent_uses_openai_provider_and_model_override(tmp_path):
             "secret_env_names": [],
             "max_steps": 6,
             "max_run_seconds": 300,
+            "context_window": None,
+            "max_output_tokens": None,
             "max_new_tokens": 512,
         },
     )()
@@ -354,6 +356,7 @@ def test_build_agent_uses_openai_provider_and_model_override(tmp_path):
             side_effect=AssertionError("ollama client should not be used"),
         ), patch("zzcode.cli.OpenAICompatibleModelClient") as mock_openai:
             fake_client = mock_openai.return_value
+            fake_client.capabilities = mini_pkg.FakeModelClient([]).capabilities
             agent = mini_pkg.build_agent(args)
 
     mock_openai.assert_called_once()
@@ -377,6 +380,7 @@ def test_build_agent_loads_global_dotenv_from_another_workspace(tmp_path):
         "zzcode.cli._global_env_path", return_value=global_env
     ), patch("zzcode.cli.OpenAICompatibleModelClient") as mock_openai:
         mini_cli._load_env_files(workspace)
+        mock_openai.return_value.capabilities = mini_pkg.FakeModelClient([]).capabilities
         mini_pkg.build_agent(args)
 
     assert mock_openai.call_args.kwargs["api_key"] == "global-key"
@@ -395,6 +399,7 @@ def test_shell_env_overrides_global_and_workspace_dotenv(tmp_path):
         "zzcode.cli._global_env_path", return_value=global_env
     ), patch("zzcode.cli.OpenAICompatibleModelClient") as mock_openai:
         mini_cli._load_env_files(workspace)
+        mock_openai.return_value.capabilities = mini_pkg.FakeModelClient([]).capabilities
         mini_pkg.build_agent(args)
 
     assert mock_openai.call_args.kwargs["api_key"] == "shell-key"
@@ -442,6 +447,8 @@ def test_build_agent_uses_anthropic_provider_and_openai_key_fallback(tmp_path):
             "secret_env_names": [],
             "max_steps": 6,
             "max_run_seconds": 300,
+            "context_window": None,
+            "max_output_tokens": None,
             "max_new_tokens": 512,
         },
     )()
@@ -461,6 +468,7 @@ def test_build_agent_uses_anthropic_provider_and_openai_key_fallback(tmp_path):
             side_effect=AssertionError("openai client should not be used"),
         ), patch("zzcode.cli.AnthropicCompatibleModelClient") as mock_anthropic:
             fake_client = mock_anthropic.return_value
+            fake_client.capabilities = mini_pkg.FakeModelClient([]).capabilities
             agent = mini_pkg.build_agent(args)
 
     mock_anthropic.assert_called_once()
@@ -480,6 +488,7 @@ def test_build_agent_uses_anthropic_default_model_when_env_is_missing(tmp_path):
     ):
         os.environ.pop("ANTHROPIC_MODEL", None)
         with patch("zzcode.cli.AnthropicCompatibleModelClient") as mock_anthropic:
+            mock_anthropic.return_value.capabilities = mini_pkg.FakeModelClient([]).capabilities
             mini_pkg.build_agent(args)
 
     assert mock_anthropic.call_args.kwargs["model"] == "claude-sonnet-4-6"
@@ -501,6 +510,7 @@ def test_build_agent_uses_openai_provider_by_default(tmp_path):
             side_effect=AssertionError("ollama client should not be used"),
         ), patch("zzcode.cli.OpenAICompatibleModelClient") as mock_openai:
             fake_client = mock_openai.return_value
+            fake_client.capabilities = mini_pkg.FakeModelClient([]).capabilities
             agent = mini_pkg.build_agent(args)
 
     mock_openai.assert_called_once()
@@ -1005,6 +1015,8 @@ def test_resume_records_runtime_identity_mismatch_fields_in_metadata_and_trace(t
                     "read_only": False,
                     "max_steps": 6,
             "max_run_seconds": 300,
+            "context_window": None,
+            "max_output_tokens": None,
                     "max_new_tokens": 512,
                     "model": "old-model",
                     "model_client": "FakeModelClient",

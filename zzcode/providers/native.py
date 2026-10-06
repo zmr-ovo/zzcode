@@ -4,6 +4,7 @@ import json
 import time
 import urllib.error
 import urllib.request
+from ..context.budget import ContextOverflowError
 from copy import deepcopy
 from dataclasses import asdict
 from functools import wraps
@@ -92,6 +93,13 @@ def _http(url, payload, headers, timeout, provider, retry_observer=None):
             if exc.code >= 500 and attempt < 2:
                 time.sleep(0.5 * (attempt + 1))
                 continue
+            if exc.code in {400, 413}:
+                try:
+                    error = json.loads(exc.read(8192)).get("error", {})
+                except (ValueError, AttributeError):
+                    error = {}
+                if isinstance(error, dict) and error.get("code", error.get("type")) in {"context_length_exceeded", "prompt_too_long"}:
+                    raise ContextOverflowError("backend context capacity exceeded") from exc
             raise RuntimeError(
                 f"{provider} request failed with HTTP {exc.code}"
             ) from exc

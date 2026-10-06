@@ -74,3 +74,10 @@ artifacts/p1-baseline/verified/workspaces/
 !artifacts/p2-baseline/**
 artifacts/p2-baseline/**/workspaces/
 artifacts/p2-baseline/**/golden-runs/
+
+# P3 validation evidence; private sessions remain local.
+!artifacts/p3-baseline/
+!artifacts/p3-baseline/**
+artifacts/p3-baseline/**/workspaces/
+artifacts/p3-baseline/**/golden-runs/
+artifacts/p3-baseline/iteration-*/

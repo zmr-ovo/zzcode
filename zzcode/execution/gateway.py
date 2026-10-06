@@ -10,6 +10,7 @@ from .files import FileConflictError, atomic_write, file_hash, prepare_file
 from .ledger import OperationBusyError, OperationLedger, PersistenceError, ensure_inactive
 from .output import ArtifactStore, ToolOutput
 from .shell import ShellOutcome
+from ..context.compaction import validation_signature
 
 
 def arguments_hash(arguments):
@@ -175,7 +176,14 @@ class ToolGateway:
                 status = "partial_success" if paths else "failed"
                 error = "tool_partial_success" if paths else "tool_failed"
             content, truncated, refs = self.artifacts.present(content)
-            value = replace(result, status=status, content=content, error_code=error, affected_paths=tuple(paths), diff_summary=tuple(diffs),
+            evidence = {}
+            if outcome:
+                # 验证结论绑定执行时的命令、环境及完整工作区；摘要不能替代这些事实。
+                evidence = {"workspace_digest": arguments_hash(after),
+                            "patch_digest": arguments_hash({path:[before.get(path),after.get(path)] for path in paths}),
+                            "command_digest": arguments_hash({"command":arguments["command"]}),
+                            "validation_signature":validation_signature(self.agent)}
+            value = replace(result, execution_evidence=evidence, status=status, content=content, error_code=error, affected_paths=tuple(paths), diff_summary=tuple(diffs),
                             exit_code=outcome.exit_code if outcome else None, timed_out=outcome.timed_out if outcome else False,
                             truncated=truncated or source_truncated or bool(outcome and outcome.truncated), artifact_refs=refs)
             self._fault("before_terminal", operation_id)

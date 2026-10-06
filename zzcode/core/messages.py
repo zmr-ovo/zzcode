@@ -40,6 +40,7 @@ class ToolResult:
     artifact_refs: tuple[str, ...] = ()
     timed_out: bool = False
     diff_summary: tuple[str, ...] = ()
+    execution_evidence: dict = field(default_factory=dict)
     security_event_type: str = ""
     risk_level: str = "low"
     read_only: bool = True
@@ -133,6 +134,9 @@ class ModelCapabilities:
     native_tools: bool = True
     prompt_cache: bool = False
     streaming: bool = False
+    context_window: int = 32768
+    max_output_tokens: int = 4096
+    limits_source: str = "conservative-default"
 
 
 @dataclass(frozen=True)

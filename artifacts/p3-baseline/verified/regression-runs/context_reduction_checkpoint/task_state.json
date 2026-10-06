@@ -1,0 +1,13 @@
+{
+  "attempts": 1,
+  "checkpoint_id": "ckpt_5cc8dc95",
+  "final_answer": "Done.",
+  "last_tool": "",
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261006-202726-489ffc",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261006-202726-5a4d6a",
+  "tool_steps": 0,
+  "user_request": "Finish the README update after prompt compression creates a checkpoint."
+}

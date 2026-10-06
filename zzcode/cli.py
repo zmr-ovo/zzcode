@@ -251,6 +251,8 @@ def build_agent(args):
             approval_policy=args.approval,
             max_steps=args.max_steps,
             max_run_seconds=args.max_run_seconds,
+            context_window=args.context_window,
+            max_output_tokens=args.max_output_tokens,
             max_new_tokens=args.max_new_tokens,
             secret_env_names=configured_secret_names,
         )
@@ -261,6 +263,8 @@ def build_agent(args):
         approval_policy=args.approval,
         max_steps=args.max_steps,
         max_run_seconds=args.max_run_seconds,
+        context_window=args.context_window,
+        max_output_tokens=args.max_output_tokens,
         max_new_tokens=args.max_new_tokens,
         secret_env_names=configured_secret_names,
     )
@@ -292,6 +296,8 @@ def build_arg_parser():
         default=[],
         help="Extra environment variable names to treat as secrets for trace/report redaction.",
     )
+    parser.add_argument("--context-window", type=int, help="Explicit model context capacity in tokens.")
+    parser.add_argument("--max-output-tokens", type=int, help="Explicit model maximum output capacity.")
     parser.add_argument("--max-run-seconds", type=float, default=300, help="Run time budget checked between model/tool calls.")
     parser.add_argument("--max-steps", type=int, default=10, help="Maximum tool calls per request before finalization.")
     parser.add_argument("--max-new-tokens", type=int, default=2048, help="Maximum model output tokens per step, including reasoning tokens.")

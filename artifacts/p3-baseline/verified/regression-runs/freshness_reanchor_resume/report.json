@@ -1,0 +1,161 @@
+{
+  "attempts": 1,
+  "checkpoint_id": "ckpt_88f603aa",
+  "compaction_count": 0,
+  "context_budget": {
+    "max_output": 4096,
+    "source": "conservative-default",
+    "window": 32768
+  },
+  "durable_promotions": [],
+  "durable_rejections": [],
+  "durable_superseded": [],
+  "final_answer": "Done.",
+  "model_requests": 1,
+  "prompt_metadata": {
+    "budget_reductions": [],
+    "context_available_tokens": 31680,
+    "context_limits_source": "conservative-default",
+    "context_window": 32768,
+    "current_request": {
+      "raw_chars": 76,
+      "rendered_chars": 76,
+      "section_chars": 98,
+      "text": "Resume the stale benchmark task and finish without trusting the old summary."
+    },
+    "estimated_input_tokens": 10088,
+    "history": {
+      "collapsed_duplicate_reads": 0,
+      "older_entries_count": 0,
+      "raw_chars": 95,
+      "rendered_chars": 95,
+      "reused_file_summary_count": 0,
+      "summarized_tool_count": 0
+    },
+    "history_chars": 83,
+    "memory_chars": 179,
+    "native_history_messages": 1,
+    "native_request_chars": 7510,
+    "native_request_over_budget": false,
+    "prefix_changed": true,
+    "prefix_chars": 5351,
+    "prefix_hash": "3903c5da0b39b4243ffb84536c4381733c48834c08049d8ff156b22d56e85bfb",
+    "prompt_budget_chars": 12000,
+    "prompt_cache_key": "3903c5da0b39b4243ffb84536c4381733c48834c08049d8ff156b22d56e85bfb",
+    "prompt_cache_supported": false,
+    "prompt_chars": 4003,
+    "prompt_over_budget": false,
+    "recent_commits": 5,
+    "reduction_order": [
+      "relevant_memory",
+      "history",
+      "memory",
+      "prefix"
+    ],
+    "relevant_memory": {
+      "limit": 3,
+      "raw_chars": 23,
+      "rendered_chars": 23,
+      "rendered_count": 0,
+      "rendered_notes": [],
+      "selected_count": 0,
+      "selected_durable_count": 0,
+      "selected_kinds": [],
+      "selected_notes": [],
+      "selected_sources": []
+    },
+    "request_chars": 76,
+    "reserved_output_tokens": 64,
+    "resume_status": "partial-stale",
+    "runtime_identity_mismatch_fields": [
+      "workspace_fingerprint"
+    ],
+    "safety_tokens": 1024,
+    "secret_env_count": 0,
+    "secret_env_names": [],
+    "section_budgets": {
+      "current_request": null,
+      "history": 5200,
+      "memory": 1600,
+      "prefix": 3600,
+      "relevant_memory": 1200
+    },
+    "section_order": [
+      "prefix",
+      "memory",
+      "relevant_memory",
+      "history",
+      "current_request"
+    ],
+    "sections": {
+      "current_request": {
+        "budget_chars": null,
+        "raw_chars": 98,
+        "rendered_chars": 98
+      },
+      "history": {
+        "budget_chars": 5200,
+        "raw_chars": 95,
+        "rendered_chars": 95
+      },
+      "memory": {
+        "budget_chars": 1600,
+        "raw_chars": 179,
+        "rendered_chars": 179
+      },
+      "prefix": {
+        "budget_chars": 3600,
+        "raw_chars": 5594,
+        "rendered_chars": 3600
+      },
+      "relevant_memory": {
+        "budget_chars": 1200,
+        "raw_chars": 23,
+        "rendered_chars": 23
+      }
+    },
+    "stale_paths": [
+      "sample.txt"
+    ],
+    "stale_summary_invalidations": 1,
+    "token_estimator": "utf8-bytes-conservative",
+    "tool_count": 8,
+    "tool_signature": "b259a5811c1cc838a6fb696e227f63c14a17f7632f7b381b9634a1f7492b2d89",
+    "validation_stale": false,
+    "workspace_changed": true,
+    "workspace_chars": 3647,
+    "workspace_docs": 2,
+    "workspace_fingerprint": "8bb8d70d1a1e09b96cb7a86925b73446b112e34a800741be0add840d530b4694"
+  },
+  "redacted_env": {
+    "secret_env_count": 0,
+    "secret_env_names": []
+  },
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261006-202727-a10fc7",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261006-202727-af7af2",
+  "task_state": {
+    "attempts": 1,
+    "checkpoint_id": "ckpt_88f603aa",
+    "final_answer": "Done.",
+    "last_tool": "",
+    "resume_status": "no-checkpoint",
+    "run_id": "run_20261006-202727-a10fc7",
+    "status": "completed",
+    "stop_reason": "final_answer_returned",
+    "task_id": "task_20261006-202727-af7af2",
+    "tool_steps": 0,
+    "user_request": "Resume the stale benchmark task and finish without trusting the old summary."
+  },
+  "tool_counters": {
+    "cancelled": 0,
+    "executed": 0,
+    "proposed": 0,
+    "rejected": 0,
+    "succeeded": 0
+  },
+  "tool_steps": 0,
+  "transport_retries": 0
+}

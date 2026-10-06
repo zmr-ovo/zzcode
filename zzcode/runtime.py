@@ -21,6 +21,8 @@ from .execution.gateway import ToolGateway
 from .execution.ledger import PersistenceError, OperationBusyError
 from .execution.files import file_hash
 from . import memory as memorylib
+from .session_store import SessionStore as SessionStore, SessionError
+from .context.budget import TokenBudget, ContextCapacityError, ContextOverflowError
 from .context_manager import ContextManager
 from .run_store import RunStore
 from .task_state import TaskState
@@ -68,30 +70,6 @@ class PromptPrefix:
     built_at: str
 
 
-class SessionStore:
-    def __init__(self, root):
-        self.root = Path(root)
-        self.root.mkdir(parents=True, exist_ok=True)
-
-    def path(self, session_id):
-        return self.root / f"{session_id}.json"
-
-    def save(self, session):
-        path = self.path(session["id"])
-        temporary = path.with_suffix(".tmp")
-        descriptor = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
-        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
-            json.dump(session, handle, indent=2)
-        os.chmod(temporary, 0o600)
-        os.replace(temporary, path)
-        return path
-
-    def load(self, session_id):
-        return json.loads(self.path(session_id).read_text(encoding="utf-8"))
-
-    def latest(self):
-        files = sorted(self.root.glob("*.json"), key=lambda path: path.stat().st_mtime)
-        return files[-1].stem if files else None
 
 
 class ZZCode:
@@ -113,7 +91,13 @@ class ZZCode:
         feature_flags=None,
         operation_ledger=None,
         max_run_seconds=300,
+        context_window=None,
+        max_output_tokens=None,
     ):
+        capabilities = getattr(model_client, "capabilities", None)
+        self.token_budget = TokenBudget(context_window if context_window is not None else getattr(capabilities, "context_window", 32768),
+                                       max_output_tokens if max_output_tokens is not None else getattr(capabilities, "max_output_tokens", 4096),
+                                       source="user-config" if context_window is not None else getattr(capabilities, "limits_source", "conservative-default"))
         self.model_client = model_client
         self.workspace = workspace
         self.root = Path(workspace.repo_root)
@@ -149,7 +133,7 @@ class ZZCode:
         self.prefix = self.prefix_state.text
         self.context_manager = ContextManager(self)
         self.resume_state = self.evaluate_resume_state()
-        self.session_path = self.session_store.save(self.session)    
+        self.persist_session()
         self.current_task_state = None
         self.current_run_dir = None
         self.last_prompt_metadata = {}
@@ -175,6 +159,7 @@ class ZZCode:
 
     def _ensure_session_shape(self):
         self.session.setdefault("history", [])
+        self.session.setdefault("compactions", [])
         self.session.setdefault("memory", memorylib.default_memory_state())
         checkpoints = self.session.setdefault("checkpoints", {})
         if not isinstance(checkpoints, dict):
@@ -199,6 +184,9 @@ class ZZCode:
             "read_only": bool(self.read_only),
             "max_steps": int(self.max_steps),
             "max_new_tokens": int(self.max_new_tokens),
+            "context_window": self.token_budget.window,
+            "max_output_tokens": self.token_budget.max_output,
+            "context_limits_source": self.token_budget.source,
             "feature_flags": dict(self.feature_flags),
             "shell_env_allowlist": list(self.shell_env_allowlist),
             "workspace_fingerprint": getattr(getattr(self, "prefix_state", None), "workspace_fingerprint", self.workspace.fingerprint()),
@@ -435,9 +423,19 @@ class ZZCode:
         prompt, _ = self._build_prompt_and_metadata(user_message)
         return prompt
 
+    def persist_session(self):
+        try:
+            self.session_path = self.session_store.save(self.session)
+        except SessionError as exc:
+            task = getattr(self, "current_task_state", None)
+            if task and task.status == "running":
+                task.stop("session_persistence_error", status="failed", final_answer=str(exc))
+                self.run_store.write_task_state(task)
+            raise
+
     def record(self, item):
         self.session["history"].append(item)
-        self.session_path = self.session_store.save(self.session)
+        self.persist_session()
 
     @staticmethod
     def looks_sensitive_env_name(name):
@@ -560,19 +558,13 @@ class ZZCode:
 
     def capture_workspace_snapshot(self):
         snapshot = {}
-        for path in self.root.rglob("*"):
-            try:
-                relative_parts = path.relative_to(self.root).parts
-            except ValueError:
-                continue
-            if any(part in IGNORED_PATH_NAMES for part in relative_parts):
-                continue
-            if not path.is_file():
-                continue
-            try:
+        for directory, dirs, files in os.walk(self.root):
+            dirs[:] = [name for name in dirs if name not in IGNORED_PATH_NAMES]
+            for name in files:
+                path = Path(directory) / name
+                if name in IGNORED_PATH_NAMES or path.is_symlink():
+                    continue
                 snapshot[path.relative_to(self.root).as_posix()] = file_hash(path)
-            except Exception:
-                continue
         return snapshot
 
     @staticmethod
@@ -604,6 +596,9 @@ class ZZCode:
             key_files.append({"path": path, "freshness": file_freshness})
         checkpoint = {
             "checkpoint_id": checkpoint_id,
+            "session_entry_id": self.session["history"][-1]["entry_id"] if self.session["history"] else "",
+            "compaction_id": self.session["compactions"][-1]["compaction_id"] if self.session["compactions"] else "",
+            "operation_ids": [row[0] for row in self.gateway.ledger.connection.execute("SELECT operation_id FROM operations WHERE run_id=?", (task_state.run_id,))],
             "parent_checkpoint_id": current.get("checkpoint_id", "") if current else "",
             "schema_version": CHECKPOINT_SCHEMA_VERSION,
             "created_at": now(),
@@ -621,7 +616,7 @@ class ZZCode:
         state["current_id"] = checkpoint_id
         task_state.checkpoint_id = checkpoint_id
         self.session["runtime_identity"] = checkpoint["runtime_identity"]
-        self.session_path = self.session_store.save(self.session)
+        self.persist_session()
         return checkpoint
 
     def infer_next_step(self, task_state):
@@ -801,6 +796,8 @@ class ZZCode:
         )
 
         self.current_transport_retries = 0
+        self.current_model_requests = 0
+        overflow_rebuilt = False
         tool_steps = 0
         attempts = 0
         max_attempts = max(self.max_steps * 3, self.max_steps + 4)
@@ -883,12 +880,13 @@ class ZZCode:
             finalization_attempted = finalization_attempted or finalization_only
             model_started_at = time.monotonic()
             try:
-                request = self.context_manager.build_request(user_message, prompt, prompt_metadata, finalization_only)
+                request = self.context_manager.build_request(user_message, prompt, prompt_metadata, finalization_only, conservative=overflow_rebuilt)
                 request.validate()
                 prompt_metadata["native_request_chars"] = len(request.system) + sum(len(json.dumps(message.to_dict())) for message in request.messages) + sum(len(json.dumps(spec.input_schema)) for spec in request.tools)
                 prompt_metadata["native_request_over_budget"] = prompt_metadata["native_request_chars"] > self.context_manager.total_budget
                 prompt_metadata["native_history_messages"] = len(request.messages)
                 try:
+                    self.current_model_requests += 1
                     response = self.model_client.complete(request)
                 finally:
                     self.current_transport_retries += getattr(self.model_client, "transport_retries", 0)
@@ -899,6 +897,19 @@ class ZZCode:
                                 for block in item.get("message", {}).get("content", []) if block.get("type") == "tool_call"}
                 if any(call.call_id in previous_ids for call in response.tool_calls):
                     raise ProviderProtocolError("provider reused a tool call ID")
+            except ContextCapacityError as exc:
+                task_state.stop("context_capacity_exceeded", final_answer=str(exc))
+                break
+            except ContextOverflowError as exc:
+                if overflow_rebuilt:
+                    task_state.stop("context_capacity_exceeded", final_answer=str(exc))
+                    break
+                overflow_rebuilt = True
+                continue
+            except SessionError as exc:
+                task_state.stop("session_persistence_error", status="failed", final_answer=str(exc))
+                self.run_store.write_task_state(task_state)
+                raise
             except ProviderProtocolError as exc:
                 self.record({"role": "user", "content": self.retry_notice(str(exc)), "created_at": now()})
                 if finalization_only:
@@ -909,6 +920,7 @@ class ZZCode:
                 self.run_store.write_task_state(task_state)
                 self.run_store.write_report(task_state, self.redact_artifact(self.build_report(task_state)))
                 raise
+            self.token_budget.observe(prompt_metadata["estimated_input_tokens"], response.usage)
             public_fields = {"input_tokens", "output_tokens", "cached_tokens", "total_tokens", "cache_hit",
                              "prompt_cache_supported", "prompt_cache_key", "prompt_cache_retention"}
             completion_metadata = {key: value for key, value in dict(getattr(self.model_client, "last_completion_metadata", {}) or {}).items() if key in public_fields}
@@ -1113,8 +1125,10 @@ class ZZCode:
             "tool_steps": task_state.tool_steps,
             "attempts": task_state.attempts,
             "tool_counters": self.gateway.ledger.counts(task_state.run_id),
-            "model_requests": task_state.attempts,
+            "model_requests": getattr(self, "current_model_requests", 0),
             "transport_retries": getattr(self, "current_transport_retries", 0),
+            "compaction_count": len(self.session["compactions"]),
+            "context_budget": {"window":self.token_budget.window,"max_output":self.token_budget.max_output,"source":self.token_budget.source},
             "checkpoint_id": task_state.checkpoint_id,
             "resume_status": task_state.resume_status,
             "task_state": task_state.to_dict(),
@@ -1174,10 +1188,12 @@ class ZZCode:
 
     def reset(self):
         self.session["history"] = []
+        self.session["compactions"] = []
+        self.session["checkpoints"] = {"items":{},"current_id":""}
         self.session["memory"].clear()
         self.session["memory"].update(memorylib.default_memory_state())
         self.memory = memorylib.LayeredMemory(self.session["memory"], workspace_root=self.root)
-        self.session_store.save(self.session)
+        self.persist_session()
 
     def path(self, raw_path):
         path = Path(raw_path)

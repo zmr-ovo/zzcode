@@ -1,0 +1,13 @@
+{
+  "attempts": 5,
+  "checkpoint_id": "ckpt_a959d1ec",
+  "final_answer": "Done.",
+  "last_tool": "patch_file",
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261006-202726-d00808",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261006-202726-7823c8",
+  "tool_steps": 4,
+  "user_request": "Recover after repeated identical reads and still finish the sample.txt patch."
+}

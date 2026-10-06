@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "default": "reliable_tools",
+  "default": "token_context",
   "profiles": {
     "structured": {
       "implemented": true,
@@ -19,9 +19,16 @@
         "context_reduction": true,
         "prompt_cache": true
       }
+    },
+    "token_context": {
+      "implemented": true,
+      "features": {
+        "memory": true,
+        "relevant_memory": true,
+        "context_reduction": true,
+        "prompt_cache": true
+      }
     }
   },
-  "reserved_profiles": [
-    "token_context"
-  ]
+  "reserved_profiles": []
 }
