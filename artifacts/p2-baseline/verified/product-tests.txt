@@ -1,0 +1,21 @@
+........................................................................ [ 41%]
+........................................................................ [ 82%]
+..............................                                           [100%]
+=============================== warnings summary ===============================
+tests/test_metrics.py::test_run_context_ablation_v2_writes_expected_artifact
+tests/test_metrics.py::test_write_benchmark_core_report_marks_resume_safe_metrics
+  /Users/miaoran/Documents/Program/zzcode/zzcode/metrics.py:1557: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "captured_at": datetime.utcnow().isoformat() + "Z",
+
+tests/test_metrics.py::test_run_memory_ablation_v2_writes_expected_artifact
+tests/test_metrics.py::test_write_benchmark_core_report_marks_resume_safe_metrics
+  /Users/miaoran/Documents/Program/zzcode/zzcode/metrics.py:1570: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "captured_at": datetime.utcnow().isoformat() + "Z",
+
+tests/test_metrics.py::test_run_recovery_ablation_v2_writes_expected_artifact
+tests/test_metrics.py::test_write_benchmark_core_report_marks_resume_safe_metrics
+  /Users/miaoran/Documents/Program/zzcode/zzcode/metrics.py:1590: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "captured_at": datetime.utcnow().isoformat() + "Z",
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+174 passed, 6 warnings in 106.07s (0:01:46)

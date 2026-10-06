@@ -33,6 +33,6 @@ def test_agent_tool_container_can_edit_workspace_but_has_no_network(tmp_path):
         timeout_seconds=10,
     )
 
-    assert edit.returncode == 0
+    assert edit.exit_code == 0
     assert source.read_text(encoding="utf-8") == "VALUE = 2\n"
-    assert network.returncode != 0
+    assert network.exit_code != 0

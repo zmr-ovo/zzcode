@@ -33,7 +33,7 @@ def test_workspace_escape_is_rejected(tmp_path):
 
     result = agent.run_tool("read_file", {"path": "../outside.txt"})
 
-    assert "path escapes workspace" in result
+    assert "path escapes workspace" in result.content
 
 
 def test_symlink_path_traversal_is_rejected(tmp_path):
@@ -44,7 +44,7 @@ def test_symlink_path_traversal_is_rejected(tmp_path):
 
     result = agent.run_tool("read_file", {"path": "linked.txt"})
 
-    assert "path escapes workspace" in result
+    assert "path escapes workspace" in result.content
 
 
 def test_risky_tool_deny_behavior(tmp_path):
@@ -52,7 +52,7 @@ def test_risky_tool_deny_behavior(tmp_path):
 
     result = agent.run_tool("run_shell", {"command": "echo hi", "timeout": 20})
 
-    assert result == "error: approval denied for run_shell"
+    assert result.content == "error: approval denied for run_shell"
 
 
 def test_cli_build_agent_wires_secret_env_names_from_parser(tmp_path):
@@ -136,30 +136,18 @@ def test_run_shell_uses_allowlisted_environment_only(tmp_path):
     with patch.dict(os.environ, {"MCA_ALLOWLIST_SECRET": secret}, clear=False):
         result = agent.run_tool("run_shell", {"command": command, "timeout": 20})
 
-    assert secret not in result
-    assert "missing" in result
+    assert secret not in result.content
+    assert "missing" in result.content
 
 
-def test_bound_tool_methods_delegate_into_tools_module(tmp_path):
-    agent = build_agent(tmp_path, [], approval_policy="auto")
-
-    with patch("zzcode.tools.subprocess.run") as fake_run:
-        fake_run.return_value = type(
-            "Result",
-            (),
-            {"returncode": 0, "stdout": "toolkit-shell\n", "stderr": ""},
-        )()
-        shell_result = agent.tool_run_shell({"command": "echo bypass", "timeout": 20})
-
-    assert "toolkit-shell" in shell_result
-    fake_run.assert_called_once()
-    assert agent.tool_run_shell.__func__.__module__ == "zzcode.runtime"
-
-    with patch("zzcode.tools.tool_delegate", return_value="toolkit-delegate") as fake_delegate:
-        delegate_result = agent.tool_delegate({"task": "inspect README.md", "max_steps": 2})
-
-    assert delegate_result == "toolkit-delegate"
-    fake_delegate.assert_called_once()
+def test_bound_tool_methods_use_gateway(tmp_path):
+    agent = build_agent(tmp_path, [], approval_policy="never")
+    shell_result = agent.tool_run_shell({"command": "echo bypass", "timeout": 20})
+    assert shell_result.status == "rejected"
+    assert shell_result.error_code == "approval_denied"
+    file_result = agent.tool_write_file({"path": "bypass.txt", "content": "x"})
+    assert file_result.status == "rejected"
+    assert not (tmp_path / "bypass.txt").exists()
 
 
 def test_delegate_depth_limit_is_enforced(tmp_path):

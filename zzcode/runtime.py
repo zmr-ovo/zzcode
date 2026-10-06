@@ -15,7 +15,11 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
-from .core.messages import (Message, ToolResult, ModelResponse, ProviderProtocolError)
+from .core.messages import (Message, ToolCall, ToolResult, ModelResponse, ProviderProtocolError)
+from .execution.output import SECRET_PATTERN
+from .execution.gateway import ToolGateway
+from .execution.ledger import PersistenceError, OperationBusyError
+from .execution.files import file_hash
 from . import memory as memorylib
 from .context_manager import ContextManager
 from .run_store import RunStore
@@ -107,12 +111,15 @@ class ZZCode:
         shell_env_allowlist=None,
         secret_env_names=None,
         feature_flags=None,
+        operation_ledger=None,
+        max_run_seconds=300,
     ):
         self.model_client = model_client
         self.workspace = workspace
         self.root = Path(workspace.repo_root)
         self.session_store = session_store
         self.approval_policy = approval_policy
+        self.max_run_seconds = max_run_seconds
         self.max_steps = max_steps
         self.max_new_tokens = max_new_tokens
         self.depth = depth
@@ -150,7 +157,7 @@ class ZZCode:
         self.last_durable_promotions = []
         self.last_durable_rejections = []
         self.last_durable_superseded = []
-        self._last_tool_result_metadata = {}
+        self.gateway = ToolGateway(self, operation_ledger)
         self._last_prefix_refresh = {
             "workspace_changed": False,
             "prefix_changed": False,
@@ -477,7 +484,7 @@ class ZZCode:
         text = str(text)
         for _, value in sorted(self.detected_secret_env_items(), key=lambda item: len(item[1]), reverse=True):
             text = text.replace(value, REDACTED_VALUE)
-        return text
+        return SECRET_PATTERN.sub(REDACTED_VALUE, text)
 
     def redact_artifact(self, value, key=None):
         if key and self.is_secret_env_name(key):
@@ -563,7 +570,7 @@ class ZZCode:
             if not path.is_file():
                 continue
             try:
-                snapshot[path.relative_to(self.root).as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()
+                snapshot[path.relative_to(self.root).as_posix()] = file_hash(path)
             except Exception:
                 continue
         return snapshot
@@ -769,10 +776,14 @@ class ZZCode:
                 elif block["type"] == "tool_result":
                     pending.pop(block["call_id"], None)
         for call_id, call in pending.items():
-            result = ToolResult(call_id, call["name"], "Execution outcome unknown after interruption; inspect workspace before repeating.", "unknown")
+            row = self.gateway.ledger.get(self.session["id"], call_id)
+            result = self.gateway.ledger.result(row) if row else None
+            if result is None:
+                result = ToolResult(call_id, call["name"], "Execution outcome unknown after interruption; inspect workspace before repeating.", "unknown")
             self.record({"role": "tool", "name": call["name"], "args": call["arguments"], "content": result.content,
                          "message": Message("tool", (result,)).to_dict(), "created_at": now()})
         self.session["protocol_version"] = 2
+        self._turn_start_index = len(self.session["history"])
         self.memory.set_task_summary(user_message)
         self.record({"role": "user", "content": user_message, "created_at": now()})
 
@@ -789,6 +800,7 @@ class ZZCode:
             },
         )
 
+        self.current_transport_retries = 0
         tool_steps = 0
         attempts = 0
         max_attempts = max(self.max_steps * 3, self.max_steps + 4)
@@ -801,6 +813,9 @@ class ZZCode:
         # 4. 记录：把结果写回 history / task_state / trace / memory
         # 然后进入下一轮，直到停机条件满足
         while attempts < max_attempts or (tool_steps >= self.max_steps and not finalization_attempted):
+            if time.monotonic() - run_started_at >= self.max_run_seconds:
+                task_state.stop("time_limit", final_answer="Stopped after reaching the run time limit.")
+                break
             attempts += 1
             task_state.record_attempt()
             self.run_store.write_task_state(task_state)
@@ -873,7 +888,10 @@ class ZZCode:
                 prompt_metadata["native_request_chars"] = len(request.system) + sum(len(json.dumps(message.to_dict())) for message in request.messages) + sum(len(json.dumps(spec.input_schema)) for spec in request.tools)
                 prompt_metadata["native_request_over_budget"] = prompt_metadata["native_request_chars"] > self.context_manager.total_budget
                 prompt_metadata["native_history_messages"] = len(request.messages)
-                response = self.model_client.complete(request)
+                try:
+                    response = self.model_client.complete(request)
+                finally:
+                    self.current_transport_retries += getattr(self.model_client, "transport_retries", 0)
                 if not isinstance(response, ModelResponse):
                     raise ProviderProtocolError("provider must return ModelResponse")
                 response.validate()
@@ -920,26 +938,27 @@ class ZZCode:
                 },
             )
 
+            if time.monotonic() - run_started_at >= self.max_run_seconds:
+                kind = "stopped"
+                task_state.stop("time_limit", final_answer="Stopped after reaching the run time limit.")
             for call in response.tool_calls:
                 name, args = call.name, call.arguments
+                expired = time.monotonic() - run_started_at >= self.max_run_seconds
+                if expired:
+                    kind = "stopped"
+                    task_state.stop("time_limit", final_answer="Stopped after reaching the run time limit.")
                 if kind == "stopped" or tool_steps >= self.max_steps:
-                    result = "Tool call cancelled: " + (response.stop_reason if kind == "stopped" else "tool budget exhausted")
-                    self.record({"role": "tool", "name": name, "args": args, "content": result, "created_at": now(),
-                                 "message": Message("tool", (ToolResult(call.call_id, name, result, "cancelled"),)).to_dict()})
-                    self.emit_trace(task_state, "tool_cancelled", {"call_id": call.call_id, "name": name, "reason": result})
+                    cancelled = self.run_tool(name, args, call_id=call.call_id, argument_error=call.argument_error, cancel_reason="time limit" if expired else response.stop_reason if kind == "stopped" else "tool budget exhausted")
+                    self.record({"role": "tool", "name": name, "args": args, "content": cancelled.content, "created_at": now(),
+                                 "message": Message("tool", (cancelled,)).to_dict()})
+                    self.emit_trace(task_state, "tool_cancelled", {"call_id": call.call_id, "name": name, "reason": cancelled.content})
                     continue
                 tool_steps += 1
                 task_state.record_tool(name)
                 tool_started_at = time.monotonic()
-                if call.argument_error:
-                    result = "error: " + call.argument_error
-                    self._last_tool_result_metadata = {"tool_status": "error"}
-                else:
-                    result = self.run_tool(name, args)
-                status = {"ok": "succeeded", "error": "failed"}.get(self._last_tool_result_metadata.get("tool_status"), self._last_tool_result_metadata.get("tool_status", "succeeded"))
-                result_message = Message("tool", (ToolResult(call.call_id, name, result, status),))
-                self.record({"role": "tool", "name": name, "args": args, "content": result,
-                             "message": result_message.to_dict(), "created_at": now()})
+                result = self.run_tool(name, args, call_id=call.call_id, argument_error=call.argument_error)
+                self.record({"role": "tool", "name": name, "args": args, "content": result.content,
+                             "message": Message("tool", (result,)).to_dict(), "created_at": now()})
                 self.run_store.write_task_state(task_state)
                 self.emit_trace(
                     task_state,
@@ -948,9 +967,9 @@ class ZZCode:
                         "call_id": call.call_id,
                         "name": name,
                         "args": args,
-                        "result": clip(result, 500),
+                        "result": clip(result.content, 500),
                         "duration_ms": int((time.monotonic() - tool_started_at) * 1000),
-                        **dict(self._last_tool_result_metadata or {}),
+                        **self.tool_metadata(result),
                     },
                 )
                 checkpoint = self.create_checkpoint(task_state, user_message, trigger="tool_executed")
@@ -964,6 +983,8 @@ class ZZCode:
                     },
                 )
 
+            if task_state.stop_reason == "time_limit":
+                break
             if kind == "stopped":
                 final = response.text.strip() or f"Stopped: model returned {response.stop_reason}."
                 task_state.stop(response.stop_reason, final_answer=final)
@@ -1039,139 +1060,34 @@ class ZZCode:
         self.run_store.write_report(task_state, self.redact_artifact(self.build_report(task_state)))
         return final
 
-    def run_tool(self, name, args):
-        """执行一次工具调用，并在执行前后套上完整护栏。
-
-        为什么存在：
-        在 agent 系统里，真正危险的不是“模型会不会想调用工具”，而是
-        “平台有没有在执行前把边界守住”。这个函数就是工具层的总闸口：
-        所有工具调用都必须先经过它，不能让模型直接碰到底层函数。
-
-        输入 / 输出：
-        - 输入：工具名 `name`，参数字典 `args`
-        - 输出：字符串结果。无论是成功结果还是错误信息，都会统一返回文本，
-          这样模型下一轮都能继续消费这份反馈。
-
-        在 agent 链路里的位置：
-        它位于 `ask()` 的“模型决定要调用工具”之后，是控制循环里真正把模型
-        意图落到外部世界的一步。因此这里串起了几乎所有安全与可控设计：
-        工具是否存在、参数是否合法、是否重复、是否需要审批、执行结果是否裁剪、
-        是否需要回写记忆。
-        """
-        # 工具执行不是“直接调函数”，而是一条带护栏的流水线：
-        # 工具是否存在 -> 参数是否合法 -> 是否重复调用 -> 是否通过审批
-        # -> 真正执行 -> 更新记忆。
-        tool = self.tools.get(name)
-        if tool is None:
-            self._last_tool_result_metadata = {
-                "tool_status": "rejected",
-                "tool_error_code": "unknown_tool",
-                "security_event_type": "",
-                "risk_level": "high",
-                "read_only": False,
-                "affected_paths": [],
-                "workspace_changed": False,
-                "diff_summary": [],
-            }
-            return f"error: unknown tool '{name}'"
+    def run_tool(self, name, args, *, call_id=None, argument_error=None, cancel_reason=None):
         try:
-            self.validate_tool(name, args)
-        except Exception as exc:
-            example = self.tool_example(name)
-            message = f"error: invalid arguments for {name}: {exc}"
-            if example:
-                message += f"\nexample: {example}"
-            security_event_type = "path_escape" if "path escapes workspace" in str(exc) else ""
-            self._last_tool_result_metadata = {
-                "tool_status": "rejected",
-                "tool_error_code": "invalid_arguments",
-                "security_event_type": security_event_type,
-                "risk_level": "high" if tool["risky"] else "low",
-                "read_only": not tool["risky"],
-                "affected_paths": [],
-                "workspace_changed": False,
-                "diff_summary": [],
-            }
-            return message
-        if self.repeated_tool_call(name, args):
-            self._last_tool_result_metadata = {
-                "tool_status": "rejected",
-                "tool_error_code": "repeated_identical_call",
-                "security_event_type": "",
-                "risk_level": "high" if tool["risky"] else "low",
-                "read_only": not tool["risky"],
-                "affected_paths": [],
-                "workspace_changed": False,
-                "diff_summary": [],
-            }
-            return f"error: repeated identical tool call for {name}; choose a different tool or return a final answer"
-        if tool["risky"] and not self.approve(name, args):
-            self._last_tool_result_metadata = {
-                "tool_status": "rejected",
-                "tool_error_code": "approval_denied",
-                "security_event_type": "read_only_block" if self.read_only else "approval_denied",
-                "risk_level": "high",
-                "read_only": False,
-                "affected_paths": [],
-                "workspace_changed": False,
-                "diff_summary": [],
-            }
-            return f"error: approval denied for {name}"
-        before_snapshot = self.capture_workspace_snapshot() if tool["risky"] else {}
-        after_snapshot = before_snapshot
-        try:
-            result = clip(tool["run"](args))
-            after_snapshot = self.capture_workspace_snapshot() if tool["risky"] else before_snapshot
-            affected_paths, diff_summary = self.diff_workspace_snapshots(before_snapshot, after_snapshot)
-            workspace_changed = bool(affected_paths)
-            tool_status = "ok"
-            tool_error_code = ""
-            if name == "run_shell":
-                match = re.search(r"exit_code:\s*(-?\d+)", result)
-                exit_code = int(match.group(1)) if match else 0
-                if exit_code != 0 and workspace_changed:
-                    tool_status = "partial_success"
-                    tool_error_code = "tool_partial_success"
-                elif exit_code != 0:
-                    tool_status = "error"
-                    tool_error_code = "tool_failed"
-            self.update_memory_after_tool(name, args, result)
-            self._last_tool_result_metadata = {
-                "tool_status": tool_status,
-                "tool_error_code": tool_error_code,
-                "security_event_type": "",
-                "risk_level": "high" if tool["risky"] else "low",
-                "read_only": not tool["risky"],
-                "affected_paths": affected_paths,
-                "workspace_changed": workspace_changed,
-                "workspace_fingerprint": self.workspace.fingerprint(),
-                "diff_summary": diff_summary,
-            }
-            self.record_process_note_for_tool(name, self._last_tool_result_metadata)
-            return result
-        except Exception as exc:
-            after_snapshot = self.capture_workspace_snapshot() if tool["risky"] else before_snapshot
-            affected_paths, diff_summary = self.diff_workspace_snapshots(before_snapshot, after_snapshot)
-            workspace_changed = bool(affected_paths)
-            security_event_type = "path_escape" if "path escapes workspace" in str(exc) else ""
-            self._last_tool_result_metadata = {
-                "tool_status": "partial_success" if workspace_changed else "error",
-                "tool_error_code": "tool_partial_success" if workspace_changed else "tool_failed",
-                "security_event_type": security_event_type,
-                "risk_level": "high" if tool["risky"] else "low",
-                "read_only": not tool["risky"],
-                "affected_paths": affected_paths,
-                "workspace_changed": workspace_changed,
-                "workspace_fingerprint": self.workspace.fingerprint(),
-                "diff_summary": diff_summary,
-            }
-            self.record_process_note_for_tool(name, self._last_tool_result_metadata)
-            return f"error: tool {name} failed: {exc}"
+            result = self.gateway.execute(ToolCall(call_id or "call_" + uuid.uuid4().hex, name, args, argument_error), cancel_reason=cancel_reason)
+        except (PersistenceError, OperationBusyError) as exc:
+            if self.current_task_state:
+                self.current_task_state.stop("persistence_error" if isinstance(exc, PersistenceError) else "operation_busy", status="failed", final_answer=str(exc))
+                self.run_store.write_task_state(self.current_task_state)
+                self.run_store.write_report(self.current_task_state, self.redact_artifact(self.build_report(self.current_task_state)))
+            raise
+        if result.status in {"succeeded", "partial_success"}:
+            self.update_memory_after_tool(name, args, result.content)
+        self.record_process_note_for_tool(name, self.tool_metadata(result))
+        return result
+
+    @staticmethod
+    def tool_metadata(result):
+        # Trace 是统一结果的投影，不再维护另一份执行状态。
+        return {"operation_id": result.operation_id, "tool_status": {"succeeded": "ok", "failed": "error"}.get(result.status, result.status),
+                "tool_error_code": result.error_code, "security_event_type": result.security_event_type,
+                "risk_level": result.risk_level, "read_only": result.read_only,
+                "affected_paths": list(result.affected_paths), "workspace_changed": bool(result.affected_paths),
+                "diff_summary": list(result.diff_summary), "exit_code": result.exit_code,
+                "truncated": result.truncated, "artifact_refs": list(result.artifact_refs)}
 
     def repeated_tool_call(self, name, args):
         # agent 很常见的一种坏循环，是在没有新信息的情况下反复发起同一调用。
         # 这里提前挡掉最简单的这种循环。
-        tool_events = [item for item in self.session["history"] if item["role"] == "tool"]
+        tool_events = [item for item in self.session["history"][getattr(self, "_turn_start_index", 0):] if item["role"] == "tool"]
         if len(tool_events) < 2:
             return False
         recent = tool_events[-2:]
@@ -1196,6 +1112,9 @@ class ZZCode:
             "final_answer": task_state.final_answer,
             "tool_steps": task_state.tool_steps,
             "attempts": task_state.attempts,
+            "tool_counters": self.gateway.ledger.counts(task_state.run_id),
+            "model_requests": task_state.attempts,
+            "transport_retries": getattr(self, "current_transport_retries", 0),
             "checkpoint_id": task_state.checkpoint_id,
             "resume_status": task_state.resume_status,
             "task_state": task_state.to_dict(),
@@ -1216,25 +1135,25 @@ class ZZCode:
         toolkit.validate_tool(self, name, args)
 
     def tool_list_files(self, args):
-        return toolkit.tool_list_files(self, args)
+        return self.run_tool("list_files", args)
 
     def tool_read_file(self, args):
-        return toolkit.tool_read_file(self, args)
+        return self.run_tool("read_file", args)
 
     def tool_search(self, args):
-        return toolkit.tool_search(self, args)
+        return self.run_tool("search", args)
 
     def tool_run_shell(self, args):
-        return toolkit.tool_run_shell(self, args)
+        return self.run_tool("run_shell", args)
 
     def tool_write_file(self, args):
-        return toolkit.tool_write_file(self, args)
+        return self.run_tool("write_file", args)
 
     def tool_patch_file(self, args):
-        return toolkit.tool_patch_file(self, args)
+        return self.run_tool("patch_file", args)
 
     def tool_delegate(self, args):
-        return toolkit.tool_delegate(self, args)
+        return self.run_tool("delegate", args)
 
     def approve(self, name, args):
         if self.read_only:

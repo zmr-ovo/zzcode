@@ -1,0 +1,145 @@
+{
+  "attempts": 2,
+  "checkpoint_id": "ckpt_e4d996e1",
+  "durable_promotions": [],
+  "durable_rejections": [],
+  "durable_superseded": [],
+  "final_answer": "Done.",
+  "model_requests": 2,
+  "prompt_metadata": {
+    "budget_reductions": [],
+    "current_request": {
+      "raw_chars": 116,
+      "rendered_chars": 116,
+      "section_chars": 138,
+      "text": "In the README fixture, replace the placeholder opening sentence with 'This fixture is a locked benchmark workspace.'"
+    },
+    "history": {
+      "collapsed_duplicate_reads": 0,
+      "older_entries_count": 0,
+      "raw_chars": 323,
+      "rendered_chars": 323,
+      "reused_file_summary_count": 0,
+      "summarized_tool_count": 0
+    },
+    "history_chars": 311,
+    "memory_chars": 218,
+    "native_history_messages": 3,
+    "native_request_chars": 6368,
+    "native_request_over_budget": false,
+    "prefix_changed": true,
+    "prefix_chars": 5762,
+    "prefix_hash": "ad75b6c5c8d6c4cb8d601eacb10ec24ed18300aa6b358a8e964d36d1c1845a9f",
+    "prompt_budget_chars": 12000,
+    "prompt_cache_key": "ad75b6c5c8d6c4cb8d601eacb10ec24ed18300aa6b358a8e964d36d1c1845a9f",
+    "prompt_cache_supported": false,
+    "prompt_chars": 4310,
+    "prompt_over_budget": false,
+    "recent_commits": 5,
+    "reduction_order": [
+      "relevant_memory",
+      "history",
+      "memory",
+      "prefix"
+    ],
+    "relevant_memory": {
+      "limit": 3,
+      "raw_chars": 23,
+      "rendered_chars": 23,
+      "rendered_count": 0,
+      "rendered_notes": [],
+      "selected_count": 0,
+      "selected_durable_count": 0,
+      "selected_kinds": [],
+      "selected_notes": [],
+      "selected_sources": []
+    },
+    "request_chars": 116,
+    "resume_status": "workspace-mismatch",
+    "runtime_identity_mismatch_fields": [
+      "workspace_fingerprint"
+    ],
+    "secret_env_count": 0,
+    "secret_env_names": [],
+    "section_budgets": {
+      "current_request": null,
+      "history": 5200,
+      "memory": 1600,
+      "prefix": 3600,
+      "relevant_memory": 1200
+    },
+    "section_order": [
+      "prefix",
+      "memory",
+      "relevant_memory",
+      "history",
+      "current_request"
+    ],
+    "sections": {
+      "current_request": {
+        "budget_chars": null,
+        "raw_chars": 138,
+        "rendered_chars": 138
+      },
+      "history": {
+        "budget_chars": 5200,
+        "raw_chars": 323,
+        "rendered_chars": 323
+      },
+      "memory": {
+        "budget_chars": 1600,
+        "raw_chars": 218,
+        "rendered_chars": 218
+      },
+      "prefix": {
+        "budget_chars": 3600,
+        "raw_chars": 6190,
+        "rendered_chars": 3600
+      },
+      "relevant_memory": {
+        "budget_chars": 1200,
+        "raw_chars": 23,
+        "rendered_chars": 23
+      }
+    },
+    "stale_paths": [],
+    "stale_summary_invalidations": 0,
+    "tool_count": 8,
+    "tool_signature": "b259a5811c1cc838a6fb696e227f63c14a17f7632f7b381b9634a1f7492b2d89",
+    "workspace_changed": true,
+    "workspace_chars": 4058,
+    "workspace_docs": 3,
+    "workspace_fingerprint": "1b234d64246c45107ac40a04979f0cec18be4cf017a0682dbd8b81ebace9797a"
+  },
+  "redacted_env": {
+    "secret_env_count": 0,
+    "secret_env_names": []
+  },
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261006-132308-8573d7",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261006-132308-25749b",
+  "task_state": {
+    "attempts": 2,
+    "checkpoint_id": "ckpt_e4d996e1",
+    "final_answer": "Done.",
+    "last_tool": "patch_file",
+    "resume_status": "no-checkpoint",
+    "run_id": "run_20261006-132308-8573d7",
+    "status": "completed",
+    "stop_reason": "final_answer_returned",
+    "task_id": "task_20261006-132308-25749b",
+    "tool_steps": 1,
+    "user_request": "In the README fixture, replace the placeholder opening sentence with 'This fixture is a locked benchmark workspace.'"
+  },
+  "tool_counters": {
+    "cancelled": 0,
+    "executed": 1,
+    "proposed": 1,
+    "rejected": 0,
+    "succeeded": 1
+  },
+  "tool_steps": 1,
+  "transport_retries": 0
+}

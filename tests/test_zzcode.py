@@ -258,7 +258,7 @@ def test_patch_file_replaces_exact_match(tmp_path):
         },
     )
 
-    assert result == "patched sample.txt"
+    assert result.content == "patched sample.txt"
     assert file_path.read_text(encoding="utf-8") == "hello agent\n"
 
 
@@ -268,8 +268,8 @@ def test_invalid_risky_tool_does_not_prompt_for_approval(tmp_path):
     with patch("builtins.input") as mock_input:
         result = agent.run_tool("write_file", {})
 
-    assert result.startswith("error: invalid arguments for write_file: missing path")
-    assert "example:" in result
+    assert result.content.startswith("error: invalid arguments for write_file: missing path")
+    assert "example:" in result.content
     mock_input.assert_not_called()
 
 
@@ -281,9 +281,9 @@ def test_list_files_hides_internal_agent_state(tmp_path):
 
     result = agent.run_tool("list_files", {})
 
-    assert ".zzcode" not in result
-    assert ".git" not in result
-    assert "[F] hello.txt" in result
+    assert ".zzcode" not in result.content
+    assert ".git" not in result.content
+    assert "[F] hello.txt" in result.content
 
 
 def test_repeated_identical_tool_call_is_rejected(tmp_path):
@@ -293,7 +293,7 @@ def test_repeated_identical_tool_call_is_rejected(tmp_path):
 
     result = agent.run_tool("list_files", {})
 
-    assert result == "error: repeated identical tool call for list_files; choose a different tool or return a final answer"
+    assert result.content == "error: repeated identical tool call for list_files; choose a different tool or return a final answer"
 
 
 def test_welcome_screen_keeps_box_shape_for_long_paths(tmp_path):
@@ -335,6 +335,7 @@ def test_build_agent_uses_openai_provider_and_model_override(tmp_path):
             "approval": "ask",
             "secret_env_names": [],
             "max_steps": 6,
+            "max_run_seconds": 300,
             "max_new_tokens": 512,
         },
     )()
@@ -403,10 +404,10 @@ def test_dotenv_is_hidden_and_cannot_be_read_by_agent(tmp_path):
     (tmp_path / ".env").write_text("OPENAI_API_KEY=secret\n", encoding="utf-8")
     agent = build_agent(tmp_path, [])
 
-    assert ".env" not in agent.run_tool("list_files", {"path": "."})
-    assert "access to private environment files is not allowed" in agent.run_tool(
+    assert ".env" not in (agent.run_tool("list_files", {"path": "."})).content
+    assert "access to private environment files is not allowed" in (agent.run_tool(
         "read_file", {"path": ".env"}
-    )
+    )).content
 
 
 def test_build_arg_parser_defaults_provider_to_openai(tmp_path):
@@ -440,6 +441,7 @@ def test_build_agent_uses_anthropic_provider_and_openai_key_fallback(tmp_path):
             "approval": "ask",
             "secret_env_names": [],
             "max_steps": 6,
+            "max_run_seconds": 300,
             "max_new_tokens": 512,
         },
     )()
@@ -790,10 +792,10 @@ def test_run_shell_nonzero_with_workspace_change_is_recorded_as_partial_success(
         },
     )
 
-    assert "exit_code: 1" in result
-    assert agent._last_tool_result_metadata["tool_status"] == "partial_success"
-    assert agent._last_tool_result_metadata["affected_paths"] == ["README.md"]
-    assert agent._last_tool_result_metadata["workspace_changed"] is True
+    assert "exit_code: 1" in result.content
+    assert result.status == "partial_success"
+    assert list(result.affected_paths) == ["README.md"]
+    assert bool(result.affected_paths) is True
 
 
 def test_resume_marks_workspace_mismatch_when_checkpoint_runtime_identity_is_stale(tmp_path):
@@ -1002,6 +1004,7 @@ def test_resume_records_runtime_identity_mismatch_fields_in_metadata_and_trace(t
                     "approval_policy": "auto",
                     "read_only": False,
                     "max_steps": 6,
+            "max_run_seconds": 300,
                     "max_new_tokens": 512,
                     "model": "old-model",
                     "model_client": "FakeModelClient",

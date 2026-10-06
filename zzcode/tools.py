@@ -7,8 +7,8 @@
 import json
 import shutil
 from .core.messages import ToolSpec
-import subprocess
-import textwrap
+from .execution.shell import execute_shell
+from .execution.output import BoundedOutput, ToolOutput
 from functools import partial
 
 from .workspace import IGNORED_PATH_NAMES, PRIVATE_PATH_NAMES, clip
@@ -90,6 +90,11 @@ BASE_TOOL_SPECS = {
     },
 }
 
+BASE_TOOL_SPECS["read_artifact"] = {
+    "schema": {"type": "object", "properties": {"artifact_id": {"type": "string"}, "start": {"type": "integer", "default": 1}, "end": {"type": "integer", "default": 80}}, "required": ["artifact_id"], "additionalProperties": False},
+    "risky": False, "description": "Read retained sanitized tool output by artifact ID and line range.",
+}
+
 DELEGATE_TOOL_SPEC = {
     "schema": {
         "type": "object",
@@ -119,25 +124,21 @@ def native_tool_specs(registry):
     specs = []
     for name, tool in registry.items():
         schema = tool["schema"]
-        specs.append(
-            ToolSpec(
-                name,
-                tool["description"],
-                schema,
-                "write" if tool["risky"] else "none",
-                "high" if tool["risky"] else "low",
-            )
-        )
+        side_effect = "shell" if name == "run_shell" else "file" if name in {"write_file", "patch_file"} else "none"
+        recovery = "manual" if side_effect == "shell" else "file" if side_effect == "file" else "reread"
+        specs.append(ToolSpec(name, tool["description"], schema, side_effect,
+                              "high" if tool["risky"] else "low", 20 if name == "run_shell" else None, recovery))
     return tuple(specs)
 
 
 def build_tool_registry(agent):
     # 工具不是动态发现的，而是显式注册的。
     # 这样模型看到的是一个有边界、可审计的动作集合。
-    tools = {
-        name: {**spec, "run": partial(_TOOL_RUNNERS[name], agent)}
-        for name, spec in BASE_TOOL_SPECS.items()
-    }
+    tools = {}
+    for name, spec in BASE_TOOL_SPECS.items():
+        tools[name] = dict(spec)
+        if name in _TOOL_RUNNERS:
+            tools[name]["run"] = partial(_TOOL_RUNNERS[name], agent)
     # 子 agent 是刻意做成受限能力的：一旦深度耗尽，
     # 就连 delegate 这个工具都不再暴露给模型。
     if agent.depth < agent.max_depth:
@@ -172,11 +173,12 @@ def validate_tool(agent, name, args):
 
     def reject_private_path(path):
         relative_parts = path.relative_to(agent.root).parts
-        if any(part in PRIVATE_PATH_NAMES for part in relative_parts):
+        if any(part in PRIVATE_PATH_NAMES | {".zzcode", ".git"} or part.startswith(".env.") for part in relative_parts):
             raise ValueError("access to private environment files is not allowed")
 
     if name == "list_files":
         path = agent.path(args.get("path", "."))
+        reject_private_path(path)
         if not path.is_dir():
             raise ValueError("path is not a directory")
         return
@@ -210,16 +212,23 @@ def validate_tool(agent, name, args):
 
     if name == "write_file":
         path = agent.path(args["path"])
+        reject_private_path(path)
         if path.exists() and path.is_dir():
             raise ValueError("path is a directory")
         if "content" not in args:
             raise ValueError("missing content")
         return
 
+    if name == "read_artifact":
+        if not 1 <= args.get("start", 1) <= args.get("end", 80) or args.get("end", 80) - args.get("start", 1) >= 200:
+            raise ValueError("invalid artifact line range")
+        return
+
     if name == "patch_file":
         # patch_file 故意做得很严格：old_text 必须精确命中且只能出现一次，
         # 这样修改行为才是确定的，失败原因也更容易解释。
         path = agent.path(args["path"])
+        reject_private_path(path)
         if not path.is_file():
             raise ValueError("path is not a file")
         old_text = str(args.get("old_text", ""))
@@ -227,10 +236,6 @@ def validate_tool(agent, name, args):
             raise ValueError("old_text must not be empty")
         if "new_text" not in args:
             raise ValueError("missing new_text")
-        text = path.read_text(encoding="utf-8")
-        count = text.count(old_text)
-        if count != 1:
-            raise ValueError(f"old_text must occur exactly once, found {count}")
         return
 
     if name == "delegate":
@@ -266,12 +271,28 @@ def tool_read_file(agent, args):
     end = int(args.get("end", 200))
     if start < 1 or end < start:
         raise ValueError("invalid line range")
-    lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
-    body = "\n".join(
-        f"{number:>4}: {line}"
-        for number, line in enumerate(lines[start - 1 : end], start=start)
-    )
-    return f"# {path.relative_to(agent.root)}\n{body}"
+    output = BoundedOutput()
+    next_line = None
+    with path.open("rb") as handle:
+        number = 1
+        while True:
+            # 长单行也分块读取，避免 readlines/read_text 把整个文件载入内存。
+            chunk = handle.readline(8192)
+            if not chunk:
+                break
+            if start <= number <= end:
+                output.append(f"{number:>4}: ".encode() + chunk)
+            if chunk.endswith(b"\n"):
+                number += 1
+            if number > end or output.truncated:
+                next_line = number
+                break
+    text = f"# {path.relative_to(agent.root)}\n{output.text().rstrip()}"
+    if output.truncated:
+        text += "\n[byte limit reached; narrow the requested line range; a single oversized line cannot be read in full]"
+    elif next_line:
+        text += f"\n[continue with read_file start={next_line}; retained output may be truncated]"
+    return ToolOutput(text, output.truncated)
 
 
 def tool_search(agent, args):
@@ -280,94 +301,27 @@ def tool_search(agent, args):
         raise ValueError("pattern must not be empty")
     path = agent.path(args.get("path", "."))
 
-    if shutil.which("rg"):
-        # 优先用 rg，因为搜索会非常频繁，搜索延迟会直接影响 agent 控制循环。
-        result = subprocess.run(
-            ["rg", "-n", "--smart-case", "--max-count", "200", pattern, str(path)],
-            cwd=agent.root,
-            capture_output=True,
-            text=True,
-        )
-        return result.stdout.strip() or result.stderr.strip() or "(no matches)"
-
-    matches = []
-    files = (
-        [path]
-        if path.is_file()
-        else [
-            item
-            for item in path.rglob("*")
-            if item.is_file()
-            and not any(
-                part in IGNORED_PATH_NAMES
-                for part in item.relative_to(agent.root).parts
-            )
-        ]
-    )
-    for file_path in files:
-        for number, line in enumerate(
-            file_path.read_text(encoding="utf-8", errors="replace").splitlines(),
-            start=1,
-        ):
-            if pattern.lower() in line.lower():
-                matches.append(f"{file_path.relative_to(agent.root)}:{number}:{line}")
-                if len(matches) >= 200:
-                    return "\n".join(matches)
-    return "\n".join(matches) or "(no matches)"
+    command = ["rg", "-n", "--smart-case", "--max-count", "200", "--glob", "!.env*", "--glob", "!.zzcode/**", "--glob", "!.git/**", "--", pattern, str(path)]
+    if shutil.which("rg") is None:
+        raise RuntimeError("search requires rg")
+    # 搜索同样走有限输出读取；不在缺少依赖时维护第二份搜索实现。
+    from .execution.shell import execute_shell
+    import shlex
+    result = execute_shell(shlex.join(command), cwd=agent.root, env=agent.shell_env(), timeout=20)
+    if result.timed_out:
+        raise TimeoutError("search timed out")
+    if result.exit_code not in {0, 1}:
+        raise RuntimeError(result.stderr or "search failed")
+    matches = result.stdout.splitlines()
+    truncated = result.truncated or len(matches) > 200
+    text = "\n".join(matches[:200]) or "(no matches)"
+    text += "\n[at most 200 matches shown; total unknown]" if truncated else "\n[shown matches complete unless a file reached its 200-match limit; total unknown]"
+    return ToolOutput(text, truncated)
 
 
-def tool_run_shell(agent, args):
-    command = str(args.get("command", "")).strip()
-    if not command:
-        raise ValueError("command must not be empty")
-    timeout = int(args.get("timeout", 20))
-    if timeout < 1 or timeout > 120:
-        raise ValueError("timeout must be in [1, 120]")
-    result = subprocess.run(
-        command,
-        cwd=agent.root,
-        shell=True,
-        capture_output=True,
-        text=True,
-        timeout=timeout,
-        # 这里传入的是过滤后的环境变量，而不是直接继承整个父 shell 环境，
-        # 目的是减少敏感信息被意外带进命令执行环境的风险。
-        env=agent.shell_env(),
-    )
-    return textwrap.dedent(
-        f"""\
-        exit_code: {result.returncode}
-        stdout:
-        {result.stdout.strip() or "(empty)"}
-        stderr:
-        {result.stderr.strip() or "(empty)"}
-        """
-    ).strip()
-
-
-def tool_write_file(agent, args):
-    path = agent.path(args["path"])
-    content = str(args["content"])
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(content, encoding="utf-8")
-    return f"wrote {path.relative_to(agent.root)} ({len(content)} chars)"
-
-
-def tool_patch_file(agent, args):
-    path = agent.path(args["path"])
-    if not path.is_file():
-        raise ValueError("path is not a file")
-    old_text = str(args.get("old_text", ""))
-    if not old_text:
-        raise ValueError("old_text must not be empty")
-    if "new_text" not in args:
-        raise ValueError("missing new_text")
-    text = path.read_text(encoding="utf-8")
-    count = text.count(old_text)
-    if count != 1:
-        raise ValueError(f"old_text must occur exactly once, found {count}")
-    path.write_text(text.replace(old_text, str(args["new_text"]), 1), encoding="utf-8")
-    return f"patched {path.relative_to(agent.root)}"
+def tool_run_shell(agent, args, *, on_start=None):
+    return execute_shell(args["command"], cwd=agent.root, env=agent.shell_env(),
+                         timeout=args.get("timeout", 20), on_start=on_start)
 
 
 def tool_delegate(agent, args):
@@ -392,6 +346,7 @@ def tool_delegate(agent, args):
         read_only=True,
         secret_env_names=agent.secret_env_names,
         shell_env_allowlist=agent.shell_env_allowlist,
+        operation_ledger=agent.gateway.ledger,
     )
     # 委派的目标是“调查”，不是“放权执行”。
     # 子 agent 以只读方式运行、步数更少，最后只把结论文本返回给父 agent。
@@ -405,6 +360,4 @@ _TOOL_RUNNERS = {
     "read_file": tool_read_file,
     "search": tool_search,
     "run_shell": tool_run_shell,
-    "write_file": tool_write_file,
-    "patch_file": tool_patch_file,
 }

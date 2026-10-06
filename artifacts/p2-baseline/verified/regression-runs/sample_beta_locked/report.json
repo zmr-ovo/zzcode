@@ -1,0 +1,143 @@
+{
+  "attempts": 2,
+  "checkpoint_id": "ckpt_1033d75a",
+  "durable_promotions": [],
+  "durable_rejections": [],
+  "durable_superseded": [],
+  "final_answer": "Done.",
+  "model_requests": 2,
+  "prompt_metadata": {
+    "budget_reductions": [],
+    "current_request": {
+      "raw_chars": 45,
+      "rendered_chars": 45,
+      "section_chars": 67,
+      "text": "In sample.txt, replace beta with beta-locked."
+    },
+    "history": {
+      "collapsed_duplicate_reads": 0,
+      "older_entries_count": 0,
+      "raw_chars": 184,
+      "rendered_chars": 184,
+      "reused_file_summary_count": 0,
+      "summarized_tool_count": 0
+    },
+    "history_chars": 172,
+    "memory_chars": 148,
+    "native_history_messages": 3,
+    "native_request_chars": 6159,
+    "native_request_over_budget": false,
+    "prefix_changed": false,
+    "prefix_chars": 5510,
+    "prefix_hash": "2acdbdd2e5f570bcbefb659c46d5e954425d947ebc79631f53e848a2d10e51ee",
+    "prompt_budget_chars": 12000,
+    "prompt_cache_key": "2acdbdd2e5f570bcbefb659c46d5e954425d947ebc79631f53e848a2d10e51ee",
+    "prompt_cache_supported": false,
+    "prompt_chars": 4030,
+    "prompt_over_budget": false,
+    "recent_commits": 5,
+    "reduction_order": [
+      "relevant_memory",
+      "history",
+      "memory",
+      "prefix"
+    ],
+    "relevant_memory": {
+      "limit": 3,
+      "raw_chars": 23,
+      "rendered_chars": 23,
+      "rendered_count": 0,
+      "rendered_notes": [],
+      "selected_count": 0,
+      "selected_durable_count": 0,
+      "selected_kinds": [],
+      "selected_notes": [],
+      "selected_sources": []
+    },
+    "request_chars": 45,
+    "resume_status": "full-valid",
+    "runtime_identity_mismatch_fields": [],
+    "secret_env_count": 0,
+    "secret_env_names": [],
+    "section_budgets": {
+      "current_request": null,
+      "history": 5200,
+      "memory": 1600,
+      "prefix": 3600,
+      "relevant_memory": 1200
+    },
+    "section_order": [
+      "prefix",
+      "memory",
+      "relevant_memory",
+      "history",
+      "current_request"
+    ],
+    "sections": {
+      "current_request": {
+        "budget_chars": null,
+        "raw_chars": 67,
+        "rendered_chars": 67
+      },
+      "history": {
+        "budget_chars": 5200,
+        "raw_chars": 184,
+        "rendered_chars": 184
+      },
+      "memory": {
+        "budget_chars": 1600,
+        "raw_chars": 148,
+        "rendered_chars": 148
+      },
+      "prefix": {
+        "budget_chars": 3600,
+        "raw_chars": 5789,
+        "rendered_chars": 3600
+      },
+      "relevant_memory": {
+        "budget_chars": 1200,
+        "raw_chars": 23,
+        "rendered_chars": 23
+      }
+    },
+    "stale_paths": [],
+    "stale_summary_invalidations": 0,
+    "tool_count": 8,
+    "tool_signature": "b259a5811c1cc838a6fb696e227f63c14a17f7632f7b381b9634a1f7492b2d89",
+    "workspace_changed": false,
+    "workspace_chars": 3806,
+    "workspace_docs": 2,
+    "workspace_fingerprint": "3a98320fb3d456d53264ba0abb09eb273c80bb9ed85c7ef10891522925d733b6"
+  },
+  "redacted_env": {
+    "secret_env_count": 0,
+    "secret_env_names": []
+  },
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261006-132309-688f6a",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261006-132309-e01e4a",
+  "task_state": {
+    "attempts": 2,
+    "checkpoint_id": "ckpt_1033d75a",
+    "final_answer": "Done.",
+    "last_tool": "patch_file",
+    "resume_status": "no-checkpoint",
+    "run_id": "run_20261006-132309-688f6a",
+    "status": "completed",
+    "stop_reason": "final_answer_returned",
+    "task_id": "task_20261006-132309-e01e4a",
+    "tool_steps": 1,
+    "user_request": "In sample.txt, replace beta with beta-locked."
+  },
+  "tool_counters": {
+    "cancelled": 0,
+    "executed": 1,
+    "proposed": 1,
+    "rejected": 0,
+    "succeeded": 1
+  },
+  "tool_steps": 1,
+  "transport_retries": 0
+}

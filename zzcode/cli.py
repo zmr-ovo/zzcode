@@ -5,6 +5,8 @@
 最后进入 one-shot 或交互式循环。
 """
 
+from .execution.output import sanitize
+
 import argparse
 import os
 import shutil
@@ -40,6 +42,8 @@ HELP_DETAILS = textwrap.dedent(
     /help    Show this help message.
     /memory  Show the agent's distilled working memory.
     /session Show the path to the saved session file.
+    /operations Show unresolved operations.
+    /resolve ID succeeded|failed|cancelled EVIDENCE  Record a verified outcome.
     /reset   Clear the current session history and memory.
     /exit    Exit the agent.
     """
@@ -246,6 +250,7 @@ def build_agent(args):
             session_id=session_id,
             approval_policy=args.approval,
             max_steps=args.max_steps,
+            max_run_seconds=args.max_run_seconds,
             max_new_tokens=args.max_new_tokens,
             secret_env_names=configured_secret_names,
         )
@@ -255,6 +260,7 @@ def build_agent(args):
         session_store=store,
         approval_policy=args.approval,
         max_steps=args.max_steps,
+        max_run_seconds=args.max_run_seconds,
         max_new_tokens=args.max_new_tokens,
         secret_env_names=configured_secret_names,
     )
@@ -286,6 +292,7 @@ def build_arg_parser():
         default=[],
         help="Extra environment variable names to treat as secrets for trace/report redaction.",
     )
+    parser.add_argument("--max-run-seconds", type=float, default=300, help="Run time budget checked between model/tool calls.")
     parser.add_argument("--max-steps", type=int, default=10, help="Maximum tool calls per request before finalization.")
     parser.add_argument("--max-new-tokens", type=int, default=2048, help="Maximum model output tokens per step, including reasoning tokens.")
     parser.add_argument("--temperature", type=float, default=0.2, help="Sampling temperature sent to Ollama.")
@@ -329,6 +336,21 @@ def main(argv=None):
             return 0
         if user_input == "/help":
             print(HELP_DETAILS)
+            continue
+        if user_input == "/operations":
+            for row in agent.gateway.ledger.unsettled():
+                print(row["operation_id"], row["name"], row["state"])
+            continue
+        if user_input.startswith("/resolve "):
+            parts = user_input.split(maxsplit=3)
+            if len(parts) != 4:
+                print("Usage: /resolve OPERATION_ID succeeded|failed|cancelled EVIDENCE")
+                continue
+            try:
+                agent.gateway.ledger.resolve(parts[1], parts[2], sanitize(agent, parts[3]))
+                print("operation resolved")
+            except (ValueError, RuntimeError) as exc:
+                print(str(exc))
             continue
         if user_input == "/memory":
             print(agent.memory_text())

@@ -1,8 +1,17 @@
 {
   "schema_version": 1,
-  "default": "structured",
+  "default": "reliable_tools",
   "profiles": {
     "structured": {
+      "implemented": true,
+      "features": {
+        "memory": true,
+        "relevant_memory": true,
+        "context_reduction": true,
+        "prompt_cache": true
+      }
+    },
+    "reliable_tools": {
       "implemented": true,
       "features": {
         "memory": true,
@@ -13,7 +22,6 @@
     }
   },
   "reserved_profiles": [
-    "reliable_tools",
     "token_context"
   ]
 }

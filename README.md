@@ -147,3 +147,11 @@ uv run python scripts/run_native_smoke.py --provider openai --output artifacts/p
 原生消息保存完整内容块与工具 call ID。恢复旧会话时，旧工具文本作为历史观察，不会重新解析或执行。中断批次的未配对调用记为 `unknown`，需要先检查工作区；P2 将补充独立操作账本。签名思考内容只保存在权限为 `0600` 的 Session 中，不进入公开 Trace、Report 或记忆摘要。
 
 P0 历史证据保留在 `artifacts/p0-baseline/verified/`；重放旧协议需使用提交 `464428c`。当前默认配置为 `structured`。
+
+### 工具执行与恢复（P2）
+
+所有工具经过统一 Gateway，返回结构化 `ToolResult`。操作记录保存在工作区 `.zzcode/operations.sqlite3`，文件写入使用原子替换和完整哈希核对；不确定的 Shell 操作会阻止后续写入。
+
+交互模式下用 `/operations` 查看待核对操作；确认实际结果后，输入 `/resolve 操作ID succeeded|failed|cancelled 核对证据`。请先检查文件、进程及外部副作用，再明确记录结果。`--max-run-seconds 300` 设置调用之间检查的时间预算。
+
+输出采用有限读取与脱敏 Artifact，模型可调用 `read_artifact` 分段查看保留内容。恢复边界与验证说明见 [P2 实现记录](docs/testing/p2-result.md)。

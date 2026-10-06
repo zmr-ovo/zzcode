@@ -209,7 +209,7 @@ def test_results_round_trip_and_final_tool_choice(provider):
         outputs = [
             item for item in body["input"] if item.get("type") == "function_call_output"
         ]
-        assert [(item["call_id"], item["output"]) for item in outputs] == [
+        assert [(item["call_id"], json.loads(item["output"])["content"]) for item in outputs] == [
             ("c1", "a"),
             ("c2", "denied"),
         ]

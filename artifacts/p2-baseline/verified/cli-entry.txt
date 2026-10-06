@@ -1,0 +1,51 @@
+usage: zzcode [-h] [--cwd CWD] [--provider {ollama,openai,anthropic}]
+              [--model MODEL] [--host HOST] [--base-url BASE_URL]
+              [--ollama-timeout OLLAMA_TIMEOUT]
+              [--openai-timeout OPENAI_TIMEOUT] [--resume RESUME]
+              [--approval {ask,auto,never}]
+              [--secret-env-name SECRET_ENV_NAMES]
+              [--max-run-seconds MAX_RUN_SECONDS] [--max-steps MAX_STEPS]
+              [--max-new-tokens MAX_NEW_TOKENS] [--temperature TEMPERATURE]
+              [--top-p TOP_P]
+              [prompt ...]
+
+Minimal coding agent for Ollama, OpenAI-compatible, or Anthropic-compatible
+models.
+
+positional arguments:
+  prompt                Optional one-shot prompt. (default: None)
+
+options:
+  -h, --help            show this help message and exit
+  --cwd CWD             Workspace directory. (default: .)
+  --provider {ollama,openai,anthropic}
+                        Model backend to use. (default: openai)
+  --model MODEL         Model name override. Defaults to qwen3.5:4b for
+                        Ollama, OPENAI_MODEL for openai, and ANTHROPIC_MODEL
+                        for anthropic when set. (default: None)
+  --host HOST           Ollama server URL. (default: http://127.0.0.1:11434)
+  --base-url BASE_URL   Provider API base URL for openai or anthropic.
+                        (default: None)
+  --ollama-timeout OLLAMA_TIMEOUT
+                        Ollama request timeout in seconds. (default: 300)
+  --openai-timeout OPENAI_TIMEOUT
+                        OpenAI-compatible request timeout in seconds.
+                        (default: 300)
+  --resume RESUME       Session id to resume or 'latest'. (default: None)
+  --approval {ask,auto,never}
+                        Approval policy for risky tools. (default: ask)
+  --secret-env-name SECRET_ENV_NAMES
+                        Extra environment variable names to treat as secrets
+                        for trace/report redaction. (default: [])
+  --max-run-seconds MAX_RUN_SECONDS
+                        Run time budget checked between model/tool calls.
+                        (default: 300)
+  --max-steps MAX_STEPS
+                        Maximum tool calls per request before finalization.
+                        (default: 10)
+  --max-new-tokens MAX_NEW_TOKENS
+                        Maximum model output tokens per step, including
+                        reasoning tokens. (default: 2048)
+  --temperature TEMPERATURE
+                        Sampling temperature sent to Ollama. (default: 0.2)
+  --top-p TOP_P         Top-p sampling value sent to Ollama. (default: 0.9)

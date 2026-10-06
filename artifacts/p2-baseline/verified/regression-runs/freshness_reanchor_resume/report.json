@@ -1,0 +1,147 @@
+{
+  "attempts": 1,
+  "checkpoint_id": "ckpt_a9c56837",
+  "durable_promotions": [],
+  "durable_rejections": [],
+  "durable_superseded": [],
+  "final_answer": "Done.",
+  "model_requests": 1,
+  "prompt_metadata": {
+    "budget_reductions": [],
+    "current_request": {
+      "raw_chars": 76,
+      "rendered_chars": 76,
+      "section_chars": 98,
+      "text": "Resume the stale benchmark task and finish without trusting the old summary."
+    },
+    "history": {
+      "collapsed_duplicate_reads": 0,
+      "older_entries_count": 0,
+      "raw_chars": 95,
+      "rendered_chars": 95,
+      "reused_file_summary_count": 0,
+      "summarized_tool_count": 0
+    },
+    "history_chars": 83,
+    "memory_chars": 179,
+    "native_history_messages": 1,
+    "native_request_chars": 5356,
+    "native_request_over_budget": false,
+    "prefix_changed": true,
+    "prefix_chars": 5517,
+    "prefix_hash": "290fd70f325f2ed1c9573667139126c5ad75ec5ac466fbe1386f61a5f708d22a",
+    "prompt_budget_chars": 12000,
+    "prompt_cache_key": "290fd70f325f2ed1c9573667139126c5ad75ec5ac466fbe1386f61a5f708d22a",
+    "prompt_cache_supported": false,
+    "prompt_chars": 4003,
+    "prompt_over_budget": false,
+    "recent_commits": 5,
+    "reduction_order": [
+      "relevant_memory",
+      "history",
+      "memory",
+      "prefix"
+    ],
+    "relevant_memory": {
+      "limit": 3,
+      "raw_chars": 23,
+      "rendered_chars": 23,
+      "rendered_count": 0,
+      "rendered_notes": [],
+      "selected_count": 0,
+      "selected_durable_count": 0,
+      "selected_kinds": [],
+      "selected_notes": [],
+      "selected_sources": []
+    },
+    "request_chars": 76,
+    "resume_status": "partial-stale",
+    "runtime_identity_mismatch_fields": [
+      "workspace_fingerprint"
+    ],
+    "secret_env_count": 0,
+    "secret_env_names": [],
+    "section_budgets": {
+      "current_request": null,
+      "history": 5200,
+      "memory": 1600,
+      "prefix": 3600,
+      "relevant_memory": 1200
+    },
+    "section_order": [
+      "prefix",
+      "memory",
+      "relevant_memory",
+      "history",
+      "current_request"
+    ],
+    "sections": {
+      "current_request": {
+        "budget_chars": null,
+        "raw_chars": 98,
+        "rendered_chars": 98
+      },
+      "history": {
+        "budget_chars": 5200,
+        "raw_chars": 95,
+        "rendered_chars": 95
+      },
+      "memory": {
+        "budget_chars": 1600,
+        "raw_chars": 179,
+        "rendered_chars": 179
+      },
+      "prefix": {
+        "budget_chars": 3600,
+        "raw_chars": 5760,
+        "rendered_chars": 3600
+      },
+      "relevant_memory": {
+        "budget_chars": 1200,
+        "raw_chars": 23,
+        "rendered_chars": 23
+      }
+    },
+    "stale_paths": [
+      "sample.txt"
+    ],
+    "stale_summary_invalidations": 1,
+    "tool_count": 8,
+    "tool_signature": "b259a5811c1cc838a6fb696e227f63c14a17f7632f7b381b9634a1f7492b2d89",
+    "workspace_changed": true,
+    "workspace_chars": 3813,
+    "workspace_docs": 2,
+    "workspace_fingerprint": "412d9ec0b7b04fffcf62ae9c2688603a1c3e9803f33ff88f86e180e1180b7b2b"
+  },
+  "redacted_env": {
+    "secret_env_count": 0,
+    "secret_env_names": []
+  },
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261006-132312-4aeda2",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261006-132312-8fbf3b",
+  "task_state": {
+    "attempts": 1,
+    "checkpoint_id": "ckpt_a9c56837",
+    "final_answer": "Done.",
+    "last_tool": "",
+    "resume_status": "no-checkpoint",
+    "run_id": "run_20261006-132312-4aeda2",
+    "status": "completed",
+    "stop_reason": "final_answer_returned",
+    "task_id": "task_20261006-132312-8fbf3b",
+    "tool_steps": 0,
+    "user_request": "Resume the stale benchmark task and finish without trusting the old summary."
+  },
+  "tool_counters": {
+    "cancelled": 0,
+    "executed": 0,
+    "proposed": 0,
+    "rejected": 0,
+    "succeeded": 0
+  },
+  "tool_steps": 0,
+  "transport_retries": 0
+}

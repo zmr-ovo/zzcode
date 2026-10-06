@@ -4,6 +4,7 @@ import subprocess
 import pytest
 
 from zzcode.evaluation import ArtifactError, DockerToolSandbox
+from zzcode.execution.shell import ShellOutcome
 
 
 def _completed(args, returncode=0, stdout="", stderr=""):
@@ -23,15 +24,15 @@ def test_tool_sandbox_uses_networkless_restricted_container(tmp_path, monkeypatc
         if args[0] == "create":
             return _completed(args, stdout="container-id\n")
         if args[0] == "inspect":
-            return _completed(args, stdout=json.dumps([{"State": {"OOMKilled": False}}]))
+            return _completed(args, stdout=json.dumps([{"State": {"OOMKilled": False, "ExitCode": 0}}]))
         return _completed(args)
 
     def fake_run(args, **kwargs):
         calls.append(args)
-        return _completed(args, stdout="ok\n")
+        return ShellOutcome(0, "ok\n", "")
 
     monkeypatch.setattr(sandbox, "_docker", fake_docker)
-    monkeypatch.setattr(subprocess, "run", fake_run)
+    monkeypatch.setattr("zzcode.evaluation.inference.tool_sandbox.execute_shell", fake_run)
 
     result = sandbox.run("python -m pytest -q", timeout_seconds=20)
 

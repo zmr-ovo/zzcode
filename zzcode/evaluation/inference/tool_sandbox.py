@@ -5,11 +5,12 @@ from __future__ import annotations
 import os
 import re
 import subprocess
-import textwrap
 from pathlib import Path
 from uuid import uuid4
 
 from ..errors import ArtifactError
+from ...execution.shell import ShellOutcome, execute_shell
+from dataclasses import replace
 
 
 _IMAGE_ID_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
@@ -41,25 +42,12 @@ class DockerToolSandbox:
         self.pids_limit = pids_limit
         self.tmpfs_mb = tmpfs_mb
 
-    def run_args(self, args: dict) -> str:
-        command = str(args.get("command", "")).strip()
-        if not command:
-            raise ValueError("command must not be empty")
-        timeout = int(args.get("timeout", 20))
-        if timeout < 1 or timeout > 120:
-            raise ValueError("timeout must be in [1, 120]")
-        result = self.run(command, timeout_seconds=timeout)
-        return textwrap.dedent(
-            f"""\
-            exit_code: {result.returncode}
-            stdout:
-            {result.stdout.strip() or "(empty)"}
-            stderr:
-            {result.stderr.strip() or "(empty)"}
-            """
-        ).strip()
+    def run_args(self, args: dict, *, on_start=None) -> ShellOutcome:
+        command = args["command"]
+        timeout = args.get("timeout", 20)
+        return self.run(command, timeout_seconds=timeout, on_start=on_start)
 
-    def run(self, command: str, *, timeout_seconds: float) -> subprocess.CompletedProcess[str]:
+    def run(self, command: str, *, timeout_seconds: float, on_start=None) -> ShellOutcome:
         image_id = self._image_id()
         name = f"zzcode-agent-tool-{uuid4().hex[:12]}"
         uid = os.getuid() if hasattr(os, "getuid") else 65532
@@ -111,13 +99,10 @@ class DockerToolSandbox:
             raise ArtifactError(f"Agent tool container create failed: {create.stderr.strip()}")
         container_id = create.stdout.strip()
         try:
-            result = subprocess.run(
-                [self.docker_binary, "start", "--attach", container_id],
-                text=True,
-                capture_output=True,
-                timeout=timeout_seconds,
-                check=False,
-            )
+            if on_start:
+                on_start({"container_id": container_id, "docker_binary": self.docker_binary})
+            result = execute_shell([self.docker_binary, "start", "--attach", container_id], cwd=self.workspace,
+                                   env=os.environ.copy(), timeout=timeout_seconds, on_start=on_start)
             inspection = self._docker(["inspect", container_id], timeout=30)
             if inspection.returncode != 0:
                 raise ArtifactError(
@@ -131,13 +116,20 @@ class DockerToolSandbox:
             state = rows[0].get("State") or {}
             if state.get("OOMKilled") is True:
                 raise ArtifactError("Agent tool container exceeded its memory limit")
-            return result
+            if result.timed_out or result.cancelled:
+                return replace(result, exit_code=None)
+            exit_code = state.get("ExitCode")
+            if not isinstance(exit_code, int) or isinstance(exit_code, bool):
+                raise ArtifactError("Docker did not report a container exit code")
+            return replace(result, exit_code=exit_code)
         except subprocess.TimeoutExpired as exc:
             raise TimeoutError(f"Agent shell command exceeded {timeout_seconds} seconds") from exc
         except OSError as exc:
             raise ArtifactError(f"Agent tool container could not start: {exc}") from exc
         finally:
-            self._docker(["rm", "--force", "--volumes", container_id], timeout=30)
+            cleanup = self._docker(["rm", "--force", "--volumes", container_id], timeout=30)
+            if on_start:
+                on_start({"container_removed": cleanup.returncode == 0})
 
     def _image_id(self) -> str:
         inspect = self._docker(

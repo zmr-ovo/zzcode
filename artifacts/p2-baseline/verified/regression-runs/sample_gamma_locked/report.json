@@ -1,0 +1,143 @@
+{
+  "attempts": 2,
+  "checkpoint_id": "ckpt_d1c9972b",
+  "durable_promotions": [],
+  "durable_rejections": [],
+  "durable_superseded": [],
+  "final_answer": "Done.",
+  "model_requests": 2,
+  "prompt_metadata": {
+    "budget_reductions": [],
+    "current_request": {
+      "raw_chars": 47,
+      "rendered_chars": 47,
+      "section_chars": 69,
+      "text": "In sample.txt, replace gamma with gamma-locked."
+    },
+    "history": {
+      "collapsed_duplicate_reads": 0,
+      "older_entries_count": 0,
+      "raw_chars": 188,
+      "rendered_chars": 188,
+      "reused_file_summary_count": 0,
+      "summarized_tool_count": 0
+    },
+    "history_chars": 176,
+    "memory_chars": 150,
+    "native_history_messages": 3,
+    "native_request_chars": 6166,
+    "native_request_over_budget": false,
+    "prefix_changed": false,
+    "prefix_chars": 5511,
+    "prefix_hash": "8a9f85995fd5d0689c08b5d0b91d1976925a09f66b54c6cd575e1ec58bee889f",
+    "prompt_budget_chars": 12000,
+    "prompt_cache_key": "8a9f85995fd5d0689c08b5d0b91d1976925a09f66b54c6cd575e1ec58bee889f",
+    "prompt_cache_supported": false,
+    "prompt_chars": 4038,
+    "prompt_over_budget": false,
+    "recent_commits": 5,
+    "reduction_order": [
+      "relevant_memory",
+      "history",
+      "memory",
+      "prefix"
+    ],
+    "relevant_memory": {
+      "limit": 3,
+      "raw_chars": 23,
+      "rendered_chars": 23,
+      "rendered_count": 0,
+      "rendered_notes": [],
+      "selected_count": 0,
+      "selected_durable_count": 0,
+      "selected_kinds": [],
+      "selected_notes": [],
+      "selected_sources": []
+    },
+    "request_chars": 47,
+    "resume_status": "full-valid",
+    "runtime_identity_mismatch_fields": [],
+    "secret_env_count": 0,
+    "secret_env_names": [],
+    "section_budgets": {
+      "current_request": null,
+      "history": 5200,
+      "memory": 1600,
+      "prefix": 3600,
+      "relevant_memory": 1200
+    },
+    "section_order": [
+      "prefix",
+      "memory",
+      "relevant_memory",
+      "history",
+      "current_request"
+    ],
+    "sections": {
+      "current_request": {
+        "budget_chars": null,
+        "raw_chars": 69,
+        "rendered_chars": 69
+      },
+      "history": {
+        "budget_chars": 5200,
+        "raw_chars": 188,
+        "rendered_chars": 188
+      },
+      "memory": {
+        "budget_chars": 1600,
+        "raw_chars": 150,
+        "rendered_chars": 150
+      },
+      "prefix": {
+        "budget_chars": 3600,
+        "raw_chars": 5794,
+        "rendered_chars": 3600
+      },
+      "relevant_memory": {
+        "budget_chars": 1200,
+        "raw_chars": 23,
+        "rendered_chars": 23
+      }
+    },
+    "stale_paths": [],
+    "stale_summary_invalidations": 0,
+    "tool_count": 8,
+    "tool_signature": "b259a5811c1cc838a6fb696e227f63c14a17f7632f7b381b9634a1f7492b2d89",
+    "workspace_changed": false,
+    "workspace_chars": 3807,
+    "workspace_docs": 2,
+    "workspace_fingerprint": "3a181f358152d8c939cdb1082bcb9e83e142b03a1114cf62eacadc818e2581d5"
+  },
+  "redacted_env": {
+    "secret_env_count": 0,
+    "secret_env_names": []
+  },
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261006-132309-15590c",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261006-132309-e65feb",
+  "task_state": {
+    "attempts": 2,
+    "checkpoint_id": "ckpt_d1c9972b",
+    "final_answer": "Done.",
+    "last_tool": "patch_file",
+    "resume_status": "no-checkpoint",
+    "run_id": "run_20261006-132309-15590c",
+    "status": "completed",
+    "stop_reason": "final_answer_returned",
+    "task_id": "task_20261006-132309-e65feb",
+    "tool_steps": 1,
+    "user_request": "In sample.txt, replace gamma with gamma-locked."
+  },
+  "tool_counters": {
+    "cancelled": 0,
+    "executed": 1,
+    "proposed": 1,
+    "rejected": 0,
+    "succeeded": 1
+  },
+  "tool_steps": 1,
+  "transport_retries": 0
+}

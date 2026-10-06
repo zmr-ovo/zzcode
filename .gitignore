@@ -68,3 +68,9 @@ zzcode.egg-info/
 !artifacts/p1-baseline/
 artifacts/p1-baseline/workspaces/
 artifacts/p1-baseline/verified/workspaces/
+
+# P2 validation evidence; scratch workspaces remain local.
+!artifacts/p2-baseline/
+!artifacts/p2-baseline/**
+artifacts/p2-baseline/**/workspaces/
+artifacts/p2-baseline/**/golden-runs/

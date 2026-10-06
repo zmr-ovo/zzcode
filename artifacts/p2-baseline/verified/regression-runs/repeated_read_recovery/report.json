@@ -1,0 +1,151 @@
+{
+  "attempts": 5,
+  "checkpoint_id": "ckpt_60b58d6d",
+  "durable_promotions": [],
+  "durable_rejections": [],
+  "durable_superseded": [],
+  "final_answer": "Done.",
+  "model_requests": 5,
+  "prompt_metadata": {
+    "budget_reductions": [],
+    "current_request": {
+      "raw_chars": 77,
+      "rendered_chars": 77,
+      "section_chars": 99,
+      "text": "Recover after repeated identical reads and still finish the sample.txt patch."
+    },
+    "history": {
+      "collapsed_duplicate_reads": 0,
+      "older_entries_count": 1,
+      "raw_chars": 819,
+      "rendered_chars": 668,
+      "reused_file_summary_count": 0,
+      "summarized_tool_count": 1
+    },
+    "history_chars": 807,
+    "memory_chars": 180,
+    "native_history_messages": 9,
+    "native_request_chars": 9026,
+    "native_request_over_budget": false,
+    "prefix_changed": false,
+    "prefix_chars": 5514,
+    "prefix_hash": "a763af37e6a133208547b4251cce6074f324081faab56e158a739e8a7a7d009b",
+    "prompt_budget_chars": 12000,
+    "prompt_cache_key": "a763af37e6a133208547b4251cce6074f324081faab56e158a739e8a7a7d009b",
+    "prompt_cache_supported": false,
+    "prompt_chars": 4603,
+    "prompt_over_budget": false,
+    "recent_commits": 5,
+    "reduction_order": [
+      "relevant_memory",
+      "history",
+      "memory",
+      "prefix"
+    ],
+    "relevant_memory": {
+      "limit": 3,
+      "raw_chars": 48,
+      "rendered_chars": 48,
+      "rendered_count": 1,
+      "rendered_notes": [
+        "1: alpha | 2: beta | 3: gamma"
+      ],
+      "selected_count": 1,
+      "selected_durable_count": 0,
+      "selected_kinds": [
+        "episodic"
+      ],
+      "selected_notes": [
+        "1: alpha | 2: beta | 3: gamma"
+      ],
+      "selected_sources": [
+        "sample.txt"
+      ]
+    },
+    "request_chars": 77,
+    "resume_status": "full-valid",
+    "runtime_identity_mismatch_fields": [],
+    "secret_env_count": 0,
+    "secret_env_names": [],
+    "section_budgets": {
+      "current_request": null,
+      "history": 5200,
+      "memory": 1600,
+      "prefix": 3600,
+      "relevant_memory": 1200
+    },
+    "section_order": [
+      "prefix",
+      "memory",
+      "relevant_memory",
+      "history",
+      "current_request"
+    ],
+    "sections": {
+      "current_request": {
+        "budget_chars": null,
+        "raw_chars": 99,
+        "rendered_chars": 99
+      },
+      "history": {
+        "budget_chars": 5200,
+        "raw_chars": 819,
+        "rendered_chars": 668
+      },
+      "memory": {
+        "budget_chars": 1600,
+        "raw_chars": 180,
+        "rendered_chars": 180
+      },
+      "prefix": {
+        "budget_chars": 3600,
+        "raw_chars": 5857,
+        "rendered_chars": 3600
+      },
+      "relevant_memory": {
+        "budget_chars": 1200,
+        "raw_chars": 48,
+        "rendered_chars": 48
+      }
+    },
+    "stale_paths": [],
+    "stale_summary_invalidations": 0,
+    "tool_count": 8,
+    "tool_signature": "b259a5811c1cc838a6fb696e227f63c14a17f7632f7b381b9634a1f7492b2d89",
+    "workspace_changed": false,
+    "workspace_chars": 3810,
+    "workspace_docs": 2,
+    "workspace_fingerprint": "1dd0da566fa787c03d8a06cf138f6ec8fee96212b6517350ad18d36d7408b94c"
+  },
+  "redacted_env": {
+    "secret_env_count": 0,
+    "secret_env_names": []
+  },
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261006-132311-4a63c0",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261006-132311-8103d0",
+  "task_state": {
+    "attempts": 5,
+    "checkpoint_id": "ckpt_60b58d6d",
+    "final_answer": "Done.",
+    "last_tool": "patch_file",
+    "resume_status": "no-checkpoint",
+    "run_id": "run_20261006-132311-4a63c0",
+    "status": "completed",
+    "stop_reason": "final_answer_returned",
+    "task_id": "task_20261006-132311-8103d0",
+    "tool_steps": 4,
+    "user_request": "Recover after repeated identical reads and still finish the sample.txt patch."
+  },
+  "tool_counters": {
+    "cancelled": 0,
+    "executed": 3,
+    "proposed": 4,
+    "rejected": 1,
+    "succeeded": 3
+  },
+  "tool_steps": 4,
+  "transport_retries": 0
+}

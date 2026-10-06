@@ -5,6 +5,7 @@ import time
 import urllib.error
 import urllib.request
 from copy import deepcopy
+from dataclasses import asdict
 from functools import wraps
 from http.client import RemoteDisconnected
 from uuid import uuid4
@@ -49,6 +50,7 @@ class FakeModelClient:
         self.outputs, self.prompts, self.requests = list(outputs), [], []
         self.supports_prompt_cache = False
         self.last_completion_metadata = {}
+        self.transport_retries = 0
 
     def complete(self, request: ModelRequest):
         if not isinstance(request, ModelRequest):
@@ -74,11 +76,13 @@ def _base_url(base):
     return base if base.endswith("/v1") else base + "/v1"
 
 
-def _http(url, payload, headers, timeout, provider):
+def _http(url, payload, headers, timeout, provider, retry_observer=None):
     request = urllib.request.Request(
         url, data=json.dumps(payload).encode(), headers=headers, method="POST"
     )
     for attempt in range(3):
+        if retry_observer:
+            retry_observer(attempt)
         try:
             with urllib.request.urlopen(request, timeout=timeout) as response:
                 return response.read().decode(), getattr(response, "headers", {}).get(
@@ -267,7 +271,7 @@ def _openai_input(messages):
                     {
                         "type": "function_call_output",
                         "call_id": block.call_id,
-                        "output": block.content,
+                        "output": json.dumps(asdict(block), ensure_ascii=False),
                     }
                 )
             elif isinstance(block, OpaqueBlock):
@@ -296,10 +300,12 @@ class OpenAICompatibleModelClient:
         )
         self.capabilities = ModelCapabilities(prompt_cache=self.supports_prompt_cache)
         self.last_completion_metadata = {}
+        self.transport_retries = 0
 
     @_provider_contract
     def complete(self, request: ModelRequest):
         self.last_completion_metadata = {}
+        self.transport_retries = 0
         payload = {
             "model": self.model,
             "instructions": request.system,
@@ -334,6 +340,7 @@ class OpenAICompatibleModelClient:
             },
             self.timeout,
             "OpenAI-compatible",
+            retry_observer=lambda count: setattr(self, "transport_retries", count),
         )
         data = (
             _openai_sse(body)
@@ -445,7 +452,7 @@ def _anthropic_messages(messages):
                     {
                         "type": "tool_result",
                         "tool_use_id": block.call_id,
-                        "content": block.content,
+                        "content": json.dumps(asdict(block), ensure_ascii=False),
                         "is_error": block.status != "succeeded",
                     }
                 )
@@ -476,10 +483,12 @@ class AnthropicCompatibleModelClient:
         self.supports_prompt_cache = False
         self.capabilities = ModelCapabilities()
         self.last_completion_metadata = {}
+        self.transport_retries = 0
 
     @_provider_contract
     def complete(self, request: ModelRequest):
         self.last_completion_metadata = {}
+        self.transport_retries = 0
         payload = {
             "model": self.model,
             "system": request.system,
@@ -508,6 +517,7 @@ class AnthropicCompatibleModelClient:
             },
             self.timeout,
             "Anthropic-compatible",
+            retry_observer=lambda count: setattr(self, "transport_retries", count),
         )
         data = (
             _anthropic_sse(body)
@@ -582,10 +592,12 @@ class OllamaModelClient:
         self.supports_prompt_cache = False
         self.capabilities = ModelCapabilities()
         self.last_completion_metadata = {}
+        self.transport_retries = 0
 
     @_provider_contract
     def complete(self, request: ModelRequest):
         self.last_completion_metadata = {}
+        self.transport_retries = 0
         messages = [{"role": "system", "content": request.system}]
         for message in request.messages:
             if any(isinstance(block, OpaqueBlock) for block in message.content):
@@ -594,7 +606,7 @@ class OllamaModelClient:
                 )
             if message.role == "tool":
                 messages.extend(
-                    {"role": "tool", "tool_name": block.name, "content": block.content}
+                    {"role": "tool", "tool_name": block.name, "content": json.dumps(asdict(block), ensure_ascii=False)}
                     for block in message.content
                     if isinstance(block, ToolResult)
                 )
@@ -636,6 +648,7 @@ class OllamaModelClient:
             {"Content-Type": "application/json"},
             self.timeout,
             "Ollama",
+            retry_observer=lambda count: setattr(self, "transport_retries", count),
         )
         data = _object(body)
         item = data.get("message")

@@ -31,6 +31,18 @@ class ToolResult:
     name: str
     content: str
     status: str = "succeeded"
+    operation_id: str = ""
+    error_code: str = ""
+    exit_code: int | None = None
+    affected_paths: tuple[str, ...] = ()
+    workspace_identity: str = ""
+    truncated: bool = False
+    artifact_refs: tuple[str, ...] = ()
+    timed_out: bool = False
+    diff_summary: tuple[str, ...] = ()
+    security_event_type: str = ""
+    risk_level: str = "low"
+    read_only: bool = True
     type: str = field(default="tool_result", init=False)
 
 
@@ -57,6 +69,9 @@ def block_from_dict(value):
     }
     if kind not in classes:
         raise ProviderProtocolError(f"unsupported content block: {kind}")
+    if kind == "tool_result":
+        for name in ("affected_paths", "artifact_refs", "diff_summary"):
+            value[name] = tuple(value.get(name, ()))
     return classes[kind](**value)
 
 
@@ -109,6 +124,8 @@ class ToolSpec:
     input_schema: dict
     side_effect: str = "none"
     risk_level: str = "low"
+    timeout: int | None = None
+    recovery: str = "reread"
 
 
 @dataclass(frozen=True)
