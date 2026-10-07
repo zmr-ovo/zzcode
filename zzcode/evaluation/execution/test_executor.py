@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-import subprocess
+import os
+from ...execution.commands import CommandRequest
+from ...execution.shell import LocalExecutor
 import sys
 import time
 from pathlib import Path
@@ -103,37 +105,7 @@ class TestExecutor:
         )
         started = time.monotonic()
         try:
-            process = subprocess.run(
-                command,
-                cwd=Path(workspace),
-                text=True,
-                capture_output=True,
-                timeout=timeout_seconds,
-                check=False,
-            )
-        except subprocess.TimeoutExpired as exc:
-            duration = time.monotonic() - started
-            failure = make_failure(
-                FailureType.TEST_TIMEOUT,
-                EvaluationStage.TEST_EXECUTION,
-                f"{group_name} tests exceeded {timeout_seconds} seconds",
-                details={"timeout_seconds": timeout_seconds, "group": group_name},
-            )
-            result = reconcile_expected_tests(test_ids, JUnitReport(()))
-            run = TestRun(
-                group_name,
-                command,
-                None,
-                True,
-                duration,
-                exc.stdout or "",
-                exc.stderr or "",
-                junit_path,
-                result,
-                failure,
-            )
-            self._write_artifacts(artifact_dir, run)
-            return run
+            process = LocalExecutor().execute(CommandRequest(command, Path(workspace), os.environ.copy(), timeout_seconds))
         except OSError as exc:
             duration = time.monotonic() - started
             failure = make_failure(
@@ -158,55 +130,47 @@ class TestExecutor:
             )
             self._write_artifacts(artifact_dir, run)
             return run
-        duration = time.monotonic() - started
-        try:
-            report = parse_junit(junit_path)
-            reconciled = reconcile_expected_tests(test_ids, report)
-        except ArtifactError as exc:
-            failure = make_failure(
-                FailureType.TEST_ERROR,
-                EvaluationStage.TEST_EXECUTION,
-                f"{group_name} test results are unavailable: {exc}",
-                details={"returncode": process.returncode, "group": group_name},
-            )
-            reconciled = reconcile_expected_tests(test_ids, JUnitReport((), (str(exc),)))
-            run = TestRun(
-                group_name,
-                command,
-                process.returncode,
-                False,
-                duration,
-                process.stdout,
-                process.stderr,
-                junit_path,
-                reconciled,
-                failure,
-            )
-            self._write_artifacts(artifact_dir, run)
-            return run
+        return self._record_process_result(
+            group_name, command, test_ids, timeout_seconds, artifact_dir,
+            junit_path, process, time.monotonic() - started,
+        )
+
+    def _record_process_result(
+        self, group_name, command, test_ids, timeout_seconds, artifact_dir,
+        junit_path, process, duration, *, image_digest=None, container_id=None,
+    ) -> TestRun:
+        # 本机和容器只负责执行；评分结果解析与缺失测试判断共用同一逻辑。
+        timed_out = process.timed_out or process.cancelled
         failure = None
-        if not reconciled.completed:
+        if timed_out:
+            reconciled = reconcile_expected_tests(test_ids, JUnitReport(()))
             failure = make_failure(
-                FailureType.TEST_ERROR,
-                EvaluationStage.TEST_EXECUTION,
-                f"{group_name} tests did not produce all expected results",
-                details={
-                    "returncode": process.returncode,
-                    "not_run": list(reconciled.not_run),
-                    "collection_errors": list(reconciled.collection_errors),
-                },
+                FailureType.TEST_TIMEOUT, EvaluationStage.TEST_EXECUTION,
+                f"{group_name} tests exceeded {timeout_seconds} seconds",
+                details={"timeout_seconds": timeout_seconds, "group": group_name},
             )
+        else:
+            try:
+                reconciled = reconcile_expected_tests(test_ids, parse_junit(junit_path))
+            except ArtifactError as exc:
+                reconciled = reconcile_expected_tests(test_ids, JUnitReport((), (str(exc),)))
+                failure = make_failure(
+                    FailureType.TEST_ERROR, EvaluationStage.TEST_EXECUTION,
+                    f"{group_name} test results are unavailable: {exc}",
+                    details={"returncode": process.returncode, "group": group_name},
+                )
+            if failure is None and not reconciled.completed:
+                failure = make_failure(
+                    FailureType.TEST_ERROR, EvaluationStage.TEST_EXECUTION,
+                    f"{group_name} tests did not produce all expected results",
+                    details={"returncode": process.returncode,
+                             "not_run": list(reconciled.not_run),
+                             "collection_errors": list(reconciled.collection_errors)},
+                )
         run = TestRun(
-            group_name,
-            command,
-            process.returncode,
-            False,
-            duration,
-            process.stdout,
-            process.stderr,
-            junit_path,
-            reconciled,
-            failure,
+            group_name, command, None if timed_out else process.returncode,
+            timed_out, duration, process.stdout, process.stderr,
+            junit_path, reconciled, failure, image_digest, container_id,
         )
         self._write_artifacts(artifact_dir, run)
         return run

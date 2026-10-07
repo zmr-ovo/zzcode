@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from ...execution.commands import CommandResult as CommandResult, ResourceLimits as ResourceLimits
 from ..schema import FailureRecord
 from ..status import ResolvedStatus, StringEnum
 
@@ -143,22 +144,6 @@ class GradingDecision:
 
 
 @dataclass(frozen=True)
-class ResourceLimits:
-    cpus: float = 1.0
-    memory_mb: int = 1024
-    pids_limit: int = 128
-    tmpfs_mb: int = 256
-
-    def __post_init__(self) -> None:
-        if isinstance(self.cpus, bool) or not isinstance(self.cpus, (int, float)) or self.cpus <= 0:
-            raise ValueError("cpus must be positive")
-        for name in ("memory_mb", "pids_limit", "tmpfs_mb"):
-            value = getattr(self, name)
-            if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
-                raise ValueError(f"{name} must be a positive integer")
-
-
-@dataclass(frozen=True)
 class MountSpec:
     source: Path
     target: str
@@ -171,14 +156,3 @@ class ContainerHandle:
     name: str
     image: str
     image_digest: str
-
-
-@dataclass(frozen=True)
-class CommandResult:
-    command: tuple[str, ...]
-    returncode: int | None
-    stdout: str
-    stderr: str
-    duration_seconds: float
-    timed_out: bool
-    container_id: str

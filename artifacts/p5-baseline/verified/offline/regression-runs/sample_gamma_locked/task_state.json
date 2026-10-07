@@ -1,0 +1,21 @@
+{
+  "attempts": 2,
+  "checkpoint_id": "ckpt_f8901104",
+  "completion": {
+    "accepted": true,
+    "model_final": true,
+    "reason": "",
+    "required_verification": [],
+    "task_type": "question",
+    "verification": []
+  },
+  "final_answer": "Done.",
+  "last_tool": "patch_file",
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261007-142624-4481d7",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261007-142624-77b3c8",
+  "tool_steps": 1,
+  "user_request": "In sample.txt, replace gamma with gamma-locked."
+}

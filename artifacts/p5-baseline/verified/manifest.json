@@ -1,0 +1,23 @@
+{
+  "phase": "P5",
+  "date": "2026-10-07",
+  "status": "passed",
+  "branch": "improve_pi",
+  "source_snapshot": "final/source.zip",
+  "deterministic_manifest": "final/manifest.json",
+  "product_passed": 252,
+  "evaluation_contract_passed": 115,
+  "docker_product_passed": 5,
+  "docker_evaluation_passed": 6,
+  "total_unique_passed": 378,
+  "docker": {
+    "image": "zzcode-eval-py313:phase4",
+    "digest": "sha256:2125706da48844aaa59d04fecc973e0a831f97d2c1d02e00c26245a930c7730c",
+    "combined_evidence": "docker-tests.xml",
+    "final_product_evidence": "docker-product-tests.xml",
+    "status": "passed"
+  },
+  "wheel": "wheel-smoke.json",
+  "real_model_repo_inference_executed": false,
+  "notes": "After directory permission rejection was added, all five affected product Docker tests reran successfully. Independent grading code was unchanged."
+}

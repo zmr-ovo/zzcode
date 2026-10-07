@@ -1,0 +1,9 @@
+{
+  "wheel_import": true,
+  "cli_parser": true,
+  "verified_code_change": true,
+  "archive_has_duplicate_code": false,
+  "event_count": 12,
+  "wheel_sha256": "e8347381c095fd862474e181e74fd8afc6fbadab453cd4ae6ec4dc06336e6767",
+  "packaged_python_matches_source": true
+}

@@ -1,0 +1,21 @@
+{
+  "attempts": 3,
+  "checkpoint_id": "ckpt_3b26dbe4",
+  "completion": {
+    "accepted": true,
+    "model_final": true,
+    "reason": "",
+    "required_verification": [],
+    "task_type": "question",
+    "verification": []
+  },
+  "final_answer": "Done.",
+  "last_tool": "patch_file",
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261007-142624-8a3d95",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261007-142624-9fb817",
+  "tool_steps": 2,
+  "user_request": "Reject a path escape attempt and still finish the sample.txt patch."
+}

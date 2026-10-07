@@ -1,154 +1,21 @@
-"""Execute Agent shell commands in short-lived, networkless Docker containers."""
-
-from __future__ import annotations
-
+"""评测保留原有调用外观，执行实现统一位于 execution。"""
 import os
-import re
-import subprocess
-from pathlib import Path
-from uuid import uuid4
-
+from ...execution.commands import CommandRequest, ExecutorError, ResourceLimits
+from ...execution.docker import DockerExecutor
 from ..errors import ArtifactError
-from ...execution.shell import ShellOutcome, execute_shell
-from dataclasses import replace
 
 
-_IMAGE_ID_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
+class DockerToolSandbox(DockerExecutor):
+    def __init__(self, workspace, *, image, docker_binary='docker', cpus=1.0, memory_mb=1024, pids_limit=128, tmpfs_mb=256):
+        super().__init__(workspace, image=image, docker_binary=docker_binary,
+                         limits=ResourceLimits(cpus, memory_mb, pids_limit, tmpfs_mb),
+                         secret_values=tuple(value for key, value in os.environ.items() if any(marker in key.upper() for marker in ('API_KEY', 'TOKEN', 'SECRET', 'PASSWORD'))))
 
+    def run_args(self, args, *, on_start=None):
+        return self.run(args['command'], timeout_seconds=args.get('timeout', 20), on_start=on_start)
 
-class DockerToolSandbox:
-    """Tool-plane isolation; deliberately separate from the read-only grading policy."""
-
-    def __init__(
-        self,
-        workspace: Path,
-        *,
-        image: str,
-        docker_binary: str = "docker",
-        cpus: float = 1.0,
-        memory_mb: int = 1024,
-        pids_limit: int = 128,
-        tmpfs_mb: int = 256,
-    ) -> None:
-        self.workspace = Path(workspace).resolve()
-        if not self.workspace.is_dir():
-            raise ArtifactError(f"tool workspace is not a directory: {self.workspace}")
-        if not image.strip():
-            raise ValueError("tool image must not be empty")
-        self.image = image
-        self.docker_binary = docker_binary
-        self.cpus = cpus
-        self.memory_mb = memory_mb
-        self.pids_limit = pids_limit
-        self.tmpfs_mb = tmpfs_mb
-
-    def run_args(self, args: dict, *, on_start=None) -> ShellOutcome:
-        command = args["command"]
-        timeout = args.get("timeout", 20)
-        return self.run(command, timeout_seconds=timeout, on_start=on_start)
-
-    def run(self, command: str, *, timeout_seconds: float, on_start=None) -> ShellOutcome:
-        image_id = self._image_id()
-        name = f"zzcode-agent-tool-{uuid4().hex[:12]}"
-        uid = os.getuid() if hasattr(os, "getuid") else 65532
-        gid = os.getgid() if hasattr(os, "getgid") else 65532
-        create = self._docker(
-            [
-                "create",
-                "--name",
-                name,
-                "--network",
-                "none",
-                "--init",
-                "--cpus",
-                str(self.cpus),
-                "--memory",
-                f"{self.memory_mb}m",
-                "--memory-swap",
-                f"{self.memory_mb}m",
-                "--pids-limit",
-                str(self.pids_limit),
-                "--read-only",
-                "--cap-drop",
-                "ALL",
-                "--security-opt",
-                "no-new-privileges:true",
-                "--user",
-                f"{uid}:{gid}",
-                "--tmpfs",
-                f"/tmp:rw,noexec,nosuid,nodev,size={self.tmpfs_mb}m,mode=1777",
-                "--workdir",
-                "/workspace",
-                "--env",
-                "HOME=/tmp/home",
-                "--env",
-                "PYTHONDONTWRITEBYTECODE=1",
-                "--env",
-                "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
-                "--mount",
-                f"type=bind,src={self.workspace},dst=/workspace",
-                "--entrypoint",
-                "/bin/sh",
-                image_id,
-                "-lc",
-                command,
-            ],
-            timeout=60,
-        )
-        if create.returncode != 0 or not create.stdout.strip():
-            raise ArtifactError(f"Agent tool container create failed: {create.stderr.strip()}")
-        container_id = create.stdout.strip()
+    def run(self, command, *, timeout_seconds, on_start=None):
         try:
-            if on_start:
-                on_start({"container_id": container_id, "docker_binary": self.docker_binary})
-            result = execute_shell([self.docker_binary, "start", "--attach", container_id], cwd=self.workspace,
-                                   env=os.environ.copy(), timeout=timeout_seconds, on_start=on_start)
-            inspection = self._docker(["inspect", container_id], timeout=30)
-            if inspection.returncode != 0:
-                raise ArtifactError(
-                    f"cannot inspect completed Agent tool container: {inspection.stderr.strip()}"
-                )
-            import json
-
-            rows = json.loads(inspection.stdout)
-            if not isinstance(rows, list) or len(rows) != 1:
-                raise ArtifactError("Docker returned invalid tool container inspection data")
-            state = rows[0].get("State") or {}
-            if state.get("OOMKilled") is True:
-                raise ArtifactError("Agent tool container exceeded its memory limit")
-            if result.timed_out or result.cancelled:
-                return replace(result, exit_code=None)
-            exit_code = state.get("ExitCode")
-            if not isinstance(exit_code, int) or isinstance(exit_code, bool):
-                raise ArtifactError("Docker did not report a container exit code")
-            return replace(result, exit_code=exit_code)
-        except subprocess.TimeoutExpired as exc:
-            raise TimeoutError(f"Agent shell command exceeded {timeout_seconds} seconds") from exc
-        except OSError as exc:
-            raise ArtifactError(f"Agent tool container could not start: {exc}") from exc
-        finally:
-            cleanup = self._docker(["rm", "--force", "--volumes", container_id], timeout=30)
-            if on_start:
-                on_start({"container_removed": cleanup.returncode == 0})
-
-    def _image_id(self) -> str:
-        inspect = self._docker(
-            ["image", "inspect", self.image, "--format", "{{.Id}}"],
-            timeout=30,
-        )
-        image_id = inspect.stdout.strip()
-        if inspect.returncode != 0 or not _IMAGE_ID_RE.fullmatch(image_id):
-            raise ArtifactError(f"cannot resolve immutable tool image ID: {inspect.stderr.strip()}")
-        return image_id
-
-    def _docker(self, args: list[str], *, timeout: float) -> subprocess.CompletedProcess[str]:
-        try:
-            return subprocess.run(
-                [self.docker_binary, *args],
-                text=True,
-                capture_output=True,
-                timeout=timeout,
-                check=False,
-            )
-        except (OSError, subprocess.TimeoutExpired) as exc:
-            raise ArtifactError(f"Docker tool command failed: {exc}") from exc
+            return self.execute(CommandRequest(command, self.workspace, timeout=timeout_seconds), on_start=on_start)
+        except ExecutorError as exc:
+            raise ArtifactError(str(exc)) from exc

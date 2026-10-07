@@ -50,10 +50,8 @@ docs/*
 !docs/zzcode-interview-flow.md
 !docs/zzcode-interview-flow.html
 !docs/testing/
-!docs/testing/zzcode-evaluation-refactor-plan.md
 !docs/testing/current-test-map.md
 !docs/testing/current-benchmark-map.md
-!docs/testing/migration-matrix.md
 !docs/zzcode-upgrade-plan-v2.md
 !docs/review-pack/
 !docs/architecture/
@@ -81,3 +79,19 @@ artifacts/p2-baseline/**/golden-runs/
 artifacts/p3-baseline/**/workspaces/
 artifacts/p3-baseline/**/golden-runs/
 artifacts/p3-baseline/iteration-*/
+
+!docs/evaluation/
+
+# P4 validation artifacts; sessions and temporary runs stay local.
+!artifacts/p4-baseline/
+!artifacts/p4-baseline/**
+artifacts/p4-baseline/**/workspaces/
+artifacts/p4-baseline/**/golden-runs/
+artifacts/p4-baseline/iteration-*/
+
+# P5 evidence; private workspaces and intermediate checks stay local.
+!artifacts/p5-baseline/
+!artifacts/p5-baseline/**
+artifacts/p5-baseline/**/workspaces/
+artifacts/p5-baseline/**/golden-runs/
+artifacts/p5-baseline/iteration-*/

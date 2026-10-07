@@ -1,0 +1,21 @@
+{
+  "attempts": 5,
+  "checkpoint_id": "ckpt_780f3d37",
+  "completion": {
+    "accepted": true,
+    "model_final": true,
+    "reason": "",
+    "required_verification": [],
+    "task_type": "question",
+    "verification": []
+  },
+  "final_answer": "Done.",
+  "last_tool": "patch_file",
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261006-205613-3fb8a4",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261006-205613-edac01",
+  "tool_steps": 4,
+  "user_request": "Recover after repeated identical reads and still finish the sample.txt patch."
+}

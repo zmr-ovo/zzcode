@@ -1,0 +1,19 @@
+{
+  "provider": "openai",
+  "passed": true,
+  "real_model": true,
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "tool_steps": 1,
+  "call_result_ids_match": true,
+  "final_completion_usage": {
+    "prompt_cache_supported": false,
+    "prompt_cache_key": null,
+    "prompt_cache_retention": null,
+    "input_tokens": 875,
+    "output_tokens": 12,
+    "cached_tokens": 0,
+    "total_tokens": 887,
+    "cache_hit": false
+  }
+}

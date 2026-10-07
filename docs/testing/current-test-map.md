@@ -1,5 +1,6 @@
 # zzcode 当前测试地图（Phase 0）
 
+> 本文保留 Phase 0 的历史盘点与迁移设想；路径按 P4 更新。当前目录与运行入口见 [项目结构](../architecture/project-layout.md)。
 > 基线 commit：`446ba3273c6513d5a1589daf81dea86ad851ebd0`  
 > 采集时间：`2026-08-12T14:30:39.593978+08:00`  
 > 范围：当前 pytest 的 105 个测试；本文件只做盘点和迁移设计，不改变测试或产品行为。
@@ -7,7 +8,7 @@
 ## 1. 基线结论
 
 - 总计：105；通过：103；失败：2；跳过：0；耗时：34.251 秒。
-- 当前目录只有一个扁平的 `tests/`，其中 `tests/test_zzcode.py` 单文件包含 60 项，混合了 unit、integration、security、contract 等职责。
+- 当前目录只有一个扁平的 `tests/`，其中 `tests/agent/test_zzcode.py` 单文件包含 60 项，混合了 unit、integration、security、contract 等职责。
 - `FakeModelClient` 同时承担确定性测试桩和旧 benchmark 的“预写答案”。迁移时两者必须分开：普通 unit/integration 可使用不包含任务答案的 `DeterministicModelStub`；正式 Repo Task 评测不得使用 scripted/FakeModel 输出。
 - 机器可读的逐项结果、耗时和失败信息见 `artifacts/test-baseline.json`。
 
@@ -15,27 +16,27 @@
 
 | 测试 | 当前现象 | Phase 0 处理 |
 |---|---|---|
-| `tests/test_zzcode.py::test_welcome_screen_keeps_box_shape_for_long_paths` | 断言仍要求旧欢迎界面的 `(  o o  )` 行，当前输出不再包含 | 记录，不在评测重构中擅自改 UI 或断言 |
-| `tests/test_zzcode.py::test_reviewer_skeleton_docs_exist` | 缺少 `docs/review-pack/README.md` 等 reviewer 文档 | 记录，不用无关补文件掩盖基线失败 |
+| `tests/agent/test_zzcode.py::test_welcome_screen_keeps_box_shape_for_long_paths` | 断言仍要求旧欢迎界面的 `(  o o  )` 行，当前输出不再包含 | 记录，不在评测重构中擅自改 UI 或断言 |
+| `tests/agent/test_zzcode.py::test_reviewer_skeleton_docs_exist` | 缺少 `docs/review-pack/README.md` 等 reviewer 文档 | 记录，不用无关补文件掩盖基线失败 |
 
 ## 2. 文件级盘点
 
 | 当前文件 | 数量 | 主要职责 | 主要依赖/测试替身 | 主要问题 |
 |---|---:|---|---|---|
-| `tests/test_context_manager.py` | 7 | ContextManager 上下文组装与裁剪 | FakeModelClient、WorkspaceContext、SessionStore、临时目录 | 主体可保留，调整目录 |
-| `tests/test_evaluator.py` | 8 | 旧 fixed benchmark loader/runner/summary | 旧 benchmark JSON、fixture copy、FakeModelClient、临时目录 | 绑定旧 schema 与 scripted benchmark |
-| `tests/test_memory.py` | 5 | LayeredMemory 数据结构与检索 | 临时目录、文件系统 | 主体可保留，调整目录 |
-| `tests/test_metrics.py` | 4 | 旧 benchmark 消融与报告 | 旧 evaluator、benchmark fixtures、临时目录 | 慢且依赖旧 evaluator，不应留在快速门禁 |
-| `tests/test_run_store.py` | 4 | 运行状态、trace 和 report 持久化 | 临时目录、JSONL/JSON 文件 | 主体可保留，调整目录 |
-| `tests/test_safety_invariants.py` | 11 | 路径、secret、shell、delegation 安全不变量 | FakeModelClient、mock、临时目录、进程环境 | 安全与普通集成测试边界不清 |
-| `tests/test_task_state.py` | 6 | TaskState 状态机与快照 | 纯内存对象 | 主体可保留，调整目录 |
-| `tests/test_zzcode.py` | 60 | Agent、CLI、provider、恢复、记忆和工具的混合集成测试 | FakeModelClient、mock HTTP、subprocess、临时目录、环境变量 | 职责过多，必须拆分 |
+| `tests/context/test_context_manager.py` | 7 | ContextManager 上下文组装与裁剪 | FakeModelClient、WorkspaceContext、SessionStore、临时目录 | 主体可保留，调整目录 |
+| `tests/benchmarks/test_evaluator.py` | 8 | 旧 fixed benchmark loader/runner/summary | 旧 benchmark JSON、fixture copy、FakeModelClient、临时目录 | 绑定旧 schema 与 scripted benchmark |
+| `tests/context/test_memory.py` | 5 | LayeredMemory 数据结构与检索 | 临时目录、文件系统 | 主体可保留，调整目录 |
+| `tests/benchmarks/test_metrics.py` | 4 | 旧 benchmark 消融与报告 | 旧 evaluator、benchmark fixtures、临时目录 | 慢且依赖旧 evaluator，不应留在快速门禁 |
+| `tests/storage/test_run_store.py` | 4 | 运行状态、trace 和 report 持久化 | 临时目录、JSONL/JSON 文件 | 主体可保留，调整目录 |
+| `tests/execution/test_safety_invariants.py` | 11 | 路径、secret、shell、delegation 安全不变量 | FakeModelClient、mock、临时目录、进程环境 | 安全与普通集成测试边界不清 |
+| `tests/agent/test_task_state.py` | 6 | TaskState 状态机与快照 | 纯内存对象 | 主体可保留，调整目录 |
+| `tests/agent/test_zzcode.py` | 60 | Agent、CLI、provider、恢复、记忆和工具的混合集成测试 | FakeModelClient、mock HTTP、subprocess、临时目录、环境变量 | 职责过多，必须拆分 |
 
 ## 3. 逐项测试迁移表
 
 “验证内容”描述该测试真正锁定的合同；“建议层级”决定未来默认门禁、执行环境和失败含义。迁移动作不是立即执行指令，而是 Phase 1–7 的工作清单。
 
-### `tests/test_context_manager.py`（7 项）
+### `tests/context/test_context_manager.py`（7 项）
 
 | 当前测试 | 状态 | 验证内容 | 建议层级 | 建议新位置 | 迁移动作 |
 |---|---|---|---|---|---|
@@ -47,7 +48,7 @@
 | `test_context_manager_summarizes_older_tool_output_into_one_line` | PASS | 上下文组装、预算裁剪与记忆选择：context manager summarizes older tool output into one line | `unit` | `tests/unit/test_context_manager.py` | 迁移；FakeModelClient 改为 DeterministicModelStub |
 | `test_context_manager_relevant_memory_can_mix_durable_notes` | PASS | 上下文组装、预算裁剪与记忆选择：context manager relevant memory can mix durable notes | `unit` | `tests/unit/test_context_manager.py` | 迁移；FakeModelClient 改为 DeterministicModelStub |
 
-### `tests/test_evaluator.py`（8 项）
+### `tests/benchmarks/test_evaluator.py`（8 项）
 
 | 当前测试 | 状态 | 验证内容 | 建议层级 | 建议新位置 | 迁移动作 |
 |---|---|---|---|---|---|
@@ -60,7 +61,7 @@
 | `test_run_task_anchors_paths_to_fixture_copy_even_inside_repo_workspace` | PASS | 任务工作区路径锚定：run task anchors paths to fixture copy even inside repo workspace | `eval-security` | `evaluation/tests/security/test_workspace_isolation.py` | 改写为 WorkspaceManager/Sandbox 合同测试 |
 | `test_summarize_rows_counts_failure_categories` | PASS | 聚合统计与失败分类：summarize rows counts failure categories | `eval-unit` | `evaluation/tests/unit/test_aggregate.py` | 改用 TaskResult/RunSummary 新结果模型 |
 
-### `tests/test_memory.py`（5 项）
+### `tests/context/test_memory.py`（5 项）
 
 | 当前测试 | 状态 | 验证内容 | 建议层级 | 建议新位置 | 迁移动作 |
 |---|---|---|---|---|---|
@@ -70,7 +71,7 @@
 | `test_process_notes_keep_kind_and_latest_duplicate_wins` | PASS | 分层记忆存取与新鲜度：process notes keep kind and latest duplicate wins | `unit` | `tests/unit/test_memory.py` | 直接迁移并保持现有行为断言 |
 | `test_durable_memory_index_and_topic_notes_are_loaded_and_retrieved` | PASS | 分层记忆存取与新鲜度：durable memory index and topic notes are loaded and retrieved | `unit` | `tests/unit/test_memory.py` | 直接迁移并保持现有行为断言 |
 
-### `tests/test_metrics.py`（4 项）
+### `tests/benchmarks/test_metrics.py`（4 项）
 
 | 当前测试 | 状态 | 验证内容 | 建议层级 | 建议新位置 | 迁移动作 |
 |---|---|---|---|---|---|
@@ -79,7 +80,7 @@
 | `test_run_recovery_ablation_v2_writes_expected_artifact` | PASS | 旧评测消融诊断：run recovery ablation v2 writes expected artifact | `diagnostic` | `evaluation/tests/diagnostics/test_ablations.py` | 移出默认门禁；统一数据模型可用后迁移 |
 | `test_write_benchmark_core_report_marks_resume_safe_metrics` | PASS | 评测报告与 resume-safe 指标：write benchmark core report marks resume safe metrics | `eval-reporting` | `evaluation/tests/unit/test_reporting.py` | 改为读取统一 RunSummary；旧报告保留作对照 |
 
-### `tests/test_run_store.py`（4 项）
+### `tests/storage/test_run_store.py`（4 项）
 
 | 当前测试 | 状态 | 验证内容 | 建议层级 | 建议新位置 | 迁移动作 |
 |---|---|---|---|---|---|
@@ -88,7 +89,7 @@
 | `test_run_store_writes_report_json` | PASS | 运行产物与状态持久化：run store writes report json | `unit` | `tests/unit/test_run_store.py` | 直接迁移并保持现有行为断言 |
 | `test_run_store_tolerates_missing_final_report` | PASS | 运行产物与状态持久化：run store tolerates missing final report | `unit` | `tests/unit/test_run_store.py` | 直接迁移并保持现有行为断言 |
 
-### `tests/test_safety_invariants.py`（11 项）
+### `tests/execution/test_safety_invariants.py`（11 项）
 
 | 当前测试 | 状态 | 验证内容 | 建议层级 | 建议新位置 | 迁移动作 |
 |---|---|---|---|---|---|
@@ -104,7 +105,7 @@
 | `test_delegate_child_is_read_only` | PASS | 子 Agent 深度与只读权限：delegate child is read only | `security` | `tests/security/test_delegation.py` | 迁移；FakeModelClient 改为 DeterministicModelStub |
 | `test_configured_secret_env_names_are_redacted_in_trace_and_report` | PASS | secret 隔离、脱敏与 shell 环境：configured secret env names are redacted in trace and report | `security` | `tests/security/test_secrets_and_shell.py` | 直接迁移并保持现有行为断言 |
 
-### `tests/test_task_state.py`（6 项）
+### `tests/agent/test_task_state.py`（6 项）
 
 | 当前测试 | 状态 | 验证内容 | 建议层级 | 建议新位置 | 迁移动作 |
 |---|---|---|---|---|---|
@@ -115,7 +116,7 @@
 | `test_task_state_snapshot_keeps_final_answer` | PASS | 任务状态机、停止原因与快照：task state snapshot keeps final answer | `unit` | `tests/unit/test_task_state.py` | 直接迁移并保持现有行为断言 |
 | `test_task_state_snapshot_keeps_checkpoint_reference_without_body` | PASS | 任务状态机、停止原因与快照：task state snapshot keeps checkpoint reference without body | `unit` | `tests/unit/test_task_state.py` | 直接迁移并保持现有行为断言 |
 
-### `tests/test_zzcode.py`（60 项）
+### `tests/agent/test_zzcode.py`（60 项）
 
 | 当前测试 | 状态 | 验证内容 | 建议层级 | 建议新位置 | 迁移动作 |
 |---|---|---|---|---|---|

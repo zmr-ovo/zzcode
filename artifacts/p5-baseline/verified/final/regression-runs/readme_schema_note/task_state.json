@@ -1,0 +1,21 @@
+{
+  "attempts": 2,
+  "checkpoint_id": "ckpt_2082c968",
+  "completion": {
+    "accepted": true,
+    "model_final": true,
+    "reason": "",
+    "required_verification": [],
+    "task_type": "question",
+    "verification": []
+  },
+  "final_answer": "Done.",
+  "last_tool": "patch_file",
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261007-143247-00dcc9",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261007-143247-8f3fb4",
+  "tool_steps": 1,
+  "user_request": "Replace the first README bullet with a sentence that says the benchmark schema and baseline are fixed."
+}

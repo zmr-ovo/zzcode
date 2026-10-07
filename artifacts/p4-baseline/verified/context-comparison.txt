@@ -1,0 +1,20 @@
+{
+  "previous_phase": "P2",
+  "previous_source": "artifacts/p2-baseline/verified/source.zip",
+  "previous": {
+    "constraint_retained": false,
+    "history_messages": 3,
+    "serialized_history_bytes": 4664
+  },
+  "current": {
+    "constraint_retained": true,
+    "history_messages": 6,
+    "estimated_input_tokens": 16134,
+    "available_input_tokens": 20464,
+    "compaction_count": 1,
+    "raw_history_preserved": true
+  },
+  "real_tokens": null,
+  "real_cost": null,
+  "measurement_limit": "Scripted information retention; estimates are not actual provider token usage or cost."
+}

@@ -10,7 +10,7 @@ from ..errors import ArtifactError
 from ..failures import make_failure
 from ..status import EvaluationStage, FailureType
 from .docker_runner import DockerRunner
-from .log_parser import parse_junit, reconcile_expected_tests
+from .log_parser import reconcile_expected_tests
 from .models import JUnitReport, MountSpec, ResourceLimits, TestRun
 from .test_executor import TestExecutor
 
@@ -72,6 +72,8 @@ class DockerTestExecutor(TestExecutor):
                 limits=self.limits,
             )
             process = self.runner.start_and_wait(handle, timeout_seconds)
+            if process.resource_status == "oom":
+                raise ArtifactError("grading container exceeded its memory limit")
         except ArtifactError as exc:
             duration = time.monotonic() - started
             failure = make_failure(
@@ -105,84 +107,8 @@ class DockerTestExecutor(TestExecutor):
             finally:
                 os.chmod(artifact_dir, original_artifact_mode)
 
-        if process.timed_out:
-            failure = make_failure(
-                FailureType.TEST_TIMEOUT,
-                EvaluationStage.TEST_EXECUTION,
-                f"{group_name} tests exceeded {timeout_seconds} seconds",
-                details={"timeout_seconds": timeout_seconds, "group": group_name},
-            )
-            result = reconcile_expected_tests(test_ids, JUnitReport(()))
-            run = TestRun(
-                group_name,
-                command,
-                None,
-                True,
-                process.duration_seconds,
-                process.stdout,
-                process.stderr,
-                junit_path,
-                result,
-                failure,
-                handle.image_digest,
-                handle.container_id,
-            )
-            self._write_artifacts(artifact_dir, run)
-            return run
-
-        try:
-            report = parse_junit(junit_path)
-            reconciled = reconcile_expected_tests(test_ids, report)
-        except ArtifactError as exc:
-            failure = make_failure(
-                FailureType.TEST_ERROR,
-                EvaluationStage.TEST_EXECUTION,
-                f"{group_name} container test results are unavailable: {exc}",
-                details={"returncode": process.returncode, "group": group_name},
-            )
-            reconciled = reconcile_expected_tests(test_ids, JUnitReport((), (str(exc),)))
-            run = TestRun(
-                group_name,
-                command,
-                process.returncode,
-                False,
-                process.duration_seconds,
-                process.stdout,
-                process.stderr,
-                junit_path,
-                reconciled,
-                failure,
-                handle.image_digest,
-                handle.container_id,
-            )
-            self._write_artifacts(artifact_dir, run)
-            return run
-
-        failure = None
-        if not reconciled.completed:
-            failure = make_failure(
-                FailureType.TEST_ERROR,
-                EvaluationStage.TEST_EXECUTION,
-                f"{group_name} tests did not produce all expected results",
-                details={
-                    "returncode": process.returncode,
-                    "not_run": list(reconciled.not_run),
-                    "collection_errors": list(reconciled.collection_errors),
-                },
-            )
-        run = TestRun(
-            group_name,
-            command,
-            process.returncode,
-            False,
-            process.duration_seconds,
-            process.stdout,
-            process.stderr,
-            junit_path,
-            reconciled,
-            failure,
-            handle.image_digest,
-            handle.container_id,
+        return self._record_process_result(
+            group_name, command, test_ids, timeout_seconds, artifact_dir,
+            junit_path, process, process.duration_seconds,
+            image_digest=handle.image_digest, container_id=handle.container_id,
         )
-        self._write_artifacts(artifact_dir, run)
-        return run

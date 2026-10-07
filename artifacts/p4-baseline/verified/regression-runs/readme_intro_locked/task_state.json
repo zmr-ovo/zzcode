@@ -1,0 +1,21 @@
+{
+  "attempts": 2,
+  "checkpoint_id": "ckpt_56831c57",
+  "completion": {
+    "accepted": true,
+    "model_final": true,
+    "reason": "",
+    "required_verification": [],
+    "task_type": "question",
+    "verification": []
+  },
+  "final_answer": "Done.",
+  "last_tool": "patch_file",
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261006-205612-907809",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261006-205612-9d288b",
+  "tool_steps": 1,
+  "user_request": "In the README fixture, replace the placeholder opening sentence with 'This fixture is a locked benchmark workspace.'"
+}

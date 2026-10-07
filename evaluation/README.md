@@ -1,5 +1,7 @@
 # zzcode Evaluation
 
+> 本目录保存数据集、配置、Docker 环境与本地评测输出。实现位于 `zzcode/evaluation/`，评测系统测试统一位于 `tests/evaluation/`。
+
 本目录用于存放评测数据、Evaluation Harness 自测、执行环境定义、运行产物和评测报告。可复用的 Python 实现位于 `zzcode/evaluation/`。
 
 Phase 1 已实现评测系统的数据边界，包括：
@@ -100,7 +102,7 @@ F2P/P2P selector 必须是 `.py` 文件或 pytest node id，不能以 `-` 开头
 
 ## Golden Harness 验收
 
-`evaluation/tests/golden/test_local_harness.py` 会临时创建独立 Git 仓库和私有 test patch，验证：
+`tests/evaluation/golden/test_local_harness.py` 会临时创建独立 Git 仓库和私有 test patch，验证：
 
 ```text
 Null Patch       → NO，F2P=0%，P2P=100%
@@ -127,13 +129,13 @@ docker build --pull=false \
 运行非 Docker Harness 测试：
 
 ```bash
-uv run pytest evaluation/tests -m "not docker"
+uv run pytest tests/evaluation -m "not docker"
 ```
 
 运行 Docker Gate（Gold 连续三次、禁网/资源与文件系统策略、timeout 清理）：
 
 ```bash
-RUN_DOCKER_TESTS=1 uv run pytest evaluation/tests -m docker
+RUN_DOCKER_TESTS=1 uv run pytest tests/evaluation -m docker
 ```
 
 接入同一套 `LocalGradingHarness`：
@@ -262,7 +264,7 @@ Null 或 Gold 门禁失败时，任务记录为 `DATASET_ERROR`，不会调用�
 
 ```bash
 RUN_DOCKER_TESTS=1 uv run pytest -q \
-  evaluation/tests/integration/test_phase6_dataset_docker.py
+  tests/evaluation/integration/test_phase6_dataset_docker.py
 ```
 
 运行完整真实评测（会将公开题面和必要仓库上下文发送给配置的 Provider，并产生 API 成本）：
@@ -270,7 +272,7 @@ RUN_DOCKER_TESTS=1 uv run pytest -q \
 ```bash
 export ZZCODE_EVAL_PRIVATE_ROOT="$PWD/evaluation/private"
 
-uv run python scripts/run_internal_eval.py \
+uv run python scripts/evaluation/run_internal_eval.py \
   --split test \
   --provider openai \
   --model provider/model-name \
@@ -443,10 +445,10 @@ $ZZCODE_EVAL_PRIVATE_ROOT/
   "gold_patch": "gold.patch",
   "test_patch": "test.patch",
   "FAIL_TO_PASS": [
-    "hidden_tests/test_memory.py::test_stale_summary"
+    "hidden_tests/context/test_memory.py::test_stale_summary"
   ],
   "PASS_TO_PASS": [
-    "tests/test_memory.py"
+    "tests/context/test_memory.py"
   ]
 }
 ```

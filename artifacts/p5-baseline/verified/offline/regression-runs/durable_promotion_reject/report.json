@@ -1,0 +1,184 @@
+{
+  "attempts": 1,
+  "checkpoint_id": "ckpt_bca2f2f6",
+  "compaction_count": 0,
+  "context_budget": {
+    "max_output": 4096,
+    "source": "conservative-default",
+    "window": 32768
+  },
+  "durable_promotions": [
+    "project-conventions: Keep verifier outcomes stable across reruns."
+  ],
+  "durable_rejections": [
+    "dependency-facts:secret_shaped",
+    "key-decisions:transient_task_state"
+  ],
+  "durable_superseded": [],
+  "final_answer": "Project convention: Keep verifier outcomes stable across reruns.\nDependency: API key is <redacted>.\nDecision: Current goal is debug the harness.",
+  "model_requests": 1,
+  "prompt_metadata": {
+    "budget_reductions": [],
+    "context_available_tokens": 31680,
+    "context_limits_source": "conservative-default",
+    "context_window": 32768,
+    "current_request": {
+      "raw_chars": 107,
+      "rendered_chars": 107,
+      "section_chars": 129,
+      "text": "Capture only the stable benchmark facts into durable memory and reject anything transient or secret-shaped."
+    },
+    "estimated_input_tokens": 10863,
+    "history": {
+      "collapsed_duplicate_reads": 0,
+      "older_entries_count": 0,
+      "raw_chars": 126,
+      "rendered_chars": 126,
+      "reused_file_summary_count": 0,
+      "summarized_tool_count": 0
+    },
+    "history_chars": 114,
+    "memory_chars": 201,
+    "native_history_messages": 1,
+    "native_request_chars": 8260,
+    "native_request_over_budget": false,
+    "prefix_changed": true,
+    "prefix_chars": 6291,
+    "prefix_hash": "e739517bff15169d46a355b8863960c0027ccea214a5a9822ee257b634b5125a",
+    "prompt_budget_chars": 12000,
+    "prompt_cache_key": "e739517bff15169d46a355b8863960c0027ccea214a5a9822ee257b634b5125a",
+    "prompt_cache_supported": false,
+    "prompt_chars": 4087,
+    "prompt_over_budget": false,
+    "recent_commits": 5,
+    "reduction_order": [
+      "relevant_memory",
+      "history",
+      "memory",
+      "prefix"
+    ],
+    "relevant_memory": {
+      "limit": 3,
+      "raw_chars": 23,
+      "rendered_chars": 23,
+      "rendered_count": 0,
+      "rendered_notes": [],
+      "selected_count": 0,
+      "selected_durable_count": 0,
+      "selected_kinds": [],
+      "selected_notes": [],
+      "selected_sources": []
+    },
+    "request_chars": 107,
+    "reserved_output_tokens": 64,
+    "resume_status": "no-checkpoint",
+    "runtime_identity_mismatch_fields": [],
+    "safety_tokens": 1024,
+    "secret_env_count": 0,
+    "secret_env_names": [],
+    "section_budgets": {
+      "current_request": null,
+      "history": 5200,
+      "memory": 1600,
+      "prefix": 3600,
+      "relevant_memory": 1200
+    },
+    "section_order": [
+      "prefix",
+      "memory",
+      "relevant_memory",
+      "history",
+      "current_request"
+    ],
+    "sections": {
+      "current_request": {
+        "budget_chars": null,
+        "raw_chars": 129,
+        "rendered_chars": 129
+      },
+      "history": {
+        "budget_chars": 5200,
+        "raw_chars": 126,
+        "rendered_chars": 126
+      },
+      "memory": {
+        "budget_chars": 1600,
+        "raw_chars": 201,
+        "rendered_chars": 201
+      },
+      "prefix": {
+        "budget_chars": 3600,
+        "raw_chars": 6291,
+        "rendered_chars": 3600
+      },
+      "relevant_memory": {
+        "budget_chars": 1200,
+        "raw_chars": 23,
+        "rendered_chars": 23
+      }
+    },
+    "stale_paths": [],
+    "stale_summary_invalidations": 0,
+    "token_estimator": "utf8-bytes-conservative",
+    "tool_count": 8,
+    "tool_signature": "b259a5811c1cc838a6fb696e227f63c14a17f7632f7b381b9634a1f7492b2d89",
+    "validation_stale": false,
+    "workspace_changed": true,
+    "workspace_chars": 4587,
+    "workspace_docs": 3,
+    "workspace_fingerprint": "148893c8eeab02cb41f2989490b082565c4e26bbcaa7447451fec025280ed491"
+  },
+  "redacted_env": {
+    "secret_env_count": 0,
+    "secret_env_names": []
+  },
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261007-142626-7d2d95",
+  "runtime_result": {
+    "attempts": 1,
+    "error": null,
+    "final_answer": "Project convention: Keep verifier outcomes stable across reruns.\nDependency: API key is <redacted>.\nDecision: Current goal is debug the harness.",
+    "model_final": true,
+    "report_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/1/durable_promotion_reject/bench_repo_readme/.zzcode/runs/run_20261007-142626-7d2d95/report.json",
+    "resolved": null,
+    "run_id": "run_20261007-142626-7d2d95",
+    "status": "completed",
+    "stop_reason": "final_answer_returned",
+    "tool_steps": 0,
+    "trace_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/1/durable_promotion_reject/bench_repo_readme/.zzcode/runs/run_20261007-142626-7d2d95/trace.jsonl",
+    "verification": []
+  },
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261007-142626-920468",
+  "task_state": {
+    "attempts": 1,
+    "checkpoint_id": "ckpt_bca2f2f6",
+    "completion": {
+      "accepted": true,
+      "model_final": true,
+      "reason": "",
+      "required_verification": [],
+      "task_type": "question",
+      "verification": []
+    },
+    "final_answer": "Project convention: Keep verifier outcomes stable across reruns.\nDependency: API key is <redacted>.\nDecision: Current goal is debug the harness.",
+    "last_tool": "",
+    "resume_status": "no-checkpoint",
+    "run_id": "run_20261007-142626-7d2d95",
+    "status": "completed",
+    "stop_reason": "final_answer_returned",
+    "task_id": "task_20261007-142626-920468",
+    "tool_steps": 0,
+    "user_request": "Capture only the stable benchmark facts into durable memory and reject anything transient or secret-shaped."
+  },
+  "tool_counters": {
+    "cancelled": 0,
+    "executed": 0,
+    "proposed": 0,
+    "rejected": 0,
+    "succeeded": 0
+  },
+  "tool_steps": 0,
+  "transport_retries": 0
+}

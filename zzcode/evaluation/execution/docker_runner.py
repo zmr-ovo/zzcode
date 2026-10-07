@@ -5,7 +5,11 @@ from __future__ import annotations
 import json
 import re
 import subprocess
-import time
+import os
+from dataclasses import replace
+from ...execution.commands import CommandRequest
+from ...execution.shell import LocalExecutor
+from ...execution.docker_policy import isolation_arguments, isolation_violations, SECRET_ENV
 from pathlib import Path, PurePosixPath
 from uuid import uuid4
 
@@ -39,6 +43,9 @@ class DockerRunner:
             data = json.loads(result.stdout)
         except json.JSONDecodeError as exc:
             raise ArtifactError(f"Docker image inspect returned invalid JSON for {image}") from exc
+        for value in (data.get("Config") or {}).get("Env") or []:
+            if SECRET_ENV.search(value.partition("=")[0]):
+                raise ArtifactError("Docker image contains a credential environment variable")
         digest = data.get("Id")
         if not isinstance(digest, str) or not digest.startswith("sha256:"):
             raise ArtifactError(f"Docker image {image} has no immutable sha256 image id")
@@ -94,41 +101,7 @@ class DockerRunner:
         name = name or f"{self.name_prefix}-{uuid4().hex[:12]}"
         if not _CONTAINER_NAME_RE.fullmatch(name):
             raise ArtifactError("container name contains unsafe characters")
-        arguments = [
-            "create",
-            "--name",
-            name,
-            "--network",
-            "none",
-            "--init",
-            "--cpus",
-            str(limits.cpus),
-            "--memory",
-            f"{limits.memory_mb}m",
-            "--memory-swap",
-            f"{limits.memory_mb}m",
-            "--pids-limit",
-            str(limits.pids_limit),
-            "--read-only",
-            "--cap-drop",
-            "ALL",
-            "--security-opt",
-            "no-new-privileges:true",
-            "--user",
-            "65532:65532",
-            "--tmpfs",
-            f"/tmp:rw,noexec,nosuid,nodev,size={limits.tmpfs_mb}m,mode=1777",
-            "--workdir",
-            "/workspace",
-            "--env",
-            "HOME=/tmp/home",
-            "--env",
-            "PYTHONDONTWRITEBYTECODE=1",
-            "--env",
-            "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
-            "--env",
-            "PYTHONPATH=/workspace",
-        ]
+        arguments = isolation_arguments(name, limits, user="65532:65532")
         targets: set[str] = set()
         for mount in mounts:
             source, target = self._validate_mount(mount)
@@ -156,37 +129,19 @@ class DockerRunner:
         return ContainerHandle(container_id, name, image, image_digest)
 
     def start_and_wait(self, handle: ContainerHandle, timeout_seconds: float) -> CommandResult:
-        if timeout_seconds <= 0:
-            raise ValueError("timeout_seconds must be positive")
-        started = time.monotonic()
+        command = (self.docker_binary, "start", "--attach", handle.container_id)
         try:
-            result = subprocess.run(
-                [self.docker_binary, "start", "--attach", handle.container_id],
-                text=True,
-                capture_output=True,
-                timeout=timeout_seconds,
-                check=False,
-            )
-            return CommandResult(
-                command=(self.docker_binary, "start", "--attach", handle.container_id),
-                returncode=result.returncode,
-                stdout=result.stdout,
-                stderr=result.stderr,
-                duration_seconds=time.monotonic() - started,
-                timed_out=False,
-                container_id=handle.container_id,
-            )
-        except subprocess.TimeoutExpired as exc:
-            self.cleanup(handle)
-            return CommandResult(
-                command=(self.docker_binary, "start", "--attach", handle.container_id),
-                returncode=None,
-                stdout=exc.stdout or "",
-                stderr=exc.stderr or "",
-                duration_seconds=time.monotonic() - started,
-                timed_out=True,
-                container_id=handle.container_id,
-            )
+            result = LocalExecutor().execute(CommandRequest(command, self.allowed_mount_roots[0], os.environ.copy(), timeout_seconds))
+            if result.timed_out or result.cancelled:
+                self.cleanup(handle)
+                return replace(result, exit_code=None, backend="docker", container_id=handle.container_id,
+                               image_digest=handle.image_digest)
+            state = self.inspect(handle).get("State", {})
+            code = state.get("ExitCode")
+            if state.get("Running") is not False or not isinstance(code, int) or isinstance(code, bool):
+                raise ArtifactError("Docker did not report a stopped container with an exit code")
+            return replace(result, exit_code=code, backend="docker", container_id=handle.container_id,
+                           image_digest=handle.image_digest, resource_status="oom" if state.get("OOMKilled") else "completed")
         except OSError as exc:
             self.cleanup(handle)
             raise ArtifactError(f"Docker container could not start: {exc}") from exc
@@ -210,39 +165,8 @@ class DockerRunner:
         mounts: tuple[MountSpec, ...],
         limits: ResourceLimits,
     ) -> None:
-        """Fail closed if Docker did not retain the requested grading policy."""
-        host = inspection.get("HostConfig")
-        config = inspection.get("Config")
-        if not isinstance(host, dict) or not isinstance(config, dict):
-            raise ArtifactError("Docker inspect data has no HostConfig/Config")
-        expected = {
-            "network=none": host.get("NetworkMode") == "none",
-            "read-only rootfs": host.get("ReadonlyRootfs") is True,
-            "memory limit": host.get("Memory") == limits.memory_mb * 1024 * 1024,
-            "memory swap disabled": host.get("MemorySwap") == limits.memory_mb * 1024 * 1024,
-            "CPU limit": host.get("NanoCpus") == int(limits.cpus * 1_000_000_000),
-            "PID limit": host.get("PidsLimit") == limits.pids_limit,
-            "all capabilities dropped": "ALL" in (host.get("CapDrop") or []),
-            "no-new-privileges": any(
-                str(item).startswith("no-new-privileges")
-                for item in (host.get("SecurityOpt") or [])
-            ),
-            "non-root user": config.get("User") not in {None, "", "0", "0:0", "root"},
-            "limited /tmp tmpfs": "/tmp" in (host.get("Tmpfs") or {}),
-        }
-        observed_mounts = {
-            row.get("Destination"): row
-            for row in inspection.get("Mounts", [])
-            if isinstance(row, dict)
-        }
-        for mount in mounts:
-            row = observed_mounts.get(str(PurePosixPath(mount.target)))
-            expected[f"mount {mount.target}"] = bool(
-                row
-                and Path(str(row.get("Source", ""))).resolve() == Path(mount.source).resolve()
-                and row.get("RW") is (not mount.read_only)
-            )
-        violations = [name for name, valid in expected.items() if not valid]
+        violations = isolation_violations(inspection, limits=limits,
+                                          mounts={mount.target: (Path(mount.source).resolve(), not mount.read_only) for mount in mounts})
         if violations:
             raise ArtifactError("container isolation policy mismatch: " + ", ".join(violations))
 

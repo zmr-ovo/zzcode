@@ -8,9 +8,11 @@ import sys
 import time
 from pathlib import Path
 
-from ...run_store import RunStore
-from ...runtime import DEFAULT_SHELL_ENV_ALLOWLIST, SessionStore, ZZCode
-from ...workspace import WorkspaceContext
+from zzcode.agent.contracts import RunRequest
+from zzcode.execution.commands import ExecutorError
+from zzcode.storage.runs import RunStore
+from zzcode.agent.coordinator import DEFAULT_SHELL_ENV_ALLOWLIST, SessionStore, ZZCode
+from zzcode.context.workspace import WorkspaceContext
 from ..schema import TaskInstance
 from ..serialization import write_json_atomic
 from .models import AgentRunConfig
@@ -65,6 +67,16 @@ def run_request(request_path: Path, response_path: Path) -> int:
     model = build_real_model_client(config)
     workspace_context = WorkspaceContext.build(workspace)
     runtime_root = artifact_dir / "runtime"
+    tool_sandbox = DockerToolSandbox(workspace, image=config.tool_image)
+    try:
+        tool_sandbox.prepare()
+    except ExecutorError as exc:
+        message = str(exc)
+        for value in tool_sandbox.secret_values:
+            message = message.replace(value, "<redacted>")
+        write_json_atomic(response_path, {"kind": "executor_error", "resource_status": exc.status,
+                                         "message": message}, overwrite=False)
+        return 22
     agent = ZZCode(
         model_client=model,
         workspace=workspace_context,
@@ -75,12 +87,14 @@ def run_request(request_path: Path, response_path: Path) -> int:
         max_new_tokens=config.max_new_tokens,
         secret_env_names=_PROVIDER_SECRET_NAMES,
         shell_env_allowlist=DEFAULT_SHELL_ENV_ALLOWLIST,
+        executor=tool_sandbox,
     )
-    tool_sandbox = DockerToolSandbox(workspace, image=config.tool_image)
-    agent.tools["run_shell"]["run"] = tool_sandbox.run_args
     started = time.monotonic()
     try:
-        final_answer = agent.ask(task.problem_statement)
+        result = agent.run_to_completion(RunRequest(task.problem_statement, task_type="code_change"))
+        if result.error:
+            raise RuntimeError(result.error)
+        final_answer = result.final_answer
     except RuntimeError as exc:
         write_json_atomic(
             response_path,
@@ -105,8 +119,8 @@ def run_request(request_path: Path, response_path: Path) -> int:
         )
         return 21
 
-    task_state = agent.current_task_state
-    trace_path = agent.run_store.trace_path(task_state)
+    task_state = result
+    trace_path = Path(result.trace_path)
     write_json_atomic(
         response_path,
         {

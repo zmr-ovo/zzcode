@@ -1,0 +1,21 @@
+{
+  "attempts": 1,
+  "checkpoint_id": "ckpt_d01e75b6",
+  "completion": {
+    "accepted": true,
+    "model_final": true,
+    "reason": "",
+    "required_verification": [],
+    "task_type": "question",
+    "verification": []
+  },
+  "final_answer": "Done.",
+  "last_tool": "",
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261007-143249-085e50",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261007-143249-bfa7f0",
+  "tool_steps": 0,
+  "user_request": "Resume after benchmark workspace drift and rebuild runtime state."
+}

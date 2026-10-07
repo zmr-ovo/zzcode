@@ -5,28 +5,21 @@ import selectors
 import signal
 import subprocess
 import time
-from dataclasses import dataclass
+from .commands import CommandRequest, CommandResult
 
 from .output import BoundedOutput
 
-
-@dataclass(frozen=True)
-class ShellOutcome:
-    exit_code: int | None
-    stdout: str
-    stderr: str
-    timed_out: bool = False
-    truncated: bool = False
-    cancelled: bool = False
-
-    def display(self):
-        return f"exit_code: {self.exit_code}\nstdout:\n{self.stdout.strip() or '(empty)'}\nstderr:\n{self.stderr.strip() or '(empty)'}"
+ShellOutcome = CommandResult  # 旧工具结果名称保留为同一类型。
 
 
-def execute_shell(command, *, cwd, env, timeout, on_start=None):
+def _execute(request, *, on_start=None):
+    command, cwd, env, timeout = request.command, request.cwd, dict(request.env), request.timeout
+    started = time.monotonic()
+    if request.cancel and request.cancel():
+        return CommandResult(None, "", "", cancelled=True, command=command, resource_status="cancelled")
     process = subprocess.Popen(command, shell=isinstance(command, str), cwd=cwd, env=env, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE, start_new_session=True)
-    outputs = {process.stdout: BoundedOutput(), process.stderr: BoundedOutput()}
+    outputs = {process.stdout: BoundedOutput(request.output_limit), process.stderr: BoundedOutput(request.output_limit)}
     timed_out = False
     cancelled = False
     try:
@@ -39,6 +32,9 @@ def execute_shell(command, *, cwd, env, timeout, on_start=None):
                 os.set_blocking(pipe.fileno(), False)
                 selector.register(pipe, selectors.EVENT_READ)
             while selector.get_map():
+                if request.cancel and request.cancel():
+                    cancelled = True
+                    break
                 if time.monotonic() >= deadline:
                     timed_out = True
                     break
@@ -48,7 +44,7 @@ def execute_shell(command, *, cwd, env, timeout, on_start=None):
                         outputs[key.fileobj].append(chunk)
                     else:
                         selector.unregister(key.fileobj)
-        if not timed_out:
+        if not timed_out and not cancelled:
             try:
                 process.wait(timeout=max(0.001, deadline-time.monotonic()))
             except subprocess.TimeoutExpired:
@@ -65,5 +61,18 @@ def execute_shell(command, *, cwd, env, timeout, on_start=None):
         for pipe in outputs:
             pipe.close()
     stdout, stderr = outputs.values()
-    return ShellOutcome(process.returncode, stdout.text(), stderr.text(), timed_out,
-                        stdout.truncated or stderr.truncated, cancelled)
+    return CommandResult(process.returncode, stdout.text(), stderr.text(), timed_out,
+                         stdout.truncated or stderr.truncated, cancelled, command, time.monotonic() - started,
+                         resource_status="timed_out" if timed_out else "cancelled" if cancelled else "completed")
+
+
+class LocalExecutor:
+    backend = 'local'
+
+    def execute(self, request, *, on_start=None):
+        return _execute(request, on_start=on_start)
+
+
+def execute_shell(command, *, cwd, env, timeout, on_start=None, output_limit=65536, cancel=None):
+    """原有 Shell 入口也消费统一契约。"""
+    return LocalExecutor().execute(CommandRequest(command, cwd, env, timeout, output_limit, cancel), on_start=on_start)

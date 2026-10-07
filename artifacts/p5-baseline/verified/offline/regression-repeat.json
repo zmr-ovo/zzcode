@@ -1,0 +1,2878 @@
+{
+  "benchmark": {
+    "source": "benchmarks/coding_tasks.json",
+    "task_count": 12
+  },
+  "captured_at": "2026-10-07T14:26:28+0800",
+  "failure_category_counts": {},
+  "reproducibility": {
+    "decoding": {
+      "max_new_tokens": 64,
+      "temperature": 0.0,
+      "top_p": 1.0
+    },
+    "fixture_snapshot_id": "sha256:61745154689175001a71064515a95f50abb7569cf344b436057ac61b61bbaf99",
+    "locale": "C.UTF-8",
+    "model_name": "FakeModelClient",
+    "model_version": "scripted-deterministic",
+    "timezone": "Asia/Shanghai"
+  },
+  "rows": [
+    {
+      "allowed_tools": [
+        "read_file",
+        "patch_file"
+      ],
+      "artifact_digest": "sha256:3f4af34acd8c1bbac51be4a21912fe3da0de74e6625fdc583742ff0189fed7fe",
+      "artifact_exists": true,
+      "artifact_path": "README.md",
+      "attempts": 2,
+      "category": "documentation",
+      "expected_artifact": "README.md opening sentence is locked benchmark workspace text",
+      "expected_artifact_exists": true,
+      "failure_category": null,
+      "final_answer": "Done.",
+      "fixture_copy_relpath": "readme_intro_locked/bench_repo_readme",
+      "fixture_repo": "tests/fixtures/bench_repo_readme",
+      "id": "readme_intro_locked",
+      "initial_episodic_notes_empty": true,
+      "initial_history_empty": true,
+      "initial_memory_empty": true,
+      "initial_task_summary_empty": true,
+      "non_failure_stop_reason": true,
+      "passed": true,
+      "prompt": "In the README fixture, replace the placeholder opening sentence with 'This fixture is a locked benchmark workspace.'",
+      "report": {
+        "attempts": 2,
+        "checkpoint_id": "ckpt_35e841cb",
+        "compaction_count": 0,
+        "context_budget": {
+          "max_output": 4096,
+          "source": "conservative-default",
+          "window": 32768
+        },
+        "durable_promotions": [],
+        "durable_rejections": [],
+        "durable_superseded": [],
+        "final_answer": "Done.",
+        "model_requests": 2,
+        "prompt_metadata": {
+          "budget_reductions": [],
+          "context_available_tokens": 31680,
+          "context_limits_source": "conservative-default",
+          "context_window": 32768,
+          "current_request": {
+            "raw_chars": 116,
+            "rendered_chars": 116,
+            "section_chars": 138,
+            "text": "In the README fixture, replace the placeholder opening sentence with 'This fixture is a locked benchmark workspace.'"
+          },
+          "estimated_input_tokens": 12355,
+          "history": {
+            "collapsed_duplicate_reads": 0,
+            "older_entries_count": 0,
+            "raw_chars": 323,
+            "rendered_chars": 323,
+            "reused_file_summary_count": 0,
+            "summarized_tool_count": 0
+          },
+          "history_chars": 311,
+          "memory_chars": 218,
+          "native_history_messages": 3,
+          "native_request_chars": 9676,
+          "native_request_over_budget": false,
+          "prefix_changed": true,
+          "prefix_chars": 6286,
+          "prefix_hash": "1fe83f1e4c737b35647790dfb01ee250a7e14abf3432d5e9aa8b4b2ae8e6d322",
+          "prompt_budget_chars": 12000,
+          "prompt_cache_key": "1fe83f1e4c737b35647790dfb01ee250a7e14abf3432d5e9aa8b4b2ae8e6d322",
+          "prompt_cache_supported": false,
+          "prompt_chars": 4310,
+          "prompt_over_budget": false,
+          "recent_commits": 5,
+          "reduction_order": [
+            "relevant_memory",
+            "history",
+            "memory",
+            "prefix"
+          ],
+          "relevant_memory": {
+            "limit": 3,
+            "raw_chars": 23,
+            "rendered_chars": 23,
+            "rendered_count": 0,
+            "rendered_notes": [],
+            "selected_count": 0,
+            "selected_durable_count": 0,
+            "selected_kinds": [],
+            "selected_notes": [],
+            "selected_sources": []
+          },
+          "request_chars": 116,
+          "reserved_output_tokens": 64,
+          "resume_status": "workspace-mismatch",
+          "runtime_identity_mismatch_fields": [
+            "workspace_fingerprint"
+          ],
+          "safety_tokens": 1024,
+          "secret_env_count": 0,
+          "secret_env_names": [],
+          "section_budgets": {
+            "current_request": null,
+            "history": 5200,
+            "memory": 1600,
+            "prefix": 3600,
+            "relevant_memory": 1200
+          },
+          "section_order": [
+            "prefix",
+            "memory",
+            "relevant_memory",
+            "history",
+            "current_request"
+          ],
+          "sections": {
+            "current_request": {
+              "budget_chars": null,
+              "raw_chars": 138,
+              "rendered_chars": 138
+            },
+            "history": {
+              "budget_chars": 5200,
+              "raw_chars": 323,
+              "rendered_chars": 323
+            },
+            "memory": {
+              "budget_chars": 1600,
+              "raw_chars": 218,
+              "rendered_chars": 218
+            },
+            "prefix": {
+              "budget_chars": 3600,
+              "raw_chars": 6714,
+              "rendered_chars": 3600
+            },
+            "relevant_memory": {
+              "budget_chars": 1200,
+              "raw_chars": 23,
+              "rendered_chars": 23
+            }
+          },
+          "stale_paths": [],
+          "stale_summary_invalidations": 0,
+          "token_estimator": "utf8-bytes-conservative",
+          "tool_count": 8,
+          "tool_signature": "b259a5811c1cc838a6fb696e227f63c14a17f7632f7b381b9634a1f7492b2d89",
+          "validation_stale": false,
+          "workspace_changed": true,
+          "workspace_chars": 4582,
+          "workspace_docs": 3,
+          "workspace_fingerprint": "1ee32ad852813f7a9ccb8c4f2867139d0f82ed5e09ecc761965797309e33f24c"
+        },
+        "redacted_env": {
+          "secret_env_count": 0,
+          "secret_env_names": []
+        },
+        "resume_status": "no-checkpoint",
+        "run_id": "run_20261007-142626-70a9ff",
+        "runtime_result": {
+          "attempts": 2,
+          "error": null,
+          "final_answer": "Done.",
+          "model_final": true,
+          "report_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/readme_intro_locked/bench_repo_readme/.zzcode/runs/run_20261007-142626-70a9ff/report.json",
+          "resolved": null,
+          "run_id": "run_20261007-142626-70a9ff",
+          "status": "completed",
+          "stop_reason": "final_answer_returned",
+          "tool_steps": 1,
+          "trace_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/readme_intro_locked/bench_repo_readme/.zzcode/runs/run_20261007-142626-70a9ff/trace.jsonl",
+          "verification": []
+        },
+        "status": "completed",
+        "stop_reason": "final_answer_returned",
+        "task_id": "task_20261007-142626-3b189d",
+        "task_state": {
+          "attempts": 2,
+          "checkpoint_id": "ckpt_35e841cb",
+          "completion": {
+            "accepted": true,
+            "model_final": true,
+            "reason": "",
+            "required_verification": [],
+            "task_type": "question",
+            "verification": []
+          },
+          "final_answer": "Done.",
+          "last_tool": "patch_file",
+          "resume_status": "no-checkpoint",
+          "run_id": "run_20261007-142626-70a9ff",
+          "status": "completed",
+          "stop_reason": "final_answer_returned",
+          "task_id": "task_20261007-142626-3b189d",
+          "tool_steps": 1,
+          "user_request": "In the README fixture, replace the placeholder opening sentence with 'This fixture is a locked benchmark workspace.'"
+        },
+        "tool_counters": {
+          "cancelled": 0,
+          "executed": 1,
+          "proposed": 1,
+          "rejected": 0,
+          "succeeded": 1
+        },
+        "tool_steps": 1,
+        "transport_retries": 0
+      },
+      "report_relpath": "readme_intro_locked/bench_repo_readme/.zzcode/runs/run_20261007-142626-70a9ff/report.json",
+      "run_dir_relpath": "readme_intro_locked/bench_repo_readme/.zzcode/runs/run_20261007-142626-70a9ff",
+      "run_id": "run_20261007-142626-70a9ff",
+      "status": "pass",
+      "step_budget": 4,
+      "stop_reason": "final_answer_returned",
+      "task_state": {
+        "attempts": 2,
+        "error": null,
+        "final_answer": "Done.",
+        "model_final": true,
+        "report_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/readme_intro_locked/bench_repo_readme/.zzcode/runs/run_20261007-142626-70a9ff/report.json",
+        "resolved": null,
+        "run_id": "run_20261007-142626-70a9ff",
+        "status": "completed",
+        "stop_reason": "final_answer_returned",
+        "tool_steps": 1,
+        "trace_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/readme_intro_locked/bench_repo_readme/.zzcode/runs/run_20261007-142626-70a9ff/trace.jsonl",
+        "verification": []
+      },
+      "task_state_relpath": "readme_intro_locked/bench_repo_readme/.zzcode/runs/run_20261007-142626-70a9ff/task_state.json",
+      "tool_steps": 1,
+      "verifier": "python3 -c \"from pathlib import Path; text = Path('README.md').read_text(encoding='utf-8'); assert 'This fixture is a locked benchmark workspace.' in text\"",
+      "verifier_exit_code": 0,
+      "verifier_passed": true,
+      "verifier_stderr": "",
+      "verifier_stdout": "",
+      "within_budget": true
+    },
+    {
+      "allowed_tools": [
+        "read_file",
+        "patch_file"
+      ],
+      "artifact_digest": "sha256:abbd8bee93c5fd66dbf6ef50100a144007dfd61f48d26d8eeb33bb1dfbf0dea8",
+      "artifact_exists": true,
+      "artifact_path": "README.md",
+      "attempts": 2,
+      "category": "documentation",
+      "expected_artifact": "README.md contains the schema and baseline note",
+      "expected_artifact_exists": true,
+      "failure_category": null,
+      "final_answer": "Done.",
+      "fixture_copy_relpath": "readme_schema_note/bench_repo_readme",
+      "fixture_repo": "tests/fixtures/bench_repo_readme",
+      "id": "readme_schema_note",
+      "initial_episodic_notes_empty": true,
+      "initial_history_empty": true,
+      "initial_memory_empty": true,
+      "initial_task_summary_empty": true,
+      "non_failure_stop_reason": true,
+      "passed": true,
+      "prompt": "Replace the first README bullet with a sentence that says the benchmark schema and baseline are fixed.",
+      "report": {
+        "attempts": 2,
+        "checkpoint_id": "ckpt_246550db",
+        "compaction_count": 0,
+        "context_budget": {
+          "max_output": 4096,
+          "source": "conservative-default",
+          "window": 32768
+        },
+        "durable_promotions": [],
+        "durable_rejections": [],
+        "durable_superseded": [],
+        "final_answer": "Done.",
+        "model_requests": 2,
+        "prompt_metadata": {
+          "budget_reductions": [],
+          "context_available_tokens": 31680,
+          "context_limits_source": "conservative-default",
+          "context_window": 32768,
+          "current_request": {
+            "raw_chars": 102,
+            "rendered_chars": 102,
+            "section_chars": 124,
+            "text": "Replace the first README bullet with a sentence that says the benchmark schema and baseline are fixed."
+          },
+          "estimated_input_tokens": 12298,
+          "history": {
+            "collapsed_duplicate_reads": 0,
+            "older_entries_count": 0,
+            "raw_chars": 304,
+            "rendered_chars": 304,
+            "reused_file_summary_count": 0,
+            "summarized_tool_count": 0
+          },
+          "history_chars": 292,
+          "memory_chars": 204,
+          "native_history_messages": 3,
+          "native_request_chars": 9619,
+          "native_request_over_budget": false,
+          "prefix_changed": true,
+          "prefix_chars": 6291,
+          "prefix_hash": "78a0feffdfa7761783be180bc50ce3e8676e85706ca351873735b64d027fb10f",
+          "prompt_budget_chars": 12000,
+          "prompt_cache_key": "78a0feffdfa7761783be180bc50ce3e8676e85706ca351873735b64d027fb10f",
+          "prompt_cache_supported": false,
+          "prompt_chars": 4263,
+          "prompt_over_budget": false,
+          "recent_commits": 5,
+          "reduction_order": [
+            "relevant_memory",
+            "history",
+            "memory",
+            "prefix"
+          ],
+          "relevant_memory": {
+            "limit": 3,
+            "raw_chars": 23,
+            "rendered_chars": 23,
+            "rendered_count": 0,
+            "rendered_notes": [],
+            "selected_count": 0,
+            "selected_durable_count": 0,
+            "selected_kinds": [],
+            "selected_notes": [],
+            "selected_sources": []
+          },
+          "request_chars": 102,
+          "reserved_output_tokens": 64,
+          "resume_status": "workspace-mismatch",
+          "runtime_identity_mismatch_fields": [
+            "workspace_fingerprint"
+          ],
+          "safety_tokens": 1024,
+          "secret_env_count": 0,
+          "secret_env_names": [],
+          "section_budgets": {
+            "current_request": null,
+            "history": 5200,
+            "memory": 1600,
+            "prefix": 3600,
+            "relevant_memory": 1200
+          },
+          "section_order": [
+            "prefix",
+            "memory",
+            "relevant_memory",
+            "history",
+            "current_request"
+          ],
+          "sections": {
+            "current_request": {
+              "budget_chars": null,
+              "raw_chars": 124,
+              "rendered_chars": 124
+            },
+            "history": {
+              "budget_chars": 5200,
+              "raw_chars": 304,
+              "rendered_chars": 304
+            },
+            "memory": {
+              "budget_chars": 1600,
+              "raw_chars": 204,
+              "rendered_chars": 204
+            },
+            "prefix": {
+              "budget_chars": 3600,
+              "raw_chars": 6691,
+              "rendered_chars": 3600
+            },
+            "relevant_memory": {
+              "budget_chars": 1200,
+              "raw_chars": 23,
+              "rendered_chars": 23
+            }
+          },
+          "stale_paths": [],
+          "stale_summary_invalidations": 0,
+          "token_estimator": "utf8-bytes-conservative",
+          "tool_count": 8,
+          "tool_signature": "b259a5811c1cc838a6fb696e227f63c14a17f7632f7b381b9634a1f7492b2d89",
+          "validation_stale": false,
+          "workspace_changed": true,
+          "workspace_chars": 4587,
+          "workspace_docs": 3,
+          "workspace_fingerprint": "40ac732567bec982e6dc51d43c2dd8fd14329daed657f6979adec310fa1eee3a"
+        },
+        "redacted_env": {
+          "secret_env_count": 0,
+          "secret_env_names": []
+        },
+        "resume_status": "no-checkpoint",
+        "run_id": "run_20261007-142626-af875c",
+        "runtime_result": {
+          "attempts": 2,
+          "error": null,
+          "final_answer": "Done.",
+          "model_final": true,
+          "report_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/readme_schema_note/bench_repo_readme/.zzcode/runs/run_20261007-142626-af875c/report.json",
+          "resolved": null,
+          "run_id": "run_20261007-142626-af875c",
+          "status": "completed",
+          "stop_reason": "final_answer_returned",
+          "tool_steps": 1,
+          "trace_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/readme_schema_note/bench_repo_readme/.zzcode/runs/run_20261007-142626-af875c/trace.jsonl",
+          "verification": []
+        },
+        "status": "completed",
+        "stop_reason": "final_answer_returned",
+        "task_id": "task_20261007-142626-c5df28",
+        "task_state": {
+          "attempts": 2,
+          "checkpoint_id": "ckpt_246550db",
+          "completion": {
+            "accepted": true,
+            "model_final": true,
+            "reason": "",
+            "required_verification": [],
+            "task_type": "question",
+            "verification": []
+          },
+          "final_answer": "Done.",
+          "last_tool": "patch_file",
+          "resume_status": "no-checkpoint",
+          "run_id": "run_20261007-142626-af875c",
+          "status": "completed",
+          "stop_reason": "final_answer_returned",
+          "task_id": "task_20261007-142626-c5df28",
+          "tool_steps": 1,
+          "user_request": "Replace the first README bullet with a sentence that says the benchmark schema and baseline are fixed."
+        },
+        "tool_counters": {
+          "cancelled": 0,
+          "executed": 1,
+          "proposed": 1,
+          "rejected": 0,
+          "succeeded": 1
+        },
+        "tool_steps": 1,
+        "transport_retries": 0
+      },
+      "report_relpath": "readme_schema_note/bench_repo_readme/.zzcode/runs/run_20261007-142626-af875c/report.json",
+      "run_dir_relpath": "readme_schema_note/bench_repo_readme/.zzcode/runs/run_20261007-142626-af875c",
+      "run_id": "run_20261007-142626-af875c",
+      "status": "pass",
+      "step_budget": 4,
+      "stop_reason": "final_answer_returned",
+      "task_state": {
+        "attempts": 2,
+        "error": null,
+        "final_answer": "Done.",
+        "model_final": true,
+        "report_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/readme_schema_note/bench_repo_readme/.zzcode/runs/run_20261007-142626-af875c/report.json",
+        "resolved": null,
+        "run_id": "run_20261007-142626-af875c",
+        "status": "completed",
+        "stop_reason": "final_answer_returned",
+        "tool_steps": 1,
+        "trace_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/readme_schema_note/bench_repo_readme/.zzcode/runs/run_20261007-142626-af875c/trace.jsonl",
+        "verification": []
+      },
+      "task_state_relpath": "readme_schema_note/bench_repo_readme/.zzcode/runs/run_20261007-142626-af875c/task_state.json",
+      "tool_steps": 1,
+      "verifier": "python3 -c \"from pathlib import Path; text = Path('README.md').read_text(encoding='utf-8'); assert 'schema and baseline are fixed' in text\"",
+      "verifier_exit_code": 0,
+      "verifier_passed": true,
+      "verifier_stderr": "",
+      "verifier_stdout": "",
+      "within_budget": true
+    },
+    {
+      "allowed_tools": [
+        "read_file",
+        "patch_file"
+      ],
+      "artifact_digest": "sha256:cd2458426f8f5d5e4b07ec4f96fe91ff53da5dd01f7a0b500ee58376b7d67b4c",
+      "artifact_exists": true,
+      "artifact_path": "sample.txt",
+      "attempts": 2,
+      "category": "text-edit",
+      "expected_artifact": "sample.txt contains beta-locked",
+      "expected_artifact_exists": true,
+      "failure_category": null,
+      "final_answer": "Done.",
+      "fixture_copy_relpath": "sample_beta_locked/bench_repo_patch",
+      "fixture_repo": "tests/fixtures/bench_repo_patch",
+      "id": "sample_beta_locked",
+      "initial_episodic_notes_empty": true,
+      "initial_history_empty": true,
+      "initial_memory_empty": true,
+      "initial_task_summary_empty": true,
+      "non_failure_stop_reason": true,
+      "passed": true,
+      "prompt": "In sample.txt, replace beta with beta-locked.",
+      "report": {
+        "attempts": 2,
+        "checkpoint_id": "ckpt_8f3c2ead",
+        "compaction_count": 0,
+        "context_budget": {
+          "max_output": 4096,
+          "source": "conservative-default",
+          "window": 32768
+        },
+        "durable_promotions": [],
+        "durable_rejections": [],
+        "durable_superseded": [],
+        "final_answer": "Done.",
+        "model_requests": 2,
+        "prompt_metadata": {
+          "budget_reductions": [],
+          "context_available_tokens": 31680,
+          "context_limits_source": "conservative-default",
+          "context_window": 32768,
+          "current_request": {
+            "raw_chars": 45,
+            "rendered_chars": 45,
+            "section_chars": 67,
+            "text": "In sample.txt, replace beta with beta-locked."
+          },
+          "estimated_input_tokens": 11727,
+          "history": {
+            "collapsed_duplicate_reads": 0,
+            "older_entries_count": 0,
+            "raw_chars": 184,
+            "rendered_chars": 184,
+            "reused_file_summary_count": 0,
+            "summarized_tool_count": 0
+          },
+          "history_chars": 172,
+          "memory_chars": 148,
+          "native_history_messages": 3,
+          "native_request_chars": 9058,
+          "native_request_over_budget": false,
+          "prefix_changed": false,
+          "prefix_chars": 6026,
+          "prefix_hash": "0cbed8c50e307b27db9fc9f4400a96f582b3197f37590ac19a6c0313da1fc841",
+          "prompt_budget_chars": 12000,
+          "prompt_cache_key": "0cbed8c50e307b27db9fc9f4400a96f582b3197f37590ac19a6c0313da1fc841",
+          "prompt_cache_supported": false,
+          "prompt_chars": 4030,
+          "prompt_over_budget": false,
+          "recent_commits": 5,
+          "reduction_order": [
+            "relevant_memory",
+            "history",
+            "memory",
+            "prefix"
+          ],
+          "relevant_memory": {
+            "limit": 3,
+            "raw_chars": 23,
+            "rendered_chars": 23,
+            "rendered_count": 0,
+            "rendered_notes": [],
+            "selected_count": 0,
+            "selected_durable_count": 0,
+            "selected_kinds": [],
+            "selected_notes": [],
+            "selected_sources": []
+          },
+          "request_chars": 45,
+          "reserved_output_tokens": 64,
+          "resume_status": "full-valid",
+          "runtime_identity_mismatch_fields": [],
+          "safety_tokens": 1024,
+          "secret_env_count": 0,
+          "secret_env_names": [],
+          "section_budgets": {
+            "current_request": null,
+            "history": 5200,
+            "memory": 1600,
+            "prefix": 3600,
+            "relevant_memory": 1200
+          },
+          "section_order": [
+            "prefix",
+            "memory",
+            "relevant_memory",
+            "history",
+            "current_request"
+          ],
+          "sections": {
+            "current_request": {
+              "budget_chars": null,
+              "raw_chars": 67,
+              "rendered_chars": 67
+            },
+            "history": {
+              "budget_chars": 5200,
+              "raw_chars": 184,
+              "rendered_chars": 184
+            },
+            "memory": {
+              "budget_chars": 1600,
+              "raw_chars": 148,
+              "rendered_chars": 148
+            },
+            "prefix": {
+              "budget_chars": 3600,
+              "raw_chars": 6305,
+              "rendered_chars": 3600
+            },
+            "relevant_memory": {
+              "budget_chars": 1200,
+              "raw_chars": 23,
+              "rendered_chars": 23
+            }
+          },
+          "stale_paths": [],
+          "stale_summary_invalidations": 0,
+          "token_estimator": "utf8-bytes-conservative",
+          "tool_count": 8,
+          "tool_signature": "b259a5811c1cc838a6fb696e227f63c14a17f7632f7b381b9634a1f7492b2d89",
+          "validation_stale": false,
+          "workspace_changed": false,
+          "workspace_chars": 4322,
+          "workspace_docs": 2,
+          "workspace_fingerprint": "62deed8d5a80595afdbdb3fb1d0c7875825a4a6ef8472fa7569ba6b32f17252a"
+        },
+        "redacted_env": {
+          "secret_env_count": 0,
+          "secret_env_names": []
+        },
+        "resume_status": "no-checkpoint",
+        "run_id": "run_20261007-142626-ab8321",
+        "runtime_result": {
+          "attempts": 2,
+          "error": null,
+          "final_answer": "Done.",
+          "model_final": true,
+          "report_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/sample_beta_locked/bench_repo_patch/.zzcode/runs/run_20261007-142626-ab8321/report.json",
+          "resolved": null,
+          "run_id": "run_20261007-142626-ab8321",
+          "status": "completed",
+          "stop_reason": "final_answer_returned",
+          "tool_steps": 1,
+          "trace_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/sample_beta_locked/bench_repo_patch/.zzcode/runs/run_20261007-142626-ab8321/trace.jsonl",
+          "verification": []
+        },
+        "status": "completed",
+        "stop_reason": "final_answer_returned",
+        "task_id": "task_20261007-142626-358dfc",
+        "task_state": {
+          "attempts": 2,
+          "checkpoint_id": "ckpt_8f3c2ead",
+          "completion": {
+            "accepted": true,
+            "model_final": true,
+            "reason": "",
+            "required_verification": [],
+            "task_type": "question",
+            "verification": []
+          },
+          "final_answer": "Done.",
+          "last_tool": "patch_file",
+          "resume_status": "no-checkpoint",
+          "run_id": "run_20261007-142626-ab8321",
+          "status": "completed",
+          "stop_reason": "final_answer_returned",
+          "task_id": "task_20261007-142626-358dfc",
+          "tool_steps": 1,
+          "user_request": "In sample.txt, replace beta with beta-locked."
+        },
+        "tool_counters": {
+          "cancelled": 0,
+          "executed": 1,
+          "proposed": 1,
+          "rejected": 0,
+          "succeeded": 1
+        },
+        "tool_steps": 1,
+        "transport_retries": 0
+      },
+      "report_relpath": "sample_beta_locked/bench_repo_patch/.zzcode/runs/run_20261007-142626-ab8321/report.json",
+      "run_dir_relpath": "sample_beta_locked/bench_repo_patch/.zzcode/runs/run_20261007-142626-ab8321",
+      "run_id": "run_20261007-142626-ab8321",
+      "status": "pass",
+      "step_budget": 4,
+      "stop_reason": "final_answer_returned",
+      "task_state": {
+        "attempts": 2,
+        "error": null,
+        "final_answer": "Done.",
+        "model_final": true,
+        "report_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/sample_beta_locked/bench_repo_patch/.zzcode/runs/run_20261007-142626-ab8321/report.json",
+        "resolved": null,
+        "run_id": "run_20261007-142626-ab8321",
+        "status": "completed",
+        "stop_reason": "final_answer_returned",
+        "tool_steps": 1,
+        "trace_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/sample_beta_locked/bench_repo_patch/.zzcode/runs/run_20261007-142626-ab8321/trace.jsonl",
+        "verification": []
+      },
+      "task_state_relpath": "sample_beta_locked/bench_repo_patch/.zzcode/runs/run_20261007-142626-ab8321/task_state.json",
+      "tool_steps": 1,
+      "verifier": "python3 -c \"from pathlib import Path; text = Path('sample.txt').read_text(encoding='utf-8'); assert 'beta-locked' in text and '\\nbeta\\n' not in text\"",
+      "verifier_exit_code": 0,
+      "verifier_passed": true,
+      "verifier_stderr": "",
+      "verifier_stdout": "",
+      "within_budget": true
+    },
+    {
+      "allowed_tools": [
+        "read_file",
+        "patch_file"
+      ],
+      "artifact_digest": "sha256:c661ddfecfd7038db8b7b2376eeff5f3885ca4b3aa0345850baa6359f9deb549",
+      "artifact_exists": true,
+      "artifact_path": "sample.txt",
+      "attempts": 2,
+      "category": "text-edit",
+      "expected_artifact": "sample.txt contains gamma-locked",
+      "expected_artifact_exists": true,
+      "failure_category": null,
+      "final_answer": "Done.",
+      "fixture_copy_relpath": "sample_gamma_locked/bench_repo_patch",
+      "fixture_repo": "tests/fixtures/bench_repo_patch",
+      "id": "sample_gamma_locked",
+      "initial_episodic_notes_empty": true,
+      "initial_history_empty": true,
+      "initial_memory_empty": true,
+      "initial_task_summary_empty": true,
+      "non_failure_stop_reason": true,
+      "passed": true,
+      "prompt": "In sample.txt, replace gamma with gamma-locked.",
+      "report": {
+        "attempts": 2,
+        "checkpoint_id": "ckpt_ed54173e",
+        "compaction_count": 0,
+        "context_budget": {
+          "max_output": 4096,
+          "source": "conservative-default",
+          "window": 32768
+        },
+        "durable_promotions": [],
+        "durable_rejections": [],
+        "durable_superseded": [],
+        "final_answer": "Done.",
+        "model_requests": 2,
+        "prompt_metadata": {
+          "budget_reductions": [],
+          "context_available_tokens": 31680,
+          "context_limits_source": "conservative-default",
+          "context_window": 32768,
+          "current_request": {
+            "raw_chars": 47,
+            "rendered_chars": 47,
+            "section_chars": 69,
+            "text": "In sample.txt, replace gamma with gamma-locked."
+          },
+          "estimated_input_tokens": 11739,
+          "history": {
+            "collapsed_duplicate_reads": 0,
+            "older_entries_count": 0,
+            "raw_chars": 188,
+            "rendered_chars": 188,
+            "reused_file_summary_count": 0,
+            "summarized_tool_count": 0
+          },
+          "history_chars": 176,
+          "memory_chars": 150,
+          "native_history_messages": 3,
+          "native_request_chars": 9070,
+          "native_request_over_budget": false,
+          "prefix_changed": false,
+          "prefix_chars": 6027,
+          "prefix_hash": "cb707389644465eea91798e167c30665e1b40058da94399eb56ac552f567ecb7",
+          "prompt_budget_chars": 12000,
+          "prompt_cache_key": "cb707389644465eea91798e167c30665e1b40058da94399eb56ac552f567ecb7",
+          "prompt_cache_supported": false,
+          "prompt_chars": 4038,
+          "prompt_over_budget": false,
+          "recent_commits": 5,
+          "reduction_order": [
+            "relevant_memory",
+            "history",
+            "memory",
+            "prefix"
+          ],
+          "relevant_memory": {
+            "limit": 3,
+            "raw_chars": 23,
+            "rendered_chars": 23,
+            "rendered_count": 0,
+            "rendered_notes": [],
+            "selected_count": 0,
+            "selected_durable_count": 0,
+            "selected_kinds": [],
+            "selected_notes": [],
+            "selected_sources": []
+          },
+          "request_chars": 47,
+          "reserved_output_tokens": 64,
+          "resume_status": "full-valid",
+          "runtime_identity_mismatch_fields": [],
+          "safety_tokens": 1024,
+          "secret_env_count": 0,
+          "secret_env_names": [],
+          "section_budgets": {
+            "current_request": null,
+            "history": 5200,
+            "memory": 1600,
+            "prefix": 3600,
+            "relevant_memory": 1200
+          },
+          "section_order": [
+            "prefix",
+            "memory",
+            "relevant_memory",
+            "history",
+            "current_request"
+          ],
+          "sections": {
+            "current_request": {
+              "budget_chars": null,
+              "raw_chars": 69,
+              "rendered_chars": 69
+            },
+            "history": {
+              "budget_chars": 5200,
+              "raw_chars": 188,
+              "rendered_chars": 188
+            },
+            "memory": {
+              "budget_chars": 1600,
+              "raw_chars": 150,
+              "rendered_chars": 150
+            },
+            "prefix": {
+              "budget_chars": 3600,
+              "raw_chars": 6310,
+              "rendered_chars": 3600
+            },
+            "relevant_memory": {
+              "budget_chars": 1200,
+              "raw_chars": 23,
+              "rendered_chars": 23
+            }
+          },
+          "stale_paths": [],
+          "stale_summary_invalidations": 0,
+          "token_estimator": "utf8-bytes-conservative",
+          "tool_count": 8,
+          "tool_signature": "b259a5811c1cc838a6fb696e227f63c14a17f7632f7b381b9634a1f7492b2d89",
+          "validation_stale": false,
+          "workspace_changed": false,
+          "workspace_chars": 4323,
+          "workspace_docs": 2,
+          "workspace_fingerprint": "0433afca827d89fe887f4cfd6076b7803259f484927b481541f0d5c50069c920"
+        },
+        "redacted_env": {
+          "secret_env_count": 0,
+          "secret_env_names": []
+        },
+        "resume_status": "no-checkpoint",
+        "run_id": "run_20261007-142626-cf4a5c",
+        "runtime_result": {
+          "attempts": 2,
+          "error": null,
+          "final_answer": "Done.",
+          "model_final": true,
+          "report_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/sample_gamma_locked/bench_repo_patch/.zzcode/runs/run_20261007-142626-cf4a5c/report.json",
+          "resolved": null,
+          "run_id": "run_20261007-142626-cf4a5c",
+          "status": "completed",
+          "stop_reason": "final_answer_returned",
+          "tool_steps": 1,
+          "trace_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/sample_gamma_locked/bench_repo_patch/.zzcode/runs/run_20261007-142626-cf4a5c/trace.jsonl",
+          "verification": []
+        },
+        "status": "completed",
+        "stop_reason": "final_answer_returned",
+        "task_id": "task_20261007-142626-7ad717",
+        "task_state": {
+          "attempts": 2,
+          "checkpoint_id": "ckpt_ed54173e",
+          "completion": {
+            "accepted": true,
+            "model_final": true,
+            "reason": "",
+            "required_verification": [],
+            "task_type": "question",
+            "verification": []
+          },
+          "final_answer": "Done.",
+          "last_tool": "patch_file",
+          "resume_status": "no-checkpoint",
+          "run_id": "run_20261007-142626-cf4a5c",
+          "status": "completed",
+          "stop_reason": "final_answer_returned",
+          "task_id": "task_20261007-142626-7ad717",
+          "tool_steps": 1,
+          "user_request": "In sample.txt, replace gamma with gamma-locked."
+        },
+        "tool_counters": {
+          "cancelled": 0,
+          "executed": 1,
+          "proposed": 1,
+          "rejected": 0,
+          "succeeded": 1
+        },
+        "tool_steps": 1,
+        "transport_retries": 0
+      },
+      "report_relpath": "sample_gamma_locked/bench_repo_patch/.zzcode/runs/run_20261007-142626-cf4a5c/report.json",
+      "run_dir_relpath": "sample_gamma_locked/bench_repo_patch/.zzcode/runs/run_20261007-142626-cf4a5c",
+      "run_id": "run_20261007-142626-cf4a5c",
+      "status": "pass",
+      "step_budget": 4,
+      "stop_reason": "final_answer_returned",
+      "task_state": {
+        "attempts": 2,
+        "error": null,
+        "final_answer": "Done.",
+        "model_final": true,
+        "report_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/sample_gamma_locked/bench_repo_patch/.zzcode/runs/run_20261007-142626-cf4a5c/report.json",
+        "resolved": null,
+        "run_id": "run_20261007-142626-cf4a5c",
+        "status": "completed",
+        "stop_reason": "final_answer_returned",
+        "tool_steps": 1,
+        "trace_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/sample_gamma_locked/bench_repo_patch/.zzcode/runs/run_20261007-142626-cf4a5c/trace.jsonl",
+        "verification": []
+      },
+      "task_state_relpath": "sample_gamma_locked/bench_repo_patch/.zzcode/runs/run_20261007-142626-cf4a5c/task_state.json",
+      "tool_steps": 1,
+      "verifier": "python3 -c \"from pathlib import Path; text = Path('sample.txt').read_text(encoding='utf-8'); assert 'gamma-locked' in text\"",
+      "verifier_exit_code": 0,
+      "verifier_passed": true,
+      "verifier_stderr": "",
+      "verifier_stdout": "",
+      "within_budget": true
+    },
+    {
+      "allowed_tools": [
+        "patch_file",
+        "read_file"
+      ],
+      "artifact_digest": "sha256:7fc2b41f229af3c8e414fe99cbfbae2af946be9ff355edc9a17ca1cdecaa0c0b",
+      "artifact_exists": true,
+      "artifact_path": "README.md",
+      "attempts": 3,
+      "category": "tool-boundary",
+      "expected_artifact": "README.md reflects recovery after invalid patch args",
+      "expected_artifact_exists": true,
+      "failure_category": null,
+      "final_answer": "Done.",
+      "fixture_copy_relpath": "invalid_patch_recovery/bench_repo_readme",
+      "fixture_repo": "tests/fixtures/bench_repo_readme",
+      "id": "invalid_patch_recovery",
+      "initial_episodic_notes_empty": true,
+      "initial_history_empty": true,
+      "initial_memory_empty": true,
+      "initial_task_summary_empty": true,
+      "non_failure_stop_reason": true,
+      "passed": true,
+      "prompt": "Recover after invalid patch arguments and finish the README patch.",
+      "report": {
+        "attempts": 3,
+        "checkpoint_id": "ckpt_a4f91aad",
+        "compaction_count": 0,
+        "context_budget": {
+          "max_output": 4096,
+          "source": "conservative-default",
+          "window": 32768
+        },
+        "durable_promotions": [],
+        "durable_rejections": [],
+        "durable_superseded": [],
+        "final_answer": "Done.",
+        "model_requests": 3,
+        "prompt_metadata": {
+          "budget_reductions": [],
+          "context_available_tokens": 31680,
+          "context_limits_source": "conservative-default",
+          "context_window": 32768,
+          "current_request": {
+            "raw_chars": 66,
+            "rendered_chars": 66,
+            "section_chars": 88,
+            "text": "Recover after invalid patch arguments and finish the README patch."
+          },
+          "estimated_input_tokens": 13256,
+          "history": {
+            "collapsed_duplicate_reads": 0,
+            "older_entries_count": 0,
+            "raw_chars": 514,
+            "rendered_chars": 514,
+            "reused_file_summary_count": 0,
+            "summarized_tool_count": 0
+          },
+          "history_chars": 502,
+          "memory_chars": 168,
+          "native_history_messages": 5,
+          "native_request_chars": 10509,
+          "native_request_over_budget": false,
+          "prefix_changed": true,
+          "prefix_chars": 6295,
+          "prefix_hash": "f4e8ec191f1972b46f20ae9e5123b286fcc42737e6c08cf14a92c40c349c0111",
+          "prompt_budget_chars": 12000,
+          "prompt_cache_key": "f4e8ec191f1972b46f20ae9e5123b286fcc42737e6c08cf14a92c40c349c0111",
+          "prompt_cache_supported": false,
+          "prompt_chars": 4401,
+          "prompt_over_budget": false,
+          "recent_commits": 5,
+          "reduction_order": [
+            "relevant_memory",
+            "history",
+            "memory",
+            "prefix"
+          ],
+          "relevant_memory": {
+            "limit": 3,
+            "raw_chars": 23,
+            "rendered_chars": 23,
+            "rendered_count": 0,
+            "rendered_notes": [],
+            "selected_count": 0,
+            "selected_durable_count": 0,
+            "selected_kinds": [],
+            "selected_notes": [],
+            "selected_sources": []
+          },
+          "request_chars": 66,
+          "reserved_output_tokens": 64,
+          "resume_status": "workspace-mismatch",
+          "runtime_identity_mismatch_fields": [
+            "workspace_fingerprint"
+          ],
+          "safety_tokens": 1024,
+          "secret_env_count": 0,
+          "secret_env_names": [],
+          "section_budgets": {
+            "current_request": null,
+            "history": 5200,
+            "memory": 1600,
+            "prefix": 3600,
+            "relevant_memory": 1200
+          },
+          "section_order": [
+            "prefix",
+            "memory",
+            "relevant_memory",
+            "history",
+            "current_request"
+          ],
+          "sections": {
+            "current_request": {
+              "budget_chars": null,
+              "raw_chars": 88,
+              "rendered_chars": 88
+            },
+            "history": {
+              "budget_chars": 5200,
+              "raw_chars": 514,
+              "rendered_chars": 514
+            },
+            "memory": {
+              "budget_chars": 1600,
+              "raw_chars": 168,
+              "rendered_chars": 168
+            },
+            "prefix": {
+              "budget_chars": 3600,
+              "raw_chars": 6623,
+              "rendered_chars": 3600
+            },
+            "relevant_memory": {
+              "budget_chars": 1200,
+              "raw_chars": 23,
+              "rendered_chars": 23
+            }
+          },
+          "stale_paths": [],
+          "stale_summary_invalidations": 0,
+          "token_estimator": "utf8-bytes-conservative",
+          "tool_count": 8,
+          "tool_signature": "b259a5811c1cc838a6fb696e227f63c14a17f7632f7b381b9634a1f7492b2d89",
+          "validation_stale": false,
+          "workspace_changed": true,
+          "workspace_chars": 4591,
+          "workspace_docs": 3,
+          "workspace_fingerprint": "604e104810ee6b330068fbe4b21ec8d9f082a2e7573d4568ef04c597648ca4dd"
+        },
+        "redacted_env": {
+          "secret_env_count": 0,
+          "secret_env_names": []
+        },
+        "resume_status": "no-checkpoint",
+        "run_id": "run_20261007-142627-499128",
+        "runtime_result": {
+          "attempts": 3,
+          "error": null,
+          "final_answer": "Done.",
+          "model_final": true,
+          "report_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/invalid_patch_recovery/bench_repo_readme/.zzcode/runs/run_20261007-142627-499128/report.json",
+          "resolved": null,
+          "run_id": "run_20261007-142627-499128",
+          "status": "completed",
+          "stop_reason": "final_answer_returned",
+          "tool_steps": 2,
+          "trace_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/invalid_patch_recovery/bench_repo_readme/.zzcode/runs/run_20261007-142627-499128/trace.jsonl",
+          "verification": []
+        },
+        "status": "completed",
+        "stop_reason": "final_answer_returned",
+        "task_id": "task_20261007-142627-07e64c",
+        "task_state": {
+          "attempts": 3,
+          "checkpoint_id": "ckpt_a4f91aad",
+          "completion": {
+            "accepted": true,
+            "model_final": true,
+            "reason": "",
+            "required_verification": [],
+            "task_type": "question",
+            "verification": []
+          },
+          "final_answer": "Done.",
+          "last_tool": "patch_file",
+          "resume_status": "no-checkpoint",
+          "run_id": "run_20261007-142627-499128",
+          "status": "completed",
+          "stop_reason": "final_answer_returned",
+          "task_id": "task_20261007-142627-07e64c",
+          "tool_steps": 2,
+          "user_request": "Recover after invalid patch arguments and finish the README patch."
+        },
+        "tool_counters": {
+          "cancelled": 0,
+          "executed": 1,
+          "proposed": 2,
+          "rejected": 1,
+          "succeeded": 1
+        },
+        "tool_steps": 2,
+        "transport_retries": 0
+      },
+      "report_relpath": "invalid_patch_recovery/bench_repo_readme/.zzcode/runs/run_20261007-142627-499128/report.json",
+      "run_dir_relpath": "invalid_patch_recovery/bench_repo_readme/.zzcode/runs/run_20261007-142627-499128",
+      "run_id": "run_20261007-142627-499128",
+      "status": "pass",
+      "step_budget": 5,
+      "stop_reason": "final_answer_returned",
+      "task_state": {
+        "attempts": 3,
+        "error": null,
+        "final_answer": "Done.",
+        "model_final": true,
+        "report_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/invalid_patch_recovery/bench_repo_readme/.zzcode/runs/run_20261007-142627-499128/report.json",
+        "resolved": null,
+        "run_id": "run_20261007-142627-499128",
+        "status": "completed",
+        "stop_reason": "final_answer_returned",
+        "tool_steps": 2,
+        "trace_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/invalid_patch_recovery/bench_repo_readme/.zzcode/runs/run_20261007-142627-499128/trace.jsonl",
+        "verification": []
+      },
+      "task_state_relpath": "invalid_patch_recovery/bench_repo_readme/.zzcode/runs/run_20261007-142627-499128/task_state.json",
+      "tool_steps": 2,
+      "verifier": "python3 -c \"from pathlib import Path; text = Path('README.md').read_text(encoding='utf-8'); assert 'recovered after invalid patch args' in text\"",
+      "verifier_exit_code": 0,
+      "verifier_passed": true,
+      "verifier_stderr": "",
+      "verifier_stdout": "",
+      "within_budget": true
+    },
+    {
+      "allowed_tools": [
+        "read_file",
+        "patch_file"
+      ],
+      "artifact_digest": "sha256:0c0f6e3ab243efe3321d69a833ae53d5b0158467ec443afb28d1d877cd3f6bc1",
+      "artifact_exists": true,
+      "artifact_path": "sample.txt",
+      "attempts": 3,
+      "category": "tool-boundary",
+      "expected_artifact": "sample.txt reflects recovery after path escape rejection",
+      "expected_artifact_exists": true,
+      "failure_category": null,
+      "final_answer": "Done.",
+      "fixture_copy_relpath": "path_escape_recovery/bench_repo_patch",
+      "fixture_repo": "tests/fixtures/bench_repo_patch",
+      "id": "path_escape_recovery",
+      "initial_episodic_notes_empty": true,
+      "initial_history_empty": true,
+      "initial_memory_empty": true,
+      "initial_task_summary_empty": true,
+      "non_failure_stop_reason": true,
+      "passed": true,
+      "prompt": "Reject a path escape attempt and still finish the sample.txt patch.",
+      "report": {
+        "attempts": 3,
+        "checkpoint_id": "ckpt_f289a43b",
+        "compaction_count": 0,
+        "context_budget": {
+          "max_output": 4096,
+          "source": "conservative-default",
+          "window": 32768
+        },
+        "durable_promotions": [],
+        "durable_rejections": [],
+        "durable_superseded": [],
+        "final_answer": "Done.",
+        "model_requests": 3,
+        "prompt_metadata": {
+          "budget_reductions": [],
+          "context_available_tokens": 31680,
+          "context_limits_source": "conservative-default",
+          "context_window": 32768,
+          "current_request": {
+            "raw_chars": 67,
+            "rendered_chars": 67,
+            "section_chars": 89,
+            "text": "Reject a path escape attempt and still finish the sample.txt patch."
+          },
+          "estimated_input_tokens": 12937,
+          "history": {
+            "collapsed_duplicate_reads": 0,
+            "older_entries_count": 0,
+            "raw_chars": 421,
+            "rendered_chars": 421,
+            "reused_file_summary_count": 0,
+            "summarized_tool_count": 0
+          },
+          "history_chars": 409,
+          "memory_chars": 170,
+          "native_history_messages": 5,
+          "native_request_chars": 10200,
+          "native_request_over_budget": false,
+          "prefix_changed": false,
+          "prefix_chars": 6028,
+          "prefix_hash": "0445024713e3a9b34b9e7e75e346a733ee067091bfecb6113cef508022660a31",
+          "prompt_budget_chars": 12000,
+          "prompt_cache_key": "0445024713e3a9b34b9e7e75e346a733ee067091bfecb6113cef508022660a31",
+          "prompt_cache_supported": false,
+          "prompt_chars": 4365,
+          "prompt_over_budget": false,
+          "recent_commits": 5,
+          "reduction_order": [
+            "relevant_memory",
+            "history",
+            "memory",
+            "prefix"
+          ],
+          "relevant_memory": {
+            "limit": 3,
+            "raw_chars": 77,
+            "rendered_chars": 77,
+            "rendered_count": 1,
+            "rendered_notes": [
+              "read_file rejected; choose a different action before retry"
+            ],
+            "selected_count": 1,
+            "selected_durable_count": 0,
+            "selected_kinds": [
+              "process"
+            ],
+            "selected_notes": [
+              "read_file rejected; choose a different action before retry"
+            ],
+            "selected_sources": [
+              "read_file"
+            ]
+          },
+          "request_chars": 67,
+          "reserved_output_tokens": 64,
+          "resume_status": "full-valid",
+          "runtime_identity_mismatch_fields": [],
+          "safety_tokens": 1024,
+          "secret_env_count": 0,
+          "secret_env_names": [],
+          "section_budgets": {
+            "current_request": null,
+            "history": 5200,
+            "memory": 1600,
+            "prefix": 3600,
+            "relevant_memory": 1200
+          },
+          "section_order": [
+            "prefix",
+            "memory",
+            "relevant_memory",
+            "history",
+            "current_request"
+          ],
+          "sections": {
+            "current_request": {
+              "budget_chars": null,
+              "raw_chars": 89,
+              "rendered_chars": 89
+            },
+            "history": {
+              "budget_chars": 5200,
+              "raw_chars": 421,
+              "rendered_chars": 421
+            },
+            "memory": {
+              "budget_chars": 1600,
+              "raw_chars": 170,
+              "rendered_chars": 170
+            },
+            "prefix": {
+              "budget_chars": 3600,
+              "raw_chars": 6351,
+              "rendered_chars": 3600
+            },
+            "relevant_memory": {
+              "budget_chars": 1200,
+              "raw_chars": 77,
+              "rendered_chars": 77
+            }
+          },
+          "stale_paths": [],
+          "stale_summary_invalidations": 0,
+          "token_estimator": "utf8-bytes-conservative",
+          "tool_count": 8,
+          "tool_signature": "b259a5811c1cc838a6fb696e227f63c14a17f7632f7b381b9634a1f7492b2d89",
+          "validation_stale": false,
+          "workspace_changed": false,
+          "workspace_chars": 4324,
+          "workspace_docs": 2,
+          "workspace_fingerprint": "84357737304591859e811477e70d36961255afb1ecfaf5a94ea7b817285c5543"
+        },
+        "redacted_env": {
+          "secret_env_count": 0,
+          "secret_env_names": []
+        },
+        "resume_status": "no-checkpoint",
+        "run_id": "run_20261007-142627-1adf8d",
+        "runtime_result": {
+          "attempts": 3,
+          "error": null,
+          "final_answer": "Done.",
+          "model_final": true,
+          "report_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/path_escape_recovery/bench_repo_patch/.zzcode/runs/run_20261007-142627-1adf8d/report.json",
+          "resolved": null,
+          "run_id": "run_20261007-142627-1adf8d",
+          "status": "completed",
+          "stop_reason": "final_answer_returned",
+          "tool_steps": 2,
+          "trace_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/path_escape_recovery/bench_repo_patch/.zzcode/runs/run_20261007-142627-1adf8d/trace.jsonl",
+          "verification": []
+        },
+        "status": "completed",
+        "stop_reason": "final_answer_returned",
+        "task_id": "task_20261007-142627-40ccaa",
+        "task_state": {
+          "attempts": 3,
+          "checkpoint_id": "ckpt_f289a43b",
+          "completion": {
+            "accepted": true,
+            "model_final": true,
+            "reason": "",
+            "required_verification": [],
+            "task_type": "question",
+            "verification": []
+          },
+          "final_answer": "Done.",
+          "last_tool": "patch_file",
+          "resume_status": "no-checkpoint",
+          "run_id": "run_20261007-142627-1adf8d",
+          "status": "completed",
+          "stop_reason": "final_answer_returned",
+          "task_id": "task_20261007-142627-40ccaa",
+          "tool_steps": 2,
+          "user_request": "Reject a path escape attempt and still finish the sample.txt patch."
+        },
+        "tool_counters": {
+          "cancelled": 0,
+          "executed": 1,
+          "proposed": 2,
+          "rejected": 1,
+          "succeeded": 1
+        },
+        "tool_steps": 2,
+        "transport_retries": 0
+      },
+      "report_relpath": "path_escape_recovery/bench_repo_patch/.zzcode/runs/run_20261007-142627-1adf8d/report.json",
+      "run_dir_relpath": "path_escape_recovery/bench_repo_patch/.zzcode/runs/run_20261007-142627-1adf8d",
+      "run_id": "run_20261007-142627-1adf8d",
+      "status": "pass",
+      "step_budget": 5,
+      "stop_reason": "final_answer_returned",
+      "task_state": {
+        "attempts": 3,
+        "error": null,
+        "final_answer": "Done.",
+        "model_final": true,
+        "report_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/path_escape_recovery/bench_repo_patch/.zzcode/runs/run_20261007-142627-1adf8d/report.json",
+        "resolved": null,
+        "run_id": "run_20261007-142627-1adf8d",
+        "status": "completed",
+        "stop_reason": "final_answer_returned",
+        "tool_steps": 2,
+        "trace_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/path_escape_recovery/bench_repo_patch/.zzcode/runs/run_20261007-142627-1adf8d/trace.jsonl",
+        "verification": []
+      },
+      "task_state_relpath": "path_escape_recovery/bench_repo_patch/.zzcode/runs/run_20261007-142627-1adf8d/task_state.json",
+      "tool_steps": 2,
+      "verifier": "python3 -c \"from pathlib import Path; text = Path('sample.txt').read_text(encoding='utf-8'); assert 'alpha-guarded' in text\"",
+      "verifier_exit_code": 0,
+      "verifier_passed": true,
+      "verifier_stderr": "",
+      "verifier_stdout": "",
+      "within_budget": true
+    },
+    {
+      "allowed_tools": [
+        "read_file",
+        "patch_file"
+      ],
+      "artifact_digest": "sha256:c9e609150e7d00b1b1b7230f147d8948417881bd09b30684c0a4a025da75214c",
+      "artifact_exists": true,
+      "artifact_path": "sample.txt",
+      "attempts": 5,
+      "category": "tool-boundary",
+      "expected_artifact": "sample.txt reflects recovery after repeated identical read rejection",
+      "expected_artifact_exists": true,
+      "failure_category": null,
+      "final_answer": "Done.",
+      "fixture_copy_relpath": "repeated_read_recovery/bench_repo_patch",
+      "fixture_repo": "tests/fixtures/bench_repo_patch",
+      "id": "repeated_read_recovery",
+      "initial_episodic_notes_empty": true,
+      "initial_history_empty": true,
+      "initial_memory_empty": true,
+      "initial_task_summary_empty": true,
+      "non_failure_stop_reason": true,
+      "passed": true,
+      "prompt": "Recover after repeated identical reads and still finish the sample.txt patch.",
+      "report": {
+        "attempts": 5,
+        "checkpoint_id": "ckpt_977c633a",
+        "compaction_count": 0,
+        "context_budget": {
+          "max_output": 4096,
+          "source": "conservative-default",
+          "window": 32768
+        },
+        "durable_promotions": [],
+        "durable_rejections": [],
+        "durable_superseded": [],
+        "final_answer": "Done.",
+        "model_requests": 5,
+        "prompt_metadata": {
+          "budget_reductions": [],
+          "context_available_tokens": 31680,
+          "context_limits_source": "conservative-default",
+          "context_window": 32768,
+          "current_request": {
+            "raw_chars": 77,
+            "rendered_chars": 77,
+            "section_chars": 99,
+            "text": "Recover after repeated identical reads and still finish the sample.txt patch."
+          },
+          "estimated_input_tokens": 14968,
+          "history": {
+            "collapsed_duplicate_reads": 0,
+            "older_entries_count": 1,
+            "raw_chars": 819,
+            "rendered_chars": 668,
+            "reused_file_summary_count": 0,
+            "summarized_tool_count": 1
+          },
+          "history_chars": 807,
+          "memory_chars": 180,
+          "native_history_messages": 9,
+          "native_request_chars": 12095,
+          "native_request_over_budget": true,
+          "prefix_changed": false,
+          "prefix_chars": 6030,
+          "prefix_hash": "d321f0f9bc2cd60fd81b303ef9e0bb77e2a987a5c5c59eb83a4f839c83a2846c",
+          "prompt_budget_chars": 12000,
+          "prompt_cache_key": "d321f0f9bc2cd60fd81b303ef9e0bb77e2a987a5c5c59eb83a4f839c83a2846c",
+          "prompt_cache_supported": false,
+          "prompt_chars": 4603,
+          "prompt_over_budget": false,
+          "recent_commits": 5,
+          "reduction_order": [
+            "relevant_memory",
+            "history",
+            "memory",
+            "prefix"
+          ],
+          "relevant_memory": {
+            "limit": 3,
+            "raw_chars": 48,
+            "rendered_chars": 48,
+            "rendered_count": 1,
+            "rendered_notes": [
+              "1: alpha | 2: beta | 3: gamma"
+            ],
+            "selected_count": 1,
+            "selected_durable_count": 0,
+            "selected_kinds": [
+              "episodic"
+            ],
+            "selected_notes": [
+              "1: alpha | 2: beta | 3: gamma"
+            ],
+            "selected_sources": [
+              "sample.txt"
+            ]
+          },
+          "request_chars": 77,
+          "reserved_output_tokens": 64,
+          "resume_status": "full-valid",
+          "runtime_identity_mismatch_fields": [],
+          "safety_tokens": 1024,
+          "secret_env_count": 0,
+          "secret_env_names": [],
+          "section_budgets": {
+            "current_request": null,
+            "history": 5200,
+            "memory": 1600,
+            "prefix": 3600,
+            "relevant_memory": 1200
+          },
+          "section_order": [
+            "prefix",
+            "memory",
+            "relevant_memory",
+            "history",
+            "current_request"
+          ],
+          "sections": {
+            "current_request": {
+              "budget_chars": null,
+              "raw_chars": 99,
+              "rendered_chars": 99
+            },
+            "history": {
+              "budget_chars": 5200,
+              "raw_chars": 819,
+              "rendered_chars": 668
+            },
+            "memory": {
+              "budget_chars": 1600,
+              "raw_chars": 180,
+              "rendered_chars": 180
+            },
+            "prefix": {
+              "budget_chars": 3600,
+              "raw_chars": 6373,
+              "rendered_chars": 3600
+            },
+            "relevant_memory": {
+              "budget_chars": 1200,
+              "raw_chars": 48,
+              "rendered_chars": 48
+            }
+          },
+          "stale_paths": [],
+          "stale_summary_invalidations": 0,
+          "token_estimator": "utf8-bytes-conservative",
+          "tool_count": 8,
+          "tool_signature": "b259a5811c1cc838a6fb696e227f63c14a17f7632f7b381b9634a1f7492b2d89",
+          "validation_stale": false,
+          "workspace_changed": false,
+          "workspace_chars": 4326,
+          "workspace_docs": 2,
+          "workspace_fingerprint": "3473be208934da60cf5c249faeac289fae4d47327ce8c056347e8cc812af3b0c"
+        },
+        "redacted_env": {
+          "secret_env_count": 0,
+          "secret_env_names": []
+        },
+        "resume_status": "no-checkpoint",
+        "run_id": "run_20261007-142627-cdc5ba",
+        "runtime_result": {
+          "attempts": 5,
+          "error": null,
+          "final_answer": "Done.",
+          "model_final": true,
+          "report_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/repeated_read_recovery/bench_repo_patch/.zzcode/runs/run_20261007-142627-cdc5ba/report.json",
+          "resolved": null,
+          "run_id": "run_20261007-142627-cdc5ba",
+          "status": "completed",
+          "stop_reason": "final_answer_returned",
+          "tool_steps": 4,
+          "trace_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/repeated_read_recovery/bench_repo_patch/.zzcode/runs/run_20261007-142627-cdc5ba/trace.jsonl",
+          "verification": []
+        },
+        "status": "completed",
+        "stop_reason": "final_answer_returned",
+        "task_id": "task_20261007-142627-fa6a4b",
+        "task_state": {
+          "attempts": 5,
+          "checkpoint_id": "ckpt_977c633a",
+          "completion": {
+            "accepted": true,
+            "model_final": true,
+            "reason": "",
+            "required_verification": [],
+            "task_type": "question",
+            "verification": []
+          },
+          "final_answer": "Done.",
+          "last_tool": "patch_file",
+          "resume_status": "no-checkpoint",
+          "run_id": "run_20261007-142627-cdc5ba",
+          "status": "completed",
+          "stop_reason": "final_answer_returned",
+          "task_id": "task_20261007-142627-fa6a4b",
+          "tool_steps": 4,
+          "user_request": "Recover after repeated identical reads and still finish the sample.txt patch."
+        },
+        "tool_counters": {
+          "cancelled": 0,
+          "executed": 3,
+          "proposed": 4,
+          "rejected": 1,
+          "succeeded": 3
+        },
+        "tool_steps": 4,
+        "transport_retries": 0
+      },
+      "report_relpath": "repeated_read_recovery/bench_repo_patch/.zzcode/runs/run_20261007-142627-cdc5ba/report.json",
+      "run_dir_relpath": "repeated_read_recovery/bench_repo_patch/.zzcode/runs/run_20261007-142627-cdc5ba",
+      "run_id": "run_20261007-142627-cdc5ba",
+      "status": "pass",
+      "step_budget": 6,
+      "stop_reason": "final_answer_returned",
+      "task_state": {
+        "attempts": 5,
+        "error": null,
+        "final_answer": "Done.",
+        "model_final": true,
+        "report_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/repeated_read_recovery/bench_repo_patch/.zzcode/runs/run_20261007-142627-cdc5ba/report.json",
+        "resolved": null,
+        "run_id": "run_20261007-142627-cdc5ba",
+        "status": "completed",
+        "stop_reason": "final_answer_returned",
+        "tool_steps": 4,
+        "trace_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/repeated_read_recovery/bench_repo_patch/.zzcode/runs/run_20261007-142627-cdc5ba/trace.jsonl",
+        "verification": []
+      },
+      "task_state_relpath": "repeated_read_recovery/bench_repo_patch/.zzcode/runs/run_20261007-142627-cdc5ba/task_state.json",
+      "tool_steps": 4,
+      "verifier": "python3 -c \"from pathlib import Path; text = Path('sample.txt').read_text(encoding='utf-8'); assert 'repeat-guarded' in text\"",
+      "verifier_exit_code": 0,
+      "verifier_passed": true,
+      "verifier_stderr": "",
+      "verifier_stdout": "",
+      "within_budget": true
+    },
+    {
+      "allowed_tools": [
+        "read_file"
+      ],
+      "artifact_digest": "sha256:27e4ec460376ab05ac4e62c8ba036f379ee27b77cad34da31382e55405145e0b",
+      "artifact_exists": true,
+      "artifact_path": "README.md",
+      "attempts": 1,
+      "category": "recovery",
+      "expected_artifact": "README.md remains available while context reduction creates a checkpoint",
+      "expected_artifact_exists": true,
+      "failure_category": null,
+      "final_answer": "Done.",
+      "fixture_copy_relpath": "context_reduction_checkpoint/bench_repo_readme",
+      "fixture_repo": "tests/fixtures/bench_repo_readme",
+      "id": "context_reduction_checkpoint",
+      "initial_episodic_notes_empty": false,
+      "initial_history_empty": false,
+      "initial_memory_empty": false,
+      "initial_task_summary_empty": true,
+      "non_failure_stop_reason": true,
+      "passed": true,
+      "prompt": "Finish the README update after prompt compression creates a checkpoint.",
+      "report": {
+        "attempts": 1,
+        "checkpoint_id": "ckpt_673df406",
+        "compaction_count": 0,
+        "context_budget": {
+          "max_output": 4096,
+          "source": "conservative-default",
+          "window": 32768
+        },
+        "durable_promotions": [],
+        "durable_rejections": [],
+        "durable_superseded": [],
+        "final_answer": "Done.",
+        "model_requests": 1,
+        "prompt_metadata": {
+          "budget_reductions": [
+            {
+              "after_chars": 200,
+              "before_chars": 800,
+              "overflow_chars": 2227,
+              "section": "relevant_memory"
+            },
+            {
+              "after_chars": 600,
+              "before_chars": 2400,
+              "overflow_chars": 2227,
+              "section": "history"
+            },
+            {
+              "after_chars": 200,
+              "before_chars": 800,
+              "overflow_chars": 982,
+              "section": "memory"
+            },
+            {
+              "after_chars": 200,
+              "before_chars": 800,
+              "overflow_chars": 982,
+              "section": "prefix"
+            }
+          ],
+          "context_available_tokens": 31680,
+          "context_limits_source": "conservative-default",
+          "context_window": 32768,
+          "current_request": {
+            "raw_chars": 71,
+            "rendered_chars": 71,
+            "section_chars": 93,
+            "text": "Finish the README update after prompt compression creates a checkpoint."
+          },
+          "estimated_input_tokens": 15007,
+          "history": {
+            "collapsed_duplicate_reads": 0,
+            "older_entries_count": 0,
+            "raw_chars": 3098,
+            "rendered_chars": 593,
+            "reused_file_summary_count": 0,
+            "summarized_tool_count": 0
+          },
+          "history_chars": 3114,
+          "memory_chars": 165,
+          "native_history_messages": 13,
+          "native_request_chars": 11996,
+          "native_request_over_budget": true,
+          "prefix_changed": true,
+          "prefix_chars": 6299,
+          "prefix_hash": "53f6c4e3be1ef213151d5018c08eaeb3254aec7f0b96beef4da1016c36842458",
+          "prompt_budget_chars": 700,
+          "prompt_cache_key": "53f6c4e3be1ef213151d5018c08eaeb3254aec7f0b96beef4da1016c36842458",
+          "prompt_cache_supported": false,
+          "prompt_chars": 1082,
+          "prompt_over_budget": true,
+          "recent_commits": 5,
+          "reduction_order": [
+            "relevant_memory",
+            "history",
+            "memory",
+            "prefix"
+          ],
+          "relevant_memory": {
+            "limit": 3,
+            "raw_chars": 23,
+            "rendered_chars": 23,
+            "rendered_count": 0,
+            "rendered_notes": [],
+            "selected_count": 0,
+            "selected_durable_count": 0,
+            "selected_kinds": [],
+            "selected_notes": [],
+            "selected_sources": []
+          },
+          "request_chars": 71,
+          "reserved_output_tokens": 64,
+          "resume_status": "no-checkpoint",
+          "runtime_identity_mismatch_fields": [],
+          "safety_tokens": 1024,
+          "secret_env_count": 0,
+          "secret_env_names": [],
+          "section_budgets": {
+            "current_request": null,
+            "history": 600,
+            "memory": 200,
+            "prefix": 200,
+            "relevant_memory": 200
+          },
+          "section_order": [
+            "prefix",
+            "memory",
+            "relevant_memory",
+            "history",
+            "current_request"
+          ],
+          "sections": {
+            "current_request": {
+              "budget_chars": null,
+              "raw_chars": 93,
+              "rendered_chars": 93
+            },
+            "history": {
+              "budget_chars": 600,
+              "raw_chars": 3098,
+              "rendered_chars": 593
+            },
+            "memory": {
+              "budget_chars": 200,
+              "raw_chars": 165,
+              "rendered_chars": 165
+            },
+            "prefix": {
+              "budget_chars": 200,
+              "raw_chars": 6299,
+              "rendered_chars": 200
+            },
+            "relevant_memory": {
+              "budget_chars": 200,
+              "raw_chars": 23,
+              "rendered_chars": 23
+            }
+          },
+          "stale_paths": [],
+          "stale_summary_invalidations": 0,
+          "token_estimator": "utf8-bytes-conservative",
+          "tool_count": 8,
+          "tool_signature": "b259a5811c1cc838a6fb696e227f63c14a17f7632f7b381b9634a1f7492b2d89",
+          "validation_stale": false,
+          "workspace_changed": true,
+          "workspace_chars": 4595,
+          "workspace_docs": 3,
+          "workspace_fingerprint": "b724691cad16ddd08499b13ea374fd69c89db54209ef69e74073c48b85320439"
+        },
+        "redacted_env": {
+          "secret_env_count": 0,
+          "secret_env_names": []
+        },
+        "resume_status": "no-checkpoint",
+        "run_id": "run_20261007-142628-dabb05",
+        "runtime_result": {
+          "attempts": 1,
+          "error": null,
+          "final_answer": "Done.",
+          "model_final": true,
+          "report_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/context_reduction_checkpoint/bench_repo_readme/.zzcode/runs/run_20261007-142628-dabb05/report.json",
+          "resolved": null,
+          "run_id": "run_20261007-142628-dabb05",
+          "status": "completed",
+          "stop_reason": "final_answer_returned",
+          "tool_steps": 0,
+          "trace_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/context_reduction_checkpoint/bench_repo_readme/.zzcode/runs/run_20261007-142628-dabb05/trace.jsonl",
+          "verification": []
+        },
+        "status": "completed",
+        "stop_reason": "final_answer_returned",
+        "task_id": "task_20261007-142628-cb0302",
+        "task_state": {
+          "attempts": 1,
+          "checkpoint_id": "ckpt_673df406",
+          "completion": {
+            "accepted": true,
+            "model_final": true,
+            "reason": "",
+            "required_verification": [],
+            "task_type": "question",
+            "verification": []
+          },
+          "final_answer": "Done.",
+          "last_tool": "",
+          "resume_status": "no-checkpoint",
+          "run_id": "run_20261007-142628-dabb05",
+          "status": "completed",
+          "stop_reason": "final_answer_returned",
+          "task_id": "task_20261007-142628-cb0302",
+          "tool_steps": 0,
+          "user_request": "Finish the README update after prompt compression creates a checkpoint."
+        },
+        "tool_counters": {
+          "cancelled": 0,
+          "executed": 0,
+          "proposed": 0,
+          "rejected": 0,
+          "succeeded": 0
+        },
+        "tool_steps": 0,
+        "transport_retries": 0
+      },
+      "report_relpath": "context_reduction_checkpoint/bench_repo_readme/.zzcode/runs/run_20261007-142628-dabb05/report.json",
+      "run_dir_relpath": "context_reduction_checkpoint/bench_repo_readme/.zzcode/runs/run_20261007-142628-dabb05",
+      "run_id": "run_20261007-142628-dabb05",
+      "status": "pass",
+      "step_budget": 2,
+      "stop_reason": "final_answer_returned",
+      "task_state": {
+        "attempts": 1,
+        "error": null,
+        "final_answer": "Done.",
+        "model_final": true,
+        "report_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/context_reduction_checkpoint/bench_repo_readme/.zzcode/runs/run_20261007-142628-dabb05/report.json",
+        "resolved": null,
+        "run_id": "run_20261007-142628-dabb05",
+        "status": "completed",
+        "stop_reason": "final_answer_returned",
+        "tool_steps": 0,
+        "trace_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/context_reduction_checkpoint/bench_repo_readme/.zzcode/runs/run_20261007-142628-dabb05/trace.jsonl",
+        "verification": []
+      },
+      "task_state_relpath": "context_reduction_checkpoint/bench_repo_readme/.zzcode/runs/run_20261007-142628-dabb05/task_state.json",
+      "tool_steps": 0,
+      "verifier": "python3 -c \"import json; from pathlib import Path; report = json.loads(next(Path('.zzcode/runs').glob('*/report.json')).read_text(encoding='utf-8')); trace = [json.loads(line) for line in next(Path('.zzcode/runs').glob('*/trace.jsonl')).read_text(encoding='utf-8').splitlines()]; assert report['checkpoint_id']; assert any(event.get('event') == 'checkpoint_created' and event.get('trigger') == 'context_reduction' for event in trace)\"",
+      "verifier_exit_code": 0,
+      "verifier_passed": true,
+      "verifier_stderr": "",
+      "verifier_stdout": "",
+      "within_budget": true
+    },
+    {
+      "allowed_tools": [
+        "read_file"
+      ],
+      "artifact_digest": "sha256:1f356c02c859d1cf6ce38f6f8973f0cab17c8832b3da4b52d40e8a078272b31c",
+      "artifact_exists": true,
+      "artifact_path": "sample.txt",
+      "attempts": 1,
+      "category": "recovery",
+      "expected_artifact": "sample.txt exists after stale freshness recovery",
+      "expected_artifact_exists": true,
+      "failure_category": null,
+      "final_answer": "Done.",
+      "fixture_copy_relpath": "freshness_reanchor_resume/bench_repo_patch",
+      "fixture_repo": "tests/fixtures/bench_repo_patch",
+      "id": "freshness_reanchor_resume",
+      "initial_episodic_notes_empty": true,
+      "initial_history_empty": true,
+      "initial_memory_empty": false,
+      "initial_task_summary_empty": true,
+      "non_failure_stop_reason": true,
+      "passed": true,
+      "prompt": "Resume the stale benchmark task and finish without trusting the old summary.",
+      "report": {
+        "attempts": 1,
+        "checkpoint_id": "ckpt_f1922856",
+        "compaction_count": 0,
+        "context_budget": {
+          "max_output": 4096,
+          "source": "conservative-default",
+          "window": 32768
+        },
+        "durable_promotions": [],
+        "durable_rejections": [],
+        "durable_superseded": [],
+        "final_answer": "Done.",
+        "model_requests": 1,
+        "prompt_metadata": {
+          "budget_reductions": [],
+          "context_available_tokens": 31680,
+          "context_limits_source": "conservative-default",
+          "context_window": 32768,
+          "current_request": {
+            "raw_chars": 76,
+            "rendered_chars": 76,
+            "section_chars": 98,
+            "text": "Resume the stale benchmark task and finish without trusting the old summary."
+          },
+          "estimated_input_tokens": 10794,
+          "history": {
+            "collapsed_duplicate_reads": 0,
+            "older_entries_count": 0,
+            "raw_chars": 95,
+            "rendered_chars": 95,
+            "reused_file_summary_count": 0,
+            "summarized_tool_count": 0
+          },
+          "history_chars": 83,
+          "memory_chars": 179,
+          "native_history_messages": 1,
+          "native_request_chars": 8192,
+          "native_request_over_budget": false,
+          "prefix_changed": true,
+          "prefix_chars": 6033,
+          "prefix_hash": "ac345ec999e83c7e1a705ea68915277f9d14419d09584b90188d602e4b308521",
+          "prompt_budget_chars": 12000,
+          "prompt_cache_key": "ac345ec999e83c7e1a705ea68915277f9d14419d09584b90188d602e4b308521",
+          "prompt_cache_supported": false,
+          "prompt_chars": 4003,
+          "prompt_over_budget": false,
+          "recent_commits": 5,
+          "reduction_order": [
+            "relevant_memory",
+            "history",
+            "memory",
+            "prefix"
+          ],
+          "relevant_memory": {
+            "limit": 3,
+            "raw_chars": 23,
+            "rendered_chars": 23,
+            "rendered_count": 0,
+            "rendered_notes": [],
+            "selected_count": 0,
+            "selected_durable_count": 0,
+            "selected_kinds": [],
+            "selected_notes": [],
+            "selected_sources": []
+          },
+          "request_chars": 76,
+          "reserved_output_tokens": 64,
+          "resume_status": "partial-stale",
+          "runtime_identity_mismatch_fields": [
+            "workspace_fingerprint"
+          ],
+          "safety_tokens": 1024,
+          "secret_env_count": 0,
+          "secret_env_names": [],
+          "section_budgets": {
+            "current_request": null,
+            "history": 5200,
+            "memory": 1600,
+            "prefix": 3600,
+            "relevant_memory": 1200
+          },
+          "section_order": [
+            "prefix",
+            "memory",
+            "relevant_memory",
+            "history",
+            "current_request"
+          ],
+          "sections": {
+            "current_request": {
+              "budget_chars": null,
+              "raw_chars": 98,
+              "rendered_chars": 98
+            },
+            "history": {
+              "budget_chars": 5200,
+              "raw_chars": 95,
+              "rendered_chars": 95
+            },
+            "memory": {
+              "budget_chars": 1600,
+              "raw_chars": 179,
+              "rendered_chars": 179
+            },
+            "prefix": {
+              "budget_chars": 3600,
+              "raw_chars": 6276,
+              "rendered_chars": 3600
+            },
+            "relevant_memory": {
+              "budget_chars": 1200,
+              "raw_chars": 23,
+              "rendered_chars": 23
+            }
+          },
+          "stale_paths": [
+            "sample.txt"
+          ],
+          "stale_summary_invalidations": 1,
+          "token_estimator": "utf8-bytes-conservative",
+          "tool_count": 8,
+          "tool_signature": "b259a5811c1cc838a6fb696e227f63c14a17f7632f7b381b9634a1f7492b2d89",
+          "validation_stale": false,
+          "workspace_changed": true,
+          "workspace_chars": 4329,
+          "workspace_docs": 2,
+          "workspace_fingerprint": "cb72d1b810fd14f46db28567a277942ffb478986e63dfa02139a0b6e2da30dec"
+        },
+        "redacted_env": {
+          "secret_env_count": 0,
+          "secret_env_names": []
+        },
+        "resume_status": "no-checkpoint",
+        "run_id": "run_20261007-142628-3c317d",
+        "runtime_result": {
+          "attempts": 1,
+          "error": null,
+          "final_answer": "Done.",
+          "model_final": true,
+          "report_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/freshness_reanchor_resume/bench_repo_patch/.zzcode/runs/run_20261007-142628-3c317d/report.json",
+          "resolved": null,
+          "run_id": "run_20261007-142628-3c317d",
+          "status": "completed",
+          "stop_reason": "final_answer_returned",
+          "tool_steps": 0,
+          "trace_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/freshness_reanchor_resume/bench_repo_patch/.zzcode/runs/run_20261007-142628-3c317d/trace.jsonl",
+          "verification": []
+        },
+        "status": "completed",
+        "stop_reason": "final_answer_returned",
+        "task_id": "task_20261007-142628-7e47ac",
+        "task_state": {
+          "attempts": 1,
+          "checkpoint_id": "ckpt_f1922856",
+          "completion": {
+            "accepted": true,
+            "model_final": true,
+            "reason": "",
+            "required_verification": [],
+            "task_type": "question",
+            "verification": []
+          },
+          "final_answer": "Done.",
+          "last_tool": "",
+          "resume_status": "no-checkpoint",
+          "run_id": "run_20261007-142628-3c317d",
+          "status": "completed",
+          "stop_reason": "final_answer_returned",
+          "task_id": "task_20261007-142628-7e47ac",
+          "tool_steps": 0,
+          "user_request": "Resume the stale benchmark task and finish without trusting the old summary."
+        },
+        "tool_counters": {
+          "cancelled": 0,
+          "executed": 0,
+          "proposed": 0,
+          "rejected": 0,
+          "succeeded": 0
+        },
+        "tool_steps": 0,
+        "transport_retries": 0
+      },
+      "report_relpath": "freshness_reanchor_resume/bench_repo_patch/.zzcode/runs/run_20261007-142628-3c317d/report.json",
+      "run_dir_relpath": "freshness_reanchor_resume/bench_repo_patch/.zzcode/runs/run_20261007-142628-3c317d",
+      "run_id": "run_20261007-142628-3c317d",
+      "status": "pass",
+      "step_budget": 3,
+      "stop_reason": "final_answer_returned",
+      "task_state": {
+        "attempts": 1,
+        "error": null,
+        "final_answer": "Done.",
+        "model_final": true,
+        "report_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/freshness_reanchor_resume/bench_repo_patch/.zzcode/runs/run_20261007-142628-3c317d/report.json",
+        "resolved": null,
+        "run_id": "run_20261007-142628-3c317d",
+        "status": "completed",
+        "stop_reason": "final_answer_returned",
+        "tool_steps": 0,
+        "trace_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/freshness_reanchor_resume/bench_repo_patch/.zzcode/runs/run_20261007-142628-3c317d/trace.jsonl",
+        "verification": []
+      },
+      "task_state_relpath": "freshness_reanchor_resume/bench_repo_patch/.zzcode/runs/run_20261007-142628-3c317d/task_state.json",
+      "tool_steps": 0,
+      "verifier": "python3 -c \"import json; from pathlib import Path; report = json.loads(next(Path('.zzcode/runs').glob('*/report.json')).read_text(encoding='utf-8')); trace = [json.loads(line) for line in next(Path('.zzcode/runs').glob('*/trace.jsonl')).read_text(encoding='utf-8').splitlines()]; assert report['prompt_metadata']['resume_status'] == 'partial-stale'; assert any(event.get('event') == 'checkpoint_created' and event.get('trigger') == 'freshness_mismatch' for event in trace)\"",
+      "verifier_exit_code": 0,
+      "verifier_passed": true,
+      "verifier_stderr": "",
+      "verifier_stdout": "",
+      "within_budget": true
+    },
+    {
+      "allowed_tools": [
+        "read_file"
+      ],
+      "artifact_digest": "sha256:27e4ec460376ab05ac4e62c8ba036f379ee27b77cad34da31382e55405145e0b",
+      "artifact_exists": true,
+      "artifact_path": "README.md",
+      "attempts": 1,
+      "category": "recovery",
+      "expected_artifact": "README.md exists after workspace mismatch recovery",
+      "expected_artifact_exists": true,
+      "failure_category": null,
+      "final_answer": "Done.",
+      "fixture_copy_relpath": "workspace_mismatch_resume/bench_repo_readme",
+      "fixture_repo": "tests/fixtures/bench_repo_readme",
+      "id": "workspace_mismatch_resume",
+      "initial_episodic_notes_empty": true,
+      "initial_history_empty": true,
+      "initial_memory_empty": true,
+      "initial_task_summary_empty": true,
+      "non_failure_stop_reason": true,
+      "passed": true,
+      "prompt": "Resume after benchmark workspace drift and rebuild runtime state.",
+      "report": {
+        "attempts": 1,
+        "checkpoint_id": "ckpt_11c959ba",
+        "compaction_count": 0,
+        "context_budget": {
+          "max_output": 4096,
+          "source": "conservative-default",
+          "window": 32768
+        },
+        "durable_promotions": [],
+        "durable_rejections": [],
+        "durable_superseded": [],
+        "final_answer": "Done.",
+        "model_requests": 1,
+        "prompt_metadata": {
+          "budget_reductions": [],
+          "context_available_tokens": 31680,
+          "context_limits_source": "conservative-default",
+          "context_window": 32768,
+          "current_request": {
+            "raw_chars": 65,
+            "rendered_chars": 65,
+            "section_chars": 87,
+            "text": "Resume after benchmark workspace drift and rebuild runtime state."
+          },
+          "estimated_input_tokens": 11042,
+          "history": {
+            "collapsed_duplicate_reads": 0,
+            "older_entries_count": 0,
+            "raw_chars": 84,
+            "rendered_chars": 84,
+            "reused_file_summary_count": 0,
+            "summarized_tool_count": 0
+          },
+          "history_chars": 72,
+          "memory_chars": 159,
+          "native_history_messages": 1,
+          "native_request_chars": 8431,
+          "native_request_over_budget": false,
+          "prefix_changed": true,
+          "prefix_chars": 6293,
+          "prefix_hash": "8a7c2834f0ff50af94d98d7c684d6a06f9cd800eddedd4d4ef5997e0353a5236",
+          "prompt_budget_chars": 12000,
+          "prompt_cache_key": "8a7c2834f0ff50af94d98d7c684d6a06f9cd800eddedd4d4ef5997e0353a5236",
+          "prompt_cache_supported": false,
+          "prompt_chars": 3961,
+          "prompt_over_budget": false,
+          "recent_commits": 5,
+          "reduction_order": [
+            "relevant_memory",
+            "history",
+            "memory",
+            "prefix"
+          ],
+          "relevant_memory": {
+            "limit": 3,
+            "raw_chars": 23,
+            "rendered_chars": 23,
+            "rendered_count": 0,
+            "rendered_notes": [],
+            "selected_count": 0,
+            "selected_durable_count": 0,
+            "selected_kinds": [],
+            "selected_notes": [],
+            "selected_sources": []
+          },
+          "request_chars": 65,
+          "reserved_output_tokens": 64,
+          "resume_status": "workspace-mismatch",
+          "runtime_identity_mismatch_fields": [
+            "workspace_fingerprint"
+          ],
+          "safety_tokens": 1024,
+          "secret_env_count": 0,
+          "secret_env_names": [],
+          "section_budgets": {
+            "current_request": null,
+            "history": 5200,
+            "memory": 1600,
+            "prefix": 3600,
+            "relevant_memory": 1200
+          },
+          "section_order": [
+            "prefix",
+            "memory",
+            "relevant_memory",
+            "history",
+            "current_request"
+          ],
+          "sections": {
+            "current_request": {
+              "budget_chars": null,
+              "raw_chars": 87,
+              "rendered_chars": 87
+            },
+            "history": {
+              "budget_chars": 5200,
+              "raw_chars": 84,
+              "rendered_chars": 84
+            },
+            "memory": {
+              "budget_chars": 1600,
+              "raw_chars": 159,
+              "rendered_chars": 159
+            },
+            "prefix": {
+              "budget_chars": 3600,
+              "raw_chars": 6546,
+              "rendered_chars": 3600
+            },
+            "relevant_memory": {
+              "budget_chars": 1200,
+              "raw_chars": 23,
+              "rendered_chars": 23
+            }
+          },
+          "stale_paths": [],
+          "stale_summary_invalidations": 0,
+          "token_estimator": "utf8-bytes-conservative",
+          "tool_count": 8,
+          "tool_signature": "b259a5811c1cc838a6fb696e227f63c14a17f7632f7b381b9634a1f7492b2d89",
+          "validation_stale": false,
+          "workspace_changed": true,
+          "workspace_chars": 4589,
+          "workspace_docs": 3,
+          "workspace_fingerprint": "209ebe6ecec6c4469c079717fd1aadddefc327b28459b87d580a574db644965e"
+        },
+        "redacted_env": {
+          "secret_env_count": 0,
+          "secret_env_names": []
+        },
+        "resume_status": "no-checkpoint",
+        "run_id": "run_20261007-142628-b15982",
+        "runtime_result": {
+          "attempts": 1,
+          "error": null,
+          "final_answer": "Done.",
+          "model_final": true,
+          "report_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/workspace_mismatch_resume/bench_repo_readme/.zzcode/runs/run_20261007-142628-b15982/report.json",
+          "resolved": null,
+          "run_id": "run_20261007-142628-b15982",
+          "status": "completed",
+          "stop_reason": "final_answer_returned",
+          "tool_steps": 0,
+          "trace_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/workspace_mismatch_resume/bench_repo_readme/.zzcode/runs/run_20261007-142628-b15982/trace.jsonl",
+          "verification": []
+        },
+        "status": "completed",
+        "stop_reason": "final_answer_returned",
+        "task_id": "task_20261007-142628-e35508",
+        "task_state": {
+          "attempts": 1,
+          "checkpoint_id": "ckpt_11c959ba",
+          "completion": {
+            "accepted": true,
+            "model_final": true,
+            "reason": "",
+            "required_verification": [],
+            "task_type": "question",
+            "verification": []
+          },
+          "final_answer": "Done.",
+          "last_tool": "",
+          "resume_status": "no-checkpoint",
+          "run_id": "run_20261007-142628-b15982",
+          "status": "completed",
+          "stop_reason": "final_answer_returned",
+          "task_id": "task_20261007-142628-e35508",
+          "tool_steps": 0,
+          "user_request": "Resume after benchmark workspace drift and rebuild runtime state."
+        },
+        "tool_counters": {
+          "cancelled": 0,
+          "executed": 0,
+          "proposed": 0,
+          "rejected": 0,
+          "succeeded": 0
+        },
+        "tool_steps": 0,
+        "transport_retries": 0
+      },
+      "report_relpath": "workspace_mismatch_resume/bench_repo_readme/.zzcode/runs/run_20261007-142628-b15982/report.json",
+      "run_dir_relpath": "workspace_mismatch_resume/bench_repo_readme/.zzcode/runs/run_20261007-142628-b15982",
+      "run_id": "run_20261007-142628-b15982",
+      "status": "pass",
+      "step_budget": 3,
+      "stop_reason": "final_answer_returned",
+      "task_state": {
+        "attempts": 1,
+        "error": null,
+        "final_answer": "Done.",
+        "model_final": true,
+        "report_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/workspace_mismatch_resume/bench_repo_readme/.zzcode/runs/run_20261007-142628-b15982/report.json",
+        "resolved": null,
+        "run_id": "run_20261007-142628-b15982",
+        "status": "completed",
+        "stop_reason": "final_answer_returned",
+        "tool_steps": 0,
+        "trace_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/workspace_mismatch_resume/bench_repo_readme/.zzcode/runs/run_20261007-142628-b15982/trace.jsonl",
+        "verification": []
+      },
+      "task_state_relpath": "workspace_mismatch_resume/bench_repo_readme/.zzcode/runs/run_20261007-142628-b15982/task_state.json",
+      "tool_steps": 0,
+      "verifier": "python3 -c \"import json; from pathlib import Path; report = json.loads(next(Path('.zzcode/runs').glob('*/report.json')).read_text(encoding='utf-8')); trace = [json.loads(line) for line in next(Path('.zzcode/runs').glob('*/trace.jsonl')).read_text(encoding='utf-8').splitlines()]; assert report['prompt_metadata']['resume_status'] == 'workspace-mismatch'; assert any(event.get('event') == 'runtime_identity_mismatch' for event in trace)\"",
+      "verifier_exit_code": 0,
+      "verifier_passed": true,
+      "verifier_stderr": "",
+      "verifier_stdout": "",
+      "within_budget": true
+    },
+    {
+      "allowed_tools": [
+        "read_file"
+      ],
+      "artifact_digest": "sha256:27e4ec460376ab05ac4e62c8ba036f379ee27b77cad34da31382e55405145e0b",
+      "artifact_exists": true,
+      "artifact_path": "README.md",
+      "attempts": 1,
+      "category": "durable-contract",
+      "expected_artifact": "README.md fixture stays available while durable promotion succeeds",
+      "expected_artifact_exists": true,
+      "failure_category": null,
+      "final_answer": "Project convention: Preserve benchmark regression artifacts under artifacts/.\nDecision: Keep harness regression deterministic and reproducible.",
+      "fixture_copy_relpath": "durable_promotion_accept/bench_repo_readme",
+      "fixture_repo": "tests/fixtures/bench_repo_readme",
+      "id": "durable_promotion_accept",
+      "initial_episodic_notes_empty": true,
+      "initial_history_empty": true,
+      "initial_memory_empty": true,
+      "initial_task_summary_empty": true,
+      "non_failure_stop_reason": true,
+      "passed": true,
+      "prompt": "Capture the stable benchmark facts as durable memory and respond with only the promoted facts.",
+      "report": {
+        "attempts": 1,
+        "checkpoint_id": "ckpt_baddcf22",
+        "compaction_count": 0,
+        "context_budget": {
+          "max_output": 4096,
+          "source": "conservative-default",
+          "window": 32768
+        },
+        "durable_promotions": [
+          "project-conventions: Preserve benchmark regression artifacts under artifacts/.",
+          "key-decisions: Keep harness regression deterministic and reproducible."
+        ],
+        "durable_rejections": [],
+        "durable_superseded": [],
+        "final_answer": "Project convention: Preserve benchmark regression artifacts under artifacts/.\nDecision: Keep harness regression deterministic and reproducible.",
+        "model_requests": 1,
+        "prompt_metadata": {
+          "budget_reductions": [],
+          "context_available_tokens": 31680,
+          "context_limits_source": "conservative-default",
+          "context_window": 32768,
+          "current_request": {
+            "raw_chars": 94,
+            "rendered_chars": 94,
+            "section_chars": 116,
+            "text": "Capture the stable benchmark facts as durable memory and respond with only the promoted facts."
+          },
+          "estimated_input_tokens": 10837,
+          "history": {
+            "collapsed_duplicate_reads": 0,
+            "older_entries_count": 0,
+            "raw_chars": 113,
+            "rendered_chars": 113,
+            "reused_file_summary_count": 0,
+            "summarized_tool_count": 0
+          },
+          "history_chars": 101,
+          "memory_chars": 188,
+          "native_history_messages": 1,
+          "native_request_chars": 8234,
+          "native_request_over_budget": false,
+          "prefix_changed": true,
+          "prefix_chars": 6291,
+          "prefix_hash": "340c2822b933fb9cb02c9553db86d24e97b4021f6e2eaa116b0dac798c7ae0af",
+          "prompt_budget_chars": 12000,
+          "prompt_cache_key": "340c2822b933fb9cb02c9553db86d24e97b4021f6e2eaa116b0dac798c7ae0af",
+          "prompt_cache_supported": false,
+          "prompt_chars": 4048,
+          "prompt_over_budget": false,
+          "recent_commits": 5,
+          "reduction_order": [
+            "relevant_memory",
+            "history",
+            "memory",
+            "prefix"
+          ],
+          "relevant_memory": {
+            "limit": 3,
+            "raw_chars": 23,
+            "rendered_chars": 23,
+            "rendered_count": 0,
+            "rendered_notes": [],
+            "selected_count": 0,
+            "selected_durable_count": 0,
+            "selected_kinds": [],
+            "selected_notes": [],
+            "selected_sources": []
+          },
+          "request_chars": 94,
+          "reserved_output_tokens": 64,
+          "resume_status": "no-checkpoint",
+          "runtime_identity_mismatch_fields": [],
+          "safety_tokens": 1024,
+          "secret_env_count": 0,
+          "secret_env_names": [],
+          "section_budgets": {
+            "current_request": null,
+            "history": 5200,
+            "memory": 1600,
+            "prefix": 3600,
+            "relevant_memory": 1200
+          },
+          "section_order": [
+            "prefix",
+            "memory",
+            "relevant_memory",
+            "history",
+            "current_request"
+          ],
+          "sections": {
+            "current_request": {
+              "budget_chars": null,
+              "raw_chars": 116,
+              "rendered_chars": 116
+            },
+            "history": {
+              "budget_chars": 5200,
+              "raw_chars": 113,
+              "rendered_chars": 113
+            },
+            "memory": {
+              "budget_chars": 1600,
+              "raw_chars": 188,
+              "rendered_chars": 188
+            },
+            "prefix": {
+              "budget_chars": 3600,
+              "raw_chars": 6291,
+              "rendered_chars": 3600
+            },
+            "relevant_memory": {
+              "budget_chars": 1200,
+              "raw_chars": 23,
+              "rendered_chars": 23
+            }
+          },
+          "stale_paths": [],
+          "stale_summary_invalidations": 0,
+          "token_estimator": "utf8-bytes-conservative",
+          "tool_count": 8,
+          "tool_signature": "b259a5811c1cc838a6fb696e227f63c14a17f7632f7b381b9634a1f7492b2d89",
+          "validation_stale": false,
+          "workspace_changed": true,
+          "workspace_chars": 4587,
+          "workspace_docs": 3,
+          "workspace_fingerprint": "8ce20acead82f65f1a312a44afc6aa898e9cd6580de9b857af9b8f5482ed93ca"
+        },
+        "redacted_env": {
+          "secret_env_count": 0,
+          "secret_env_names": []
+        },
+        "resume_status": "no-checkpoint",
+        "run_id": "run_20261007-142628-3019c1",
+        "runtime_result": {
+          "attempts": 1,
+          "error": null,
+          "final_answer": "Project convention: Preserve benchmark regression artifacts under artifacts/.\nDecision: Keep harness regression deterministic and reproducible.",
+          "model_final": true,
+          "report_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/durable_promotion_accept/bench_repo_readme/.zzcode/runs/run_20261007-142628-3019c1/report.json",
+          "resolved": null,
+          "run_id": "run_20261007-142628-3019c1",
+          "status": "completed",
+          "stop_reason": "final_answer_returned",
+          "tool_steps": 0,
+          "trace_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/durable_promotion_accept/bench_repo_readme/.zzcode/runs/run_20261007-142628-3019c1/trace.jsonl",
+          "verification": []
+        },
+        "status": "completed",
+        "stop_reason": "final_answer_returned",
+        "task_id": "task_20261007-142628-a730d1",
+        "task_state": {
+          "attempts": 1,
+          "checkpoint_id": "ckpt_baddcf22",
+          "completion": {
+            "accepted": true,
+            "model_final": true,
+            "reason": "",
+            "required_verification": [],
+            "task_type": "question",
+            "verification": []
+          },
+          "final_answer": "Project convention: Preserve benchmark regression artifacts under artifacts/.\nDecision: Keep harness regression deterministic and reproducible.",
+          "last_tool": "",
+          "resume_status": "no-checkpoint",
+          "run_id": "run_20261007-142628-3019c1",
+          "status": "completed",
+          "stop_reason": "final_answer_returned",
+          "task_id": "task_20261007-142628-a730d1",
+          "tool_steps": 0,
+          "user_request": "Capture the stable benchmark facts as durable memory and respond with only the promoted facts."
+        },
+        "tool_counters": {
+          "cancelled": 0,
+          "executed": 0,
+          "proposed": 0,
+          "rejected": 0,
+          "succeeded": 0
+        },
+        "tool_steps": 0,
+        "transport_retries": 0
+      },
+      "report_relpath": "durable_promotion_accept/bench_repo_readme/.zzcode/runs/run_20261007-142628-3019c1/report.json",
+      "run_dir_relpath": "durable_promotion_accept/bench_repo_readme/.zzcode/runs/run_20261007-142628-3019c1",
+      "run_id": "run_20261007-142628-3019c1",
+      "status": "pass",
+      "step_budget": 2,
+      "stop_reason": "final_answer_returned",
+      "task_state": {
+        "attempts": 1,
+        "error": null,
+        "final_answer": "Project convention: Preserve benchmark regression artifacts under artifacts/.\nDecision: Keep harness regression deterministic and reproducible.",
+        "model_final": true,
+        "report_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/durable_promotion_accept/bench_repo_readme/.zzcode/runs/run_20261007-142628-3019c1/report.json",
+        "resolved": null,
+        "run_id": "run_20261007-142628-3019c1",
+        "status": "completed",
+        "stop_reason": "final_answer_returned",
+        "tool_steps": 0,
+        "trace_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/durable_promotion_accept/bench_repo_readme/.zzcode/runs/run_20261007-142628-3019c1/trace.jsonl",
+        "verification": []
+      },
+      "task_state_relpath": "durable_promotion_accept/bench_repo_readme/.zzcode/runs/run_20261007-142628-3019c1/task_state.json",
+      "tool_steps": 0,
+      "verifier": "python3 -c \"import json; from pathlib import Path; report = json.loads(next(Path('.zzcode/runs').glob('*/report.json')).read_text(encoding='utf-8')); conventions = Path('.zzcode/memory/topics/project-conventions.md').read_text(encoding='utf-8'); assert len(report['durable_promotions']) == 2; assert 'Preserve benchmark regression artifacts under artifacts/.' in conventions\"",
+      "verifier_exit_code": 0,
+      "verifier_passed": true,
+      "verifier_stderr": "",
+      "verifier_stdout": "",
+      "within_budget": true
+    },
+    {
+      "allowed_tools": [
+        "read_file"
+      ],
+      "artifact_digest": "sha256:27e4ec460376ab05ac4e62c8ba036f379ee27b77cad34da31382e55405145e0b",
+      "artifact_exists": true,
+      "artifact_path": "README.md",
+      "attempts": 1,
+      "category": "durable-contract",
+      "expected_artifact": "README.md fixture stays available while durable rejection is recorded",
+      "expected_artifact_exists": true,
+      "failure_category": null,
+      "final_answer": "Project convention: Keep verifier outcomes stable across reruns.\nDependency: API key is <redacted>.\nDecision: Current goal is debug the harness.",
+      "fixture_copy_relpath": "durable_promotion_reject/bench_repo_readme",
+      "fixture_repo": "tests/fixtures/bench_repo_readme",
+      "id": "durable_promotion_reject",
+      "initial_episodic_notes_empty": true,
+      "initial_history_empty": true,
+      "initial_memory_empty": true,
+      "initial_task_summary_empty": true,
+      "non_failure_stop_reason": true,
+      "passed": true,
+      "prompt": "Capture only the stable benchmark facts into durable memory and reject anything transient or secret-shaped.",
+      "report": {
+        "attempts": 1,
+        "checkpoint_id": "ckpt_aae106ff",
+        "compaction_count": 0,
+        "context_budget": {
+          "max_output": 4096,
+          "source": "conservative-default",
+          "window": 32768
+        },
+        "durable_promotions": [
+          "project-conventions: Keep verifier outcomes stable across reruns."
+        ],
+        "durable_rejections": [
+          "dependency-facts:secret_shaped",
+          "key-decisions:transient_task_state"
+        ],
+        "durable_superseded": [],
+        "final_answer": "Project convention: Keep verifier outcomes stable across reruns.\nDependency: API key is <redacted>.\nDecision: Current goal is debug the harness.",
+        "model_requests": 1,
+        "prompt_metadata": {
+          "budget_reductions": [],
+          "context_available_tokens": 31680,
+          "context_limits_source": "conservative-default",
+          "context_window": 32768,
+          "current_request": {
+            "raw_chars": 107,
+            "rendered_chars": 107,
+            "section_chars": 129,
+            "text": "Capture only the stable benchmark facts into durable memory and reject anything transient or secret-shaped."
+          },
+          "estimated_input_tokens": 10863,
+          "history": {
+            "collapsed_duplicate_reads": 0,
+            "older_entries_count": 0,
+            "raw_chars": 126,
+            "rendered_chars": 126,
+            "reused_file_summary_count": 0,
+            "summarized_tool_count": 0
+          },
+          "history_chars": 114,
+          "memory_chars": 201,
+          "native_history_messages": 1,
+          "native_request_chars": 8260,
+          "native_request_over_budget": false,
+          "prefix_changed": true,
+          "prefix_chars": 6291,
+          "prefix_hash": "6bb5291757f4b41a6e46cee1f57511980c906656e670d669ad98ac94dcdb68b5",
+          "prompt_budget_chars": 12000,
+          "prompt_cache_key": "6bb5291757f4b41a6e46cee1f57511980c906656e670d669ad98ac94dcdb68b5",
+          "prompt_cache_supported": false,
+          "prompt_chars": 4087,
+          "prompt_over_budget": false,
+          "recent_commits": 5,
+          "reduction_order": [
+            "relevant_memory",
+            "history",
+            "memory",
+            "prefix"
+          ],
+          "relevant_memory": {
+            "limit": 3,
+            "raw_chars": 23,
+            "rendered_chars": 23,
+            "rendered_count": 0,
+            "rendered_notes": [],
+            "selected_count": 0,
+            "selected_durable_count": 0,
+            "selected_kinds": [],
+            "selected_notes": [],
+            "selected_sources": []
+          },
+          "request_chars": 107,
+          "reserved_output_tokens": 64,
+          "resume_status": "no-checkpoint",
+          "runtime_identity_mismatch_fields": [],
+          "safety_tokens": 1024,
+          "secret_env_count": 0,
+          "secret_env_names": [],
+          "section_budgets": {
+            "current_request": null,
+            "history": 5200,
+            "memory": 1600,
+            "prefix": 3600,
+            "relevant_memory": 1200
+          },
+          "section_order": [
+            "prefix",
+            "memory",
+            "relevant_memory",
+            "history",
+            "current_request"
+          ],
+          "sections": {
+            "current_request": {
+              "budget_chars": null,
+              "raw_chars": 129,
+              "rendered_chars": 129
+            },
+            "history": {
+              "budget_chars": 5200,
+              "raw_chars": 126,
+              "rendered_chars": 126
+            },
+            "memory": {
+              "budget_chars": 1600,
+              "raw_chars": 201,
+              "rendered_chars": 201
+            },
+            "prefix": {
+              "budget_chars": 3600,
+              "raw_chars": 6291,
+              "rendered_chars": 3600
+            },
+            "relevant_memory": {
+              "budget_chars": 1200,
+              "raw_chars": 23,
+              "rendered_chars": 23
+            }
+          },
+          "stale_paths": [],
+          "stale_summary_invalidations": 0,
+          "token_estimator": "utf8-bytes-conservative",
+          "tool_count": 8,
+          "tool_signature": "b259a5811c1cc838a6fb696e227f63c14a17f7632f7b381b9634a1f7492b2d89",
+          "validation_stale": false,
+          "workspace_changed": true,
+          "workspace_chars": 4587,
+          "workspace_docs": 3,
+          "workspace_fingerprint": "bb5265d15c674a4c64b425729bc810714c94ccc574520ffcaf95674c9ce06c2f"
+        },
+        "redacted_env": {
+          "secret_env_count": 0,
+          "secret_env_names": []
+        },
+        "resume_status": "no-checkpoint",
+        "run_id": "run_20261007-142628-23351a",
+        "runtime_result": {
+          "attempts": 1,
+          "error": null,
+          "final_answer": "Project convention: Keep verifier outcomes stable across reruns.\nDependency: API key is <redacted>.\nDecision: Current goal is debug the harness.",
+          "model_final": true,
+          "report_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/durable_promotion_reject/bench_repo_readme/.zzcode/runs/run_20261007-142628-23351a/report.json",
+          "resolved": null,
+          "run_id": "run_20261007-142628-23351a",
+          "status": "completed",
+          "stop_reason": "final_answer_returned",
+          "tool_steps": 0,
+          "trace_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/durable_promotion_reject/bench_repo_readme/.zzcode/runs/run_20261007-142628-23351a/trace.jsonl",
+          "verification": []
+        },
+        "status": "completed",
+        "stop_reason": "final_answer_returned",
+        "task_id": "task_20261007-142628-d1d2b4",
+        "task_state": {
+          "attempts": 1,
+          "checkpoint_id": "ckpt_aae106ff",
+          "completion": {
+            "accepted": true,
+            "model_final": true,
+            "reason": "",
+            "required_verification": [],
+            "task_type": "question",
+            "verification": []
+          },
+          "final_answer": "Project convention: Keep verifier outcomes stable across reruns.\nDependency: API key is <redacted>.\nDecision: Current goal is debug the harness.",
+          "last_tool": "",
+          "resume_status": "no-checkpoint",
+          "run_id": "run_20261007-142628-23351a",
+          "status": "completed",
+          "stop_reason": "final_answer_returned",
+          "task_id": "task_20261007-142628-d1d2b4",
+          "tool_steps": 0,
+          "user_request": "Capture only the stable benchmark facts into durable memory and reject anything transient or secret-shaped."
+        },
+        "tool_counters": {
+          "cancelled": 0,
+          "executed": 0,
+          "proposed": 0,
+          "rejected": 0,
+          "succeeded": 0
+        },
+        "tool_steps": 0,
+        "transport_retries": 0
+      },
+      "report_relpath": "durable_promotion_reject/bench_repo_readme/.zzcode/runs/run_20261007-142628-23351a/report.json",
+      "run_dir_relpath": "durable_promotion_reject/bench_repo_readme/.zzcode/runs/run_20261007-142628-23351a",
+      "run_id": "run_20261007-142628-23351a",
+      "status": "pass",
+      "step_budget": 2,
+      "stop_reason": "final_answer_returned",
+      "task_state": {
+        "attempts": 1,
+        "error": null,
+        "final_answer": "Project convention: Keep verifier outcomes stable across reruns.\nDependency: API key is <redacted>.\nDecision: Current goal is debug the harness.",
+        "model_final": true,
+        "report_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/durable_promotion_reject/bench_repo_readme/.zzcode/runs/run_20261007-142628-23351a/report.json",
+        "resolved": null,
+        "run_id": "run_20261007-142628-23351a",
+        "status": "completed",
+        "stop_reason": "final_answer_returned",
+        "tool_steps": 0,
+        "trace_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/2/durable_promotion_reject/bench_repo_readme/.zzcode/runs/run_20261007-142628-23351a/trace.jsonl",
+        "verification": []
+      },
+      "task_state_relpath": "durable_promotion_reject/bench_repo_readme/.zzcode/runs/run_20261007-142628-23351a/task_state.json",
+      "tool_steps": 0,
+      "verifier": "python3 -c \"import json; from pathlib import Path; report = json.loads(next(Path('.zzcode/runs').glob('*/report.json')).read_text(encoding='utf-8')); assert report['durable_rejections'] == ['dependency-facts:secret_shaped', 'key-decisions:transient_task_state']; assert report['durable_promotions'] == ['project-conventions: Keep verifier outcomes stable across reruns.']\"",
+      "verifier_exit_code": 0,
+      "verifier_passed": true,
+      "verifier_stderr": "",
+      "verifier_stdout": "",
+      "within_budget": true
+    }
+  ],
+  "runtime": {
+    "branch": "improve_pi",
+    "commit_sha": "ff13de9099951dc1c30a2fd80943cf438317f5d0"
+  },
+  "schema_version": 1,
+  "summary": {
+    "failed": 0,
+    "failure_category_counts": {},
+    "pass_rate": 1.0,
+    "passed": 12,
+    "total_tasks": 12,
+    "verifier_pass_rate": 1.0,
+    "verifier_passes": 12,
+    "within_budget": 12,
+    "within_budget_rate": 1.0
+  }
+}

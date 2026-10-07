@@ -6,8 +6,12 @@
 """
 
 from .execution.output import sanitize
+from .agent.contracts import RunRequest
+from .execution.docker import DockerExecutor
+from .execution.commands import ExecutorError
 
 import argparse
+import contextlib
 import os
 import shutil
 import sys
@@ -20,8 +24,8 @@ from urllib.parse import unquote, urlparse
 from dotenv import load_dotenv
 
 from .models import AnthropicCompatibleModelClient, OllamaModelClient, OpenAICompatibleModelClient
-from .runtime import ZZCode, SessionStore
-from .workspace import WorkspaceContext, middle
+from zzcode.agent.coordinator import ZZCode, SessionStore
+from zzcode.context.workspace import WorkspaceContext, middle
 
 DEFAULT_SECRET_ENV_NAMES = (
     "OPENAI_API_KEY",
@@ -238,6 +242,13 @@ def build_agent(args):
     configured_secret_names = _configured_secret_names(args)
     workspace = WorkspaceContext.build(args.cwd)
     store = SessionStore(workspace.repo_root + "/.zzcode/sessions")
+    executor = None
+    if args.executor == "docker":
+        if not args.docker_image:
+            raise ExecutorError("--executor docker requires --docker-image")
+        executor = DockerExecutor(workspace.repo_root, image=args.docker_image,
+                                  secret_values=tuple(value for key, value in os.environ.items() if key.upper() in configured_secret_names or any(marker in key.upper() for marker in ("API_KEY", "TOKEN", "SECRET", "PASSWORD"))))
+        executor.prepare()
     model = _build_model_client(args)
     session_id = args.resume
     if session_id == "latest":
@@ -255,6 +266,7 @@ def build_agent(args):
             max_output_tokens=args.max_output_tokens,
             max_new_tokens=args.max_new_tokens,
             secret_env_names=configured_secret_names,
+            executor=executor,
         )
     return ZZCode(
         model_client=model,
@@ -267,6 +279,7 @@ def build_agent(args):
         max_output_tokens=args.max_output_tokens,
         max_new_tokens=args.max_new_tokens,
         secret_env_names=configured_secret_names,
+        executor=executor,
     )
 
 
@@ -303,25 +316,48 @@ def build_arg_parser():
     parser.add_argument("--max-new-tokens", type=int, default=2048, help="Maximum model output tokens per step, including reasoning tokens.")
     parser.add_argument("--temperature", type=float, default=0.2, help="Sampling temperature sent to Ollama.")
     parser.add_argument("--top-p", type=float, default=0.9, help="Top-p sampling value sent to Ollama.")
+    parser.add_argument("--output", choices=("human", "jsonl"), default="human", help="Output format; JSONL is one-shot only.")
+    parser.add_argument("--task-type", choices=("auto", "question", "investigation", "code_change"), default="auto")
+    parser.add_argument("--verify-command", action="append", default=[], help="Verification command required for code changes; may be repeated.")
+    parser.add_argument("--executor", choices=("local", "docker"), default="local")
+    parser.add_argument("--docker-image", help="Prebuilt Docker image; resolved to an immutable image ID before execution.")
     return parser
 
 
 def main(argv=None):
     args = build_arg_parser().parse_args(argv)
+    if args.output == "jsonl" and not args.prompt:
+        raise SystemExit("--output jsonl requires a one-shot prompt")
     _load_env_files(args.cwd)
-    agent = build_agent(args)
+    try:
+        agent = build_agent(args)
+    except ExecutorError as exc:
+        print(f"Executor {exc.status}: {exc}", file=sys.stderr)
+        return 2
 
     model = getattr(agent.model_client, "model", getattr(args, "model", DEFAULT_OLLAMA_MODEL))
     host = getattr(agent.model_client, "host", getattr(agent.model_client, "base_url", getattr(args, "host", DEFAULT_OLLAMA_HOST)))
-    print(build_welcome(agent, model=model, host=host))
+    if args.output == "human":
+        print(build_welcome(agent, model=model, host=host))
 
     if args.prompt:
         # one-shot 模式：只跑一次 ask，不进入 REPL 循环。
         prompt = " ".join(args.prompt).strip()
         if prompt:
-            print()
+            if args.output == "human":
+                print()
             try:
-                print(agent.ask(prompt))
+                request = RunRequest(prompt, args.task_type, tuple(args.verify_command))
+                if args.output == "jsonl":
+                    with contextlib.closing(agent.run(request)) as events:
+                        for event in events:
+                            print(json.dumps(event.to_dict(), ensure_ascii=False), flush=True)
+                else:
+                    agent.run_to_completion(request)
+                    print(agent.last_result.final_answer)
+                if agent.last_result.status != "completed":
+                    print(f"Stopped: {agent.last_result.stop_reason}", file=sys.stderr)
+                    return 1
             except RuntimeError as exc:
                 print(str(exc), file=sys.stderr)
                 return 1
@@ -371,6 +407,9 @@ def main(argv=None):
 
         print()
         try:
-            print(agent.ask(user_input))
+            result = agent.run_to_completion(RunRequest(user_input, args.task_type, tuple(args.verify_command)))
+            print(result.final_answer)
+            if result.status != "completed":
+                print(f"Stopped: {result.stop_reason}", file=sys.stderr)
         except RuntimeError as exc:
             print(str(exc), file=sys.stderr)

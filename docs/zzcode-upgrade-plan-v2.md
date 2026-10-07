@@ -6,6 +6,8 @@
 > 来源：对原 `plan.md` 的审阅，以及当前工作区源码和产品测试结果。  
 > 用途：指导增量升级；本文中的设计、目录和接口均为目标状态，不代表已经实现。
 
+实施进度（2026-10-07）：P0–P5 已实现并验证；P4 完成运行入口与目录重构，P5 统一 Local/Docker 执行器。详见 [P4 结果](testing/p4-result.md)、[P5 结果](testing/p5-result.md) 与 [当前项目结构](architecture/project-layout.md)。下面的初始基线保留为历史评审记录。下一阶段为 P6 的真实任务评测与优化闭环。
+
 ## 1. 结论与项目定位
 
 升级方向可行。保留 zzcode 的定位：**可靠性优先、评测驱动的本地 Coding Agent Harness**。
@@ -74,7 +76,7 @@ Skills 可以作为独立增量接入，不依赖完整 Event Bus。Session 的�
 - 保留 `ZZCode.ask()` 外观，避免 CLI 和 Evaluation 同时大改。
 - 不要求先移动所有目录；仅在边界稳定后迁移文件。
 - 新旧副作用路径使用不同工作区，不进行双重真实执行。
-- 使用少量命名配置：`structured`、`reliable_tools`、`token_context`（历史 `legacy` 仅在 P0 冻结提交重放）；内部可有开关，但只支持明确测试过的组合，非法组合启动时拒绝。
+- 使用少量命名配置：`structured`、`reliable_tools`、`token_context`、`agent_runtime`（历史 `legacy` 仅在 P0 冻结提交重放）；内部可有开关，但只支持明确测试过的组合，非法组合启动时拒绝。
 - 状态 Schema 版本独立于功能配置；回滚不能通过关闭开关假装 v2 数据是 v1。
 - 各阶段均做相关测试；真实模型和 Docker 检查按涉及范围运行。
 

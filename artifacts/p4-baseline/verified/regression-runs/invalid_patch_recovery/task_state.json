@@ -1,0 +1,21 @@
+{
+  "attempts": 3,
+  "checkpoint_id": "ckpt_c5cde3bc",
+  "completion": {
+    "accepted": true,
+    "model_final": true,
+    "reason": "",
+    "required_verification": [],
+    "task_type": "question",
+    "verification": []
+  },
+  "final_answer": "Done.",
+  "last_tool": "patch_file",
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261006-205613-e0bf05",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261006-205613-fac650",
+  "tool_steps": 2,
+  "user_request": "Recover after invalid patch arguments and finish the README patch."
+}

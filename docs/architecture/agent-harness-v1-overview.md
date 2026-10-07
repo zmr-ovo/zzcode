@@ -1,5 +1,6 @@
 # Agent Harness v1 — current implementation and P0 contract
 
+> 本文描述 P0 时的旧架构；当前实现见 [项目目录与运行入口（P4）](project-layout.md)。
 This describes the implementation frozen at P0, not the target v2 architecture.
 
 ## Architecture map

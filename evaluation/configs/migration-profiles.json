@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "default": "token_context",
+  "default": "unified_execution",
   "profiles": {
     "structured": {
       "implemented": true,
@@ -21,6 +21,24 @@
       }
     },
     "token_context": {
+      "implemented": true,
+      "features": {
+        "memory": true,
+        "relevant_memory": true,
+        "context_reduction": true,
+        "prompt_cache": true
+      }
+    },
+    "agent_runtime": {
+      "implemented": true,
+      "features": {
+        "memory": true,
+        "relevant_memory": true,
+        "context_reduction": true,
+        "prompt_cache": true
+      }
+    },
+    "unified_execution": {
       "implemented": true,
       "features": {
         "memory": true,

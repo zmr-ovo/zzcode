@@ -1,0 +1,182 @@
+{
+  "attempts": 1,
+  "checkpoint_id": "ckpt_c8a0b992",
+  "compaction_count": 0,
+  "context_budget": {
+    "max_output": 4096,
+    "source": "conservative-default",
+    "window": 32768
+  },
+  "durable_promotions": [
+    "project-conventions: Preserve benchmark regression artifacts under artifacts/.",
+    "key-decisions: Keep harness regression deterministic and reproducible."
+  ],
+  "durable_rejections": [],
+  "durable_superseded": [],
+  "final_answer": "Project convention: Preserve benchmark regression artifacts under artifacts/.\nDecision: Keep harness regression deterministic and reproducible.",
+  "model_requests": 1,
+  "prompt_metadata": {
+    "budget_reductions": [],
+    "context_available_tokens": 31680,
+    "context_limits_source": "conservative-default",
+    "context_window": 32768,
+    "current_request": {
+      "raw_chars": 94,
+      "rendered_chars": 94,
+      "section_chars": 116,
+      "text": "Capture the stable benchmark facts as durable memory and respond with only the promoted facts."
+    },
+    "estimated_input_tokens": 10837,
+    "history": {
+      "collapsed_duplicate_reads": 0,
+      "older_entries_count": 0,
+      "raw_chars": 113,
+      "rendered_chars": 113,
+      "reused_file_summary_count": 0,
+      "summarized_tool_count": 0
+    },
+    "history_chars": 101,
+    "memory_chars": 188,
+    "native_history_messages": 1,
+    "native_request_chars": 8234,
+    "native_request_over_budget": false,
+    "prefix_changed": true,
+    "prefix_chars": 6291,
+    "prefix_hash": "9b68316cfdc1d857cb24edac51e6e7ec7e78a3bdfedf0017874f37e4f9d6bbc7",
+    "prompt_budget_chars": 12000,
+    "prompt_cache_key": "9b68316cfdc1d857cb24edac51e6e7ec7e78a3bdfedf0017874f37e4f9d6bbc7",
+    "prompt_cache_supported": false,
+    "prompt_chars": 4048,
+    "prompt_over_budget": false,
+    "recent_commits": 5,
+    "reduction_order": [
+      "relevant_memory",
+      "history",
+      "memory",
+      "prefix"
+    ],
+    "relevant_memory": {
+      "limit": 3,
+      "raw_chars": 23,
+      "rendered_chars": 23,
+      "rendered_count": 0,
+      "rendered_notes": [],
+      "selected_count": 0,
+      "selected_durable_count": 0,
+      "selected_kinds": [],
+      "selected_notes": [],
+      "selected_sources": []
+    },
+    "request_chars": 94,
+    "reserved_output_tokens": 64,
+    "resume_status": "no-checkpoint",
+    "runtime_identity_mismatch_fields": [],
+    "safety_tokens": 1024,
+    "secret_env_count": 0,
+    "secret_env_names": [],
+    "section_budgets": {
+      "current_request": null,
+      "history": 5200,
+      "memory": 1600,
+      "prefix": 3600,
+      "relevant_memory": 1200
+    },
+    "section_order": [
+      "prefix",
+      "memory",
+      "relevant_memory",
+      "history",
+      "current_request"
+    ],
+    "sections": {
+      "current_request": {
+        "budget_chars": null,
+        "raw_chars": 116,
+        "rendered_chars": 116
+      },
+      "history": {
+        "budget_chars": 5200,
+        "raw_chars": 113,
+        "rendered_chars": 113
+      },
+      "memory": {
+        "budget_chars": 1600,
+        "raw_chars": 188,
+        "rendered_chars": 188
+      },
+      "prefix": {
+        "budget_chars": 3600,
+        "raw_chars": 6291,
+        "rendered_chars": 3600
+      },
+      "relevant_memory": {
+        "budget_chars": 1200,
+        "raw_chars": 23,
+        "rendered_chars": 23
+      }
+    },
+    "stale_paths": [],
+    "stale_summary_invalidations": 0,
+    "token_estimator": "utf8-bytes-conservative",
+    "tool_count": 8,
+    "tool_signature": "b259a5811c1cc838a6fb696e227f63c14a17f7632f7b381b9634a1f7492b2d89",
+    "validation_stale": false,
+    "workspace_changed": true,
+    "workspace_chars": 4587,
+    "workspace_docs": 3,
+    "workspace_fingerprint": "8fcc075ca8c4b3dfb8427e9b9c4ae3064070c20beaba5faa69f1e2323da2af76"
+  },
+  "redacted_env": {
+    "secret_env_count": 0,
+    "secret_env_names": []
+  },
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261007-142625-cec22e",
+  "runtime_result": {
+    "attempts": 1,
+    "error": null,
+    "final_answer": "Project convention: Preserve benchmark regression artifacts under artifacts/.\nDecision: Keep harness regression deterministic and reproducible.",
+    "model_final": true,
+    "report_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/1/durable_promotion_accept/bench_repo_readme/.zzcode/runs/run_20261007-142625-cec22e/report.json",
+    "resolved": null,
+    "run_id": "run_20261007-142625-cec22e",
+    "status": "completed",
+    "stop_reason": "final_answer_returned",
+    "tool_steps": 0,
+    "trace_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/1/durable_promotion_accept/bench_repo_readme/.zzcode/runs/run_20261007-142625-cec22e/trace.jsonl",
+    "verification": []
+  },
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261007-142625-0e01d4",
+  "task_state": {
+    "attempts": 1,
+    "checkpoint_id": "ckpt_c8a0b992",
+    "completion": {
+      "accepted": true,
+      "model_final": true,
+      "reason": "",
+      "required_verification": [],
+      "task_type": "question",
+      "verification": []
+    },
+    "final_answer": "Project convention: Preserve benchmark regression artifacts under artifacts/.\nDecision: Keep harness regression deterministic and reproducible.",
+    "last_tool": "",
+    "resume_status": "no-checkpoint",
+    "run_id": "run_20261007-142625-cec22e",
+    "status": "completed",
+    "stop_reason": "final_answer_returned",
+    "task_id": "task_20261007-142625-0e01d4",
+    "tool_steps": 0,
+    "user_request": "Capture the stable benchmark facts as durable memory and respond with only the promoted facts."
+  },
+  "tool_counters": {
+    "cancelled": 0,
+    "executed": 0,
+    "proposed": 0,
+    "rejected": 0,
+    "succeeded": 0
+  },
+  "tool_steps": 0,
+  "transport_retries": 0
+}

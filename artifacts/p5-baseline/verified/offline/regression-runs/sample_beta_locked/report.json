@@ -1,0 +1,179 @@
+{
+  "attempts": 2,
+  "checkpoint_id": "ckpt_bdb0ddff",
+  "compaction_count": 0,
+  "context_budget": {
+    "max_output": 4096,
+    "source": "conservative-default",
+    "window": 32768
+  },
+  "durable_promotions": [],
+  "durable_rejections": [],
+  "durable_superseded": [],
+  "final_answer": "Done.",
+  "model_requests": 2,
+  "prompt_metadata": {
+    "budget_reductions": [],
+    "context_available_tokens": 31680,
+    "context_limits_source": "conservative-default",
+    "context_window": 32768,
+    "current_request": {
+      "raw_chars": 45,
+      "rendered_chars": 45,
+      "section_chars": 67,
+      "text": "In sample.txt, replace beta with beta-locked."
+    },
+    "estimated_input_tokens": 11727,
+    "history": {
+      "collapsed_duplicate_reads": 0,
+      "older_entries_count": 0,
+      "raw_chars": 184,
+      "rendered_chars": 184,
+      "reused_file_summary_count": 0,
+      "summarized_tool_count": 0
+    },
+    "history_chars": 172,
+    "memory_chars": 148,
+    "native_history_messages": 3,
+    "native_request_chars": 9058,
+    "native_request_over_budget": false,
+    "prefix_changed": false,
+    "prefix_chars": 6026,
+    "prefix_hash": "2e62203bce815749089a3668b8cc2569760fc903d83815c2060af8dcb1bb7a9c",
+    "prompt_budget_chars": 12000,
+    "prompt_cache_key": "2e62203bce815749089a3668b8cc2569760fc903d83815c2060af8dcb1bb7a9c",
+    "prompt_cache_supported": false,
+    "prompt_chars": 4030,
+    "prompt_over_budget": false,
+    "recent_commits": 5,
+    "reduction_order": [
+      "relevant_memory",
+      "history",
+      "memory",
+      "prefix"
+    ],
+    "relevant_memory": {
+      "limit": 3,
+      "raw_chars": 23,
+      "rendered_chars": 23,
+      "rendered_count": 0,
+      "rendered_notes": [],
+      "selected_count": 0,
+      "selected_durable_count": 0,
+      "selected_kinds": [],
+      "selected_notes": [],
+      "selected_sources": []
+    },
+    "request_chars": 45,
+    "reserved_output_tokens": 64,
+    "resume_status": "full-valid",
+    "runtime_identity_mismatch_fields": [],
+    "safety_tokens": 1024,
+    "secret_env_count": 0,
+    "secret_env_names": [],
+    "section_budgets": {
+      "current_request": null,
+      "history": 5200,
+      "memory": 1600,
+      "prefix": 3600,
+      "relevant_memory": 1200
+    },
+    "section_order": [
+      "prefix",
+      "memory",
+      "relevant_memory",
+      "history",
+      "current_request"
+    ],
+    "sections": {
+      "current_request": {
+        "budget_chars": null,
+        "raw_chars": 67,
+        "rendered_chars": 67
+      },
+      "history": {
+        "budget_chars": 5200,
+        "raw_chars": 184,
+        "rendered_chars": 184
+      },
+      "memory": {
+        "budget_chars": 1600,
+        "raw_chars": 148,
+        "rendered_chars": 148
+      },
+      "prefix": {
+        "budget_chars": 3600,
+        "raw_chars": 6305,
+        "rendered_chars": 3600
+      },
+      "relevant_memory": {
+        "budget_chars": 1200,
+        "raw_chars": 23,
+        "rendered_chars": 23
+      }
+    },
+    "stale_paths": [],
+    "stale_summary_invalidations": 0,
+    "token_estimator": "utf8-bytes-conservative",
+    "tool_count": 8,
+    "tool_signature": "b259a5811c1cc838a6fb696e227f63c14a17f7632f7b381b9634a1f7492b2d89",
+    "validation_stale": false,
+    "workspace_changed": false,
+    "workspace_chars": 4322,
+    "workspace_docs": 2,
+    "workspace_fingerprint": "4a52e2163392c37440b5fdfdaf45d7cff051dd4498ff271dd7ec898f57c86f35"
+  },
+  "redacted_env": {
+    "secret_env_count": 0,
+    "secret_env_names": []
+  },
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261007-142623-877480",
+  "runtime_result": {
+    "attempts": 2,
+    "error": null,
+    "final_answer": "Done.",
+    "model_final": true,
+    "report_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/1/sample_beta_locked/bench_repo_patch/.zzcode/runs/run_20261007-142623-877480/report.json",
+    "resolved": null,
+    "run_id": "run_20261007-142623-877480",
+    "status": "completed",
+    "stop_reason": "final_answer_returned",
+    "tool_steps": 1,
+    "trace_path": "/Users/miaoran/Documents/Program/zzcode/artifacts/p5-baseline/verified/offline/workspaces/1/sample_beta_locked/bench_repo_patch/.zzcode/runs/run_20261007-142623-877480/trace.jsonl",
+    "verification": []
+  },
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261007-142623-054766",
+  "task_state": {
+    "attempts": 2,
+    "checkpoint_id": "ckpt_bdb0ddff",
+    "completion": {
+      "accepted": true,
+      "model_final": true,
+      "reason": "",
+      "required_verification": [],
+      "task_type": "question",
+      "verification": []
+    },
+    "final_answer": "Done.",
+    "last_tool": "patch_file",
+    "resume_status": "no-checkpoint",
+    "run_id": "run_20261007-142623-877480",
+    "status": "completed",
+    "stop_reason": "final_answer_returned",
+    "task_id": "task_20261007-142623-054766",
+    "tool_steps": 1,
+    "user_request": "In sample.txt, replace beta with beta-locked."
+  },
+  "tool_counters": {
+    "cancelled": 0,
+    "executed": 1,
+    "proposed": 1,
+    "rejected": 0,
+    "succeeded": 1
+  },
+  "tool_steps": 1,
+  "transport_retries": 0
+}

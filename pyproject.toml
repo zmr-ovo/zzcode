@@ -24,6 +24,7 @@ dev = [
 include = ["zzcode*"]
 
 [tool.pytest.ini_options]
+testpaths = ["tests"]
 pythonpath = ["."]
 markers = [
   "unit: fast isolated tests",

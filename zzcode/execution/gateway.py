@@ -4,12 +4,12 @@ import hashlib
 import json
 from dataclasses import replace
 
-from .. import tools as toolkit
+from zzcode.execution import tools as toolkit
 from ..core.messages import ToolResult
 from .files import FileConflictError, atomic_write, file_hash, prepare_file
 from .ledger import OperationBusyError, OperationLedger, PersistenceError, ensure_inactive
 from .output import ArtifactStore, ToolOutput
-from .shell import ShellOutcome
+from .commands import CommandResult, ExecutorError
 from ..context.compaction import validation_signature
 
 
@@ -129,6 +129,8 @@ class ToolGateway:
                 return finish("rejected", "error: parameters changed during approval; submit a new proposal", "approval_parameters_changed")
             before = self.agent.capture_workspace_snapshot() if not result.read_only else {}
             self.ledger.start(operation_id)
+            if self.agent.current_task_state:
+                self.agent.emit_trace(self.agent.current_task_state, "tool_started", {"call_id": call.call_id, "name": call.name, "operation_id": operation_id})
             self._fault("after_running", operation_id)
             try:
                 if prepared:
@@ -148,8 +150,8 @@ class ToolGateway:
                             details["pid"] = pid
                         self.ledger.update_details(operation_id, details)
                     outcome = self.agent.tools[call.name]["run"](arguments, on_start=on_start)
-                    if not isinstance(outcome, ShellOutcome):
-                        raise TypeError("shell executor must return ShellOutcome")
+                    if not isinstance(outcome, CommandResult):
+                        raise TypeError("shell executor must return CommandResult")
                     content = outcome.display()
                 else:
                     content = self.agent.tools[call.name]["run"](arguments)
@@ -159,8 +161,8 @@ class ToolGateway:
             except Exception as exc:
                 after = self.agent.capture_workspace_snapshot() if not result.read_only else before
                 paths, diffs = self.agent.diff_workspace_snapshots(before, after)
-                status = "failed" if isinstance(exc, FileConflictError) else "partial_success" if paths else "unknown" if spec.side_effect == "shell" else "failed"
-                error = "file_conflict" if isinstance(exc, FileConflictError) else "recovery_required" if spec.side_effect == "shell" else "tool_failed"
+                status = "partial_success" if paths and spec.side_effect == "shell" else "failed" if isinstance(exc, FileConflictError) or isinstance(exc, ExecutorError) and not exc.executed else "partial_success" if paths else "unknown" if spec.side_effect == "shell" else "failed"
+                error = "file_conflict" if isinstance(exc, FileConflictError) else exc.status if isinstance(exc, ExecutorError) else "recovery_required" if spec.side_effect == "shell" else "tool_failed"
                 return finish(status, f"error: tool {call.name} failed: {exc}", error, affected_paths=tuple(paths), diff_summary=tuple(diffs))
             source_truncated = isinstance(content, ToolOutput) and content.truncated
             if isinstance(content, ToolOutput):
@@ -172,6 +174,9 @@ class ToolGateway:
             if outcome and (outcome.timed_out or outcome.cancelled):
                 status = "partial_success" if paths else "unknown"
                 error = "tool_timeout" if outcome.timed_out else "cancelled"
+            elif outcome and outcome.resource_status == "oom":
+                status = "partial_success" if paths else "failed"
+                error = "tool_oom"
             elif outcome and outcome.exit_code != 0:
                 status = "partial_success" if paths else "failed"
                 error = "tool_partial_success" if paths else "tool_failed"
@@ -182,7 +187,9 @@ class ToolGateway:
                 evidence = {"workspace_digest": arguments_hash(after),
                             "patch_digest": arguments_hash({path:[before.get(path),after.get(path)] for path in paths}),
                             "command_digest": arguments_hash({"command":arguments["command"]}),
-                            "validation_signature":validation_signature(self.agent)}
+                            "validation_signature":validation_signature(self.agent),
+                            "executor": outcome.backend, "resource_status": outcome.resource_status,
+                            "image_digest": outcome.image_digest, "container_id": outcome.container_id}
             value = replace(result, execution_evidence=evidence, status=status, content=content, error_code=error, affected_paths=tuple(paths), diff_summary=tuple(diffs),
                             exit_code=outcome.exit_code if outcome else None, timed_out=outcome.timed_out if outcome else False,
                             truncated=truncated or source_truncated or bool(outcome and outcome.truncated), artifact_refs=refs)

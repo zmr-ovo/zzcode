@@ -5,7 +5,7 @@ import json
 from uuid import uuid4
 
 from ..core.messages import Message, TextBlock
-from ..workspace import now
+from zzcode.context.workspace import now
 
 
 def workspace_digest(agent):
@@ -19,7 +19,8 @@ def workspace_digest(agent):
 def validation_signature(agent):
     return hashlib.sha256(
         json.dumps(
-            {"tools": agent.tool_signature(), "env": agent.shell_env()}, sort_keys=True
+            {"tools": agent.tool_signature(), "env": agent.shell_env(),
+             "executor": {"backend": agent.executor.backend, "image": getattr(agent.executor, "image_digest", "")}}, sort_keys=True
         ).encode()
     ).hexdigest()
 

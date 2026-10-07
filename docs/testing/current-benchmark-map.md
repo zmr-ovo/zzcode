@@ -1,7 +1,8 @@
 # zzcode 当前 benchmark 地图（Phase 0）
 
+> 本文保留 Phase 0 的历史盘点与迁移设想；路径按 P4 更新。当前目录与运行入口见 [项目结构](../architecture/project-layout.md)。
 > 数据源：`benchmarks/coding_tasks.json`（schema version 1）  
-> 执行器：`zzcode/evaluator.py`  
+> 执行器：`zzcode/benchmarks/evaluator.py`
 > 当前任务数：12
 
 ## 1. 当前执行方式
@@ -12,7 +13,7 @@
 benchmarks/coding_tasks.json
   └─ 读取 prompt、fixture_repo、verifier、step_budget
         ↓
-zzcode/evaluator.py
+zzcode/benchmarks/evaluator.py
   └─ 根据 task id 从 SCRIPTED_MODEL_OUTPUTS 取预写工具调用和最终答案
         ↓
 FakeModelClient

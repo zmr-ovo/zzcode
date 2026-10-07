@@ -195,6 +195,13 @@ class ZZCodeAgentAdapter:
             return InferenceOutcome(task, workspace, result, None, None)
 
         response = load_json(response_path)
+        if response.get("kind") == "executor_error":
+            failure = make_failure(FailureType.INFRASTRUCTURE_ERROR, EvaluationStage.AGENT,
+                                   _redact(response.get("message", "executor unavailable")), retryable=True,
+                                   details={"resource_status": response.get("resource_status", "blocked")})
+            result = self._result(task, AgentRunStatus.FAILED, started_at, duration, failure=failure,
+                                  metadata={"executor": "docker", "resource_status": response.get("resource_status")})
+            return InferenceOutcome(task, workspace, result, None, None)
         if response.get("kind") == "provider_error":
             failure = make_failure(
                 FailureType.PROVIDER_UNAVAILABLE,

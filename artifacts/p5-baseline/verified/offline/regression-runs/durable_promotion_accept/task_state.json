@@ -1,0 +1,21 @@
+{
+  "attempts": 1,
+  "checkpoint_id": "ckpt_c8a0b992",
+  "completion": {
+    "accepted": true,
+    "model_final": true,
+    "reason": "",
+    "required_verification": [],
+    "task_type": "question",
+    "verification": []
+  },
+  "final_answer": "Project convention: Preserve benchmark regression artifacts under artifacts/.\nDecision: Keep harness regression deterministic and reproducible.",
+  "last_tool": "",
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20261007-142625-cec22e",
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20261007-142625-0e01d4",
+  "tool_steps": 0,
+  "user_request": "Capture the stable benchmark facts as durable memory and respond with only the promoted facts."
+}
