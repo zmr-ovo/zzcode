@@ -1,4 +1,4 @@
-"""Command-line entry points available in the current evaluation phase."""
+"""Dataset validation, inference and report rendering commands."""
 
 from __future__ import annotations
 
@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 from typing import Sequence
 
+from .reporting.markdown import render_run_directory
 from .dataset import EvaluationDataset
 from .errors import EvaluationError
 from .prediction import append_prediction, load_predictions, validate_predictions
@@ -19,9 +20,13 @@ from .serialization import write_json_atomic, write_text_atomic
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="python -m zzcode.evaluation.cli",
-        description="Validate zzcode evaluation datasets and predictions.",
+        description="Validate datasets and predictions, run inference, and render reports.",
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
+
+    report = subparsers.add_parser("render-report", help="render Markdown from an existing evaluation run")
+    report.add_argument("run_root", type=Path)
+    report.add_argument("--output", type=Path, default=None)
 
     validate_dataset = subparsers.add_parser(
         "validate-dataset",
@@ -85,6 +90,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = build_arg_parser()
     args = parser.parse_args(argv)
     try:
+        # 报告只读取已有运行结果，不依赖数据集、私有评分输入或模型凭证。
+        if args.command == "render-report":
+            report = render_run_directory(args.run_root, args.output)
+            print(json.dumps({"status": "rendered", "report_path": str(report)}, ensure_ascii=False))
+            return 0
         dataset = EvaluationDataset.load(
             public_root=args.public_root,
             private_root=_private_root(args.private_root),

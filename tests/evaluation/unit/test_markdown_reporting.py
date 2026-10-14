@@ -83,3 +83,30 @@ def test_render_run_directory_rejects_mismatched_run_id(tmp_path):
 
     with pytest.raises(ArtifactError, match="run_id"):
         render_run_directory(run_root)
+
+
+@pytest.mark.parametrize("explicit_output", [False, True])
+def test_report_cli_runs_without_private_dataset_or_credentials(tmp_path, monkeypatch, capsys, explicit_output):
+    from zzcode.evaluation.cli import main
+    monkeypatch.delenv("ZZCODE_EVAL_PRIVATE_ROOT", raising=False)
+    run_root = tmp_path / "report-run"
+    run_root.mkdir()
+    manifest, results = sample_artifacts(run_root.name)
+    (run_root / "run_manifest.json").write_text(json.dumps(manifest))
+    (run_root / "results.json").write_text(json.dumps(results))
+    destination = tmp_path / "custom.md" if explicit_output else run_root / "report.md"
+    command = ["render-report", str(run_root)]
+    if explicit_output:
+        command += ["--output", str(destination)]
+    assert main(command) == 0
+    response = json.loads(capsys.readouterr().out)
+    assert response == {"status": "rendered", "report_path": str(destination.resolve())}
+    assert "Resolved: **1/2**" in destination.read_text()
+
+
+def test_report_cli_missing_input_reports_error(tmp_path, capsys):
+    from zzcode.evaluation.cli import main
+    with pytest.raises(SystemExit) as error:
+        main(["render-report", str(tmp_path / "missing")])
+    assert error.value.code == 2
+    assert "error:" in capsys.readouterr().err

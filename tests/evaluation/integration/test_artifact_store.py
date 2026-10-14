@@ -25,7 +25,7 @@ STARTED = "2026-08-12T08:00:00+00:00"
 COMPLETED = "2026-08-12T08:01:00+00:00"
 
 
-def _manifest(run_id="phase2-run"):
+def _manifest(run_id="evaluation-run"):
     return RunManifest(
         run_id=run_id,
         dataset_name="zzcode-bench-v1",

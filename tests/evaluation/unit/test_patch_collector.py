@@ -16,8 +16,8 @@ def patch_repo(tmp_path):
     repo = tmp_path / "repo"
     repo.mkdir()
     _git(repo, "init", "--quiet")
-    _git(repo, "config", "user.name", "Phase 5 Test")
-    _git(repo, "config", "user.email", "phase5@example.invalid")
+    _git(repo, "config", "user.name", "Evaluation Test")
+    _git(repo, "config", "user.email", "evaluation@example.invalid")
     (repo / "tracked.py").write_text("VALUE = 1\n", encoding="utf-8")
     _git(repo, "add", ".")
     _git(repo, "commit", "--quiet", "-m", "base")

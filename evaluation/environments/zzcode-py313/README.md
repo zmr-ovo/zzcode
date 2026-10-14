@@ -1,6 +1,6 @@
 # zzcode-py313 评分环境
 
-该目录定义 Phase 4 唯一受支持的评分镜像。镜像内只包含固定 Python、Git、pytest 和 zzcode 测试所需的运行依赖，不包含任务仓库、模型密钥或 private 数据。
+该目录定义 当前评分镜像。镜像内只包含固定 Python、Git、pytest 和 zzcode 测试所需的运行依赖，不包含任务仓库、模型密钥或 private 数据。
 
 构建命令：
 
