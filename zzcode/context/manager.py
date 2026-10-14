@@ -12,7 +12,7 @@ import time
 from dataclasses import replace
 
 from zzcode.context.budget import ContextCapacityError
-from zzcode.context.compaction import compact, summary_message, workspace_digest, validation_signature
+from zzcode.context.compaction import compact, summary_message, workspace_digest, validation_signature, clear_result_bodies, model_summary
 
 from zzcode.core.messages import Message, TextBlock, ToolResult, ModelRequest, ProviderProtocolError
 from zzcode.execution import tools as toolkit
@@ -639,6 +639,11 @@ class ContextManager:
                 for message in group for block in message.content
             )
         )
+        # 签名续接状态不能编辑；存在 opaque 状态时，不改写它之前的历史前缀。
+        opaque_groups = [index for index, group in enumerate(groups)
+                         if any(block.type == "opaque" for message in group for block in message.content)]
+        if opaque_groups:
+            protected.update(range(max(opaque_groups) + 1))
         records = self.agent.session["compactions"]
         previous = records[-1] if records else None
         omitted = set(previous["source_entry_ids"]) if previous else set()
@@ -684,19 +689,31 @@ class ContextManager:
             return messages
 
         request = request_for(selected_messages())
+        cleared = 0
+        if budget.estimate(request) > available:
+            for index in candidates:
+                if budget.estimate(request) <= available:
+                    break
+                groups[index], count = clear_result_bodies(self.agent, groups[index], group_items[index])
+                cleared += count
+                request = request_for(selected_messages())
+        metadata["cleared_tool_results"] = cleared
+        # 给语义摘要留出空间，不在已经满载的请求上追加模型报告。
+        target = available - min(3072, available // 5) if budget.estimate(request) > available else available
         compaction_started = time.monotonic()
-        while budget.estimate(request) > available and candidates:
+        while budget.estimate(request) > target and candidates:
             if time.monotonic() - compaction_started > 5:
                 raise ContextCapacityError(
                     "CONTEXT_CAPACITY_EXCEEDED: compaction time budget exhausted; split the task."
                 )
             index = candidates.pop(0)
             omitted.update(item["entry_id"] for item in group_items[index])
-            source = [
-                item
-                for item in self.agent.session["history"]
-                if item["entry_id"] in omitted
-            ]
+            source = []
+            for group, items in zip(groups, group_items):
+                for message, item in zip(group, items):
+                    if item["entry_id"] in omitted:
+                        # 来源仍指向原始历史；仅补入投影中的 Artifact 引用。
+                        source.append({**item, "message": message.to_dict()})
             retained = [
                 item
                 for item in self.agent.session["history"]
@@ -712,6 +729,9 @@ class ContextManager:
             )
             digest = chosen_record["workspace_digest"]
             stale = False
+            request = request_for(selected_messages())
+        if chosen_record is not previous:
+            chosen_record = model_summary(self.agent, chosen_record, source)
             request = request_for(selected_messages())
         estimated = budget.estimate(request)
         metadata.update(

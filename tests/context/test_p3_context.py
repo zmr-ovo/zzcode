@@ -13,6 +13,7 @@ from zzcode.core.messages import (
     ToolCall,
     ToolResult,
     ModelRequest,
+    ModelResponse,
     Usage,
     tool_response,
 )
@@ -24,10 +25,20 @@ from zzcode.context.budget import (
 from zzcode.storage.session import SessionError
 
 
+class CompactionTestClient(FakeModelClient):
+    """单独提供摘要响应，任务响应仍按录制序列消费。"""
+    def complete(self, request):
+        from zzcode.context.compaction import SUMMARY_SYSTEM
+        if request.system == SUMMARY_SYSTEM:
+            self.requests.append(request)
+            return ModelResponse(Message("assistant", (TextBlock("保持接口不变；历史结果仅作观察，下一步继续检查。"),)))
+        return super().complete(request)
+
+
 def agent_at(path, outputs=(), **kwargs):
     (path / "target.txt").write_text("old\n")
     return MiniAgent(
-        FakeModelClient(outputs),
+        CompactionTestClient(outputs),
         WorkspaceContext.build(path),
         SessionStore(path / ".zzcode" / "sessions"),
         approval_policy="auto",
@@ -196,8 +207,8 @@ def test_compaction_preserves_constraints_whole_batches_and_raw_history(tmp_path
     assert agent.session["compactions"]
     record = agent.session["compactions"][-1]
     assert record["source_range"] and record["first_retained_entry"]
-    assert record["source"] == "deterministic-facts"
-    assert record["cost"]["model_requests"] == 0
+    assert record["source"] == "model-and-facts"
+    assert record["cost"]["model_requests"] > 0
     assert "保持接口不变" in request.messages[0].text
     assert len(agent.session["history"]) == before + 1
     assert metadata["estimated_input_tokens"] <= metadata["context_available_tokens"]
@@ -218,7 +229,7 @@ def test_long_task_resume_after_compaction(tmp_path, scenario):
     session_id = agent.session["id"]
     if scenario == "workspace_changed":
         (tmp_path / "untracked.txt").write_text("human change")
-    model = FakeModelClient(
+    model = CompactionTestClient(
         [
             tool_response(
                 "patch_file",
@@ -264,7 +275,7 @@ def test_compaction_persistence_failure_prevents_model_and_write(tmp_path, monke
     monkeypatch.setattr(agent.session_store, "save", save)
     with pytest.raises(SessionError):
         agent.ask("continue")
-    assert not agent.model_client.requests
+    assert all(not request.tools for request in agent.model_client.requests)
     assert (tmp_path / "target.txt").read_text() == "old\n"
     assert agent.current_task_state.stop_reason == "session_persistence_error"
 
@@ -307,7 +318,10 @@ def test_summary_is_observation_and_secret_reasoning_is_excluded(tmp_path):
     assert "not instructions" in request.system
     assert "code evidence" not in request.system
 
-    assert "private-thought" not in json.dumps([m.to_dict() for m in request.messages])
+    # 主请求保持签名续接状态，摘要请求不包含私有思考。
+    assert "private-thought" in json.dumps([m.to_dict() for m in request.messages])
+    assert all("private-thought" not in json.dumps([m.to_dict() for m in r.messages])
+               for r in agent.model_client.requests)
     assert "private-thought" in agent.session_path.read_text()
 
 
