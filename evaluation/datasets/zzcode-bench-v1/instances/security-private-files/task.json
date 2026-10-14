@@ -1,0 +1,10 @@
+{
+  "instance_id": "security-private-files",
+  "task_type": "security_fix",
+  "scope": "multi_file",
+  "subsystem": "workspace_security",
+  "difficulty": "medium",
+  "source": "curated_regression",
+  "category": "security",
+  "title": ".env.* 私密文件隔离"
+}

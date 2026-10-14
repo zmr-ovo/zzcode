@@ -1,8 +1,0 @@
-{
-  "instance_id": "ZZCODE-BUG-006",
-  "task_type": "configuration_fix",
-  "scope": "multi_file",
-  "subsystem": "runtime_budget",
-  "difficulty": "easy",
-  "source": "zzcode_git_history"
-}

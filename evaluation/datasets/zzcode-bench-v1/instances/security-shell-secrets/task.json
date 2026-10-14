@@ -1,0 +1,10 @@
+{
+  "instance_id": "security-shell-secrets",
+  "task_type": "security_fix",
+  "scope": "single_file",
+  "subsystem": "shell_security",
+  "difficulty": "easy",
+  "source": "curated_regression",
+  "category": "security",
+  "title": "Shell 子进程密钥隔离"
+}

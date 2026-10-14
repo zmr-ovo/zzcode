@@ -29,6 +29,12 @@ def test_dataset_has_eight_partitioned_tasks():
         assert (instance / "problem_statement.md").is_file()
         metadata = json.loads((instance / "task.json").read_text())
         assert metadata["instance_id"] == instance_id
+        prefixes = {"protocol": "protocol", "runtime": "runtime",
+                    "configuration": "config", "security": "security"}
+        assert metadata["category"] in prefixes
+        assert instance_id.startswith(prefixes[metadata["category"]] + "-")
+        assert instance_id == instance_id.lower()
+        assert isinstance(metadata["title"], str) and metadata["title"].strip()
 
 
 def test_dataset_lock_covers_every_split():

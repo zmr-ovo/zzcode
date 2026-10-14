@@ -1,0 +1,10 @@
+{
+  "instance_id": "runtime-default-budget",
+  "task_type": "configuration_fix",
+  "scope": "multi_file",
+  "subsystem": "runtime_budget",
+  "difficulty": "easy",
+  "source": "zzcode_git_history",
+  "category": "runtime",
+  "title": "CLI 与 Runtime 默认预算一致性"
+}

@@ -26,6 +26,30 @@ uv run zzcode --cwd /path/to/repo --resume latest
 - **验证与追踪**：代码任务执行配置的验证命令，支持结构化事件和运行报告。
 - **Local / Docker**：默认本机执行；Docker 使用禁网、资源受限的工作区副本。
 
+## Architecture
+
+```text
+CLI / SDK
+    ↓
+Coordinator（任务与依赖装配）
+    ↓
+Agent Loop
+    ↓
+Context（上下文与预算）
+    ↓
+Provider（模型调用）
+    ├─ 工具请求 → Gateway → Executor
+    │                         ↓
+    │                  工具结果 → Agent Loop
+    │
+    └─ 最终回答 → Completion Policy
+                      ├─ 通过 → 回答 / 运行报告
+                      ├─ 继续修复 → Agent Loop
+                      └─ 停止 → 未完成报告
+```
+
+Storage 保存会话、Checkpoint 与执行记录；Evaluation 在独立环境中评分。
+
 ## 项目结构
 
 ```text

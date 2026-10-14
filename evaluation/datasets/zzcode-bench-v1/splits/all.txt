@@ -1,8 +1,8 @@
-ZZCODE-BUG-001
-ZZCODE-BUG-002
-ZZCODE-BUG-003
-ZZCODE-BUG-004
-ZZCODE-BUG-005
-ZZCODE-BUG-006
-ZZCODE-BUG-007
-ZZCODE-BUG-008
+protocol-reasoning-only
+security-dotenv-isolation
+runtime-finalization
+config-global-env
+config-env-precedence
+runtime-default-budget
+security-private-files
+security-shell-secrets

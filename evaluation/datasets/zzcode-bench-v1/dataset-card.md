@@ -2,25 +2,27 @@
 
 `zzcode-bench-v1` 是面向 zzcode Coding Agent 的内部可执行评测集。每项任务固定到真实 Git base commit，Agent 只接收公开题面，最终提交标准 Git patch；独立 Grader 在干净仓库中注入 hidden tests，并分别计算 F2P 与 P2P。
 
-## v1 范围
+## 任务分类
 
-| ID | 内容 | 类型 | 范围 | Split | 来源 |
-|---|---|---|---|---|---|
-| `ZZCODE-BUG-001` | reasoning-only 响应错误诊断 | bug fix | single-file | dev | Git history |
-| `ZZCODE-BUG-002` | `.env` 工作区隔离 | security fix | multi-file | dev | Git history |
-| `ZZCODE-BUG-003` | 工具预算后的 finalization turn | bug fix | single-file | dev | Git history |
-| `ZZCODE-BUG-004` | 全局环境文件定位 | bug fix | single-file | dev | Git history |
-| `ZZCODE-BUG-005` | CLI 环境文件加载与优先级 | bug fix | multi-file | test | Git history |
-| `ZZCODE-BUG-006` | CLI/runtime 默认预算一致性 | configuration fix | multi-file | test | Git history |
-| `ZZCODE-BUG-007` | `.env.*` 私密路径隔离 | security fix | multi-file | test | curated regression |
-| `ZZCODE-BUG-008` | shell 子进程密钥边界 | security fix | single-file | test | curated regression |
+任务 ID 使用 `类别-语义名称`，统一小写且不带项目名前缀，不再使用全局 BUG 编号。`task.json` 的 `category` 支持分类，`title` 提供可读名称；`task_type`、scope 和 difficulty 分别描述修改类型、范围及难度。
+
+| 类别 | 任务 ID | 内容 | Split |
+|---|---|---|---|
+| 协议 | `protocol-reasoning-only` | 仅推理响应的错误诊断 | dev |
+| 安全 | `security-dotenv-isolation` | .env 工作区隔离 | dev |
+| 运行时 | `runtime-finalization` | 工具预算后的最终总结 | dev |
+| 配置 | `config-global-env` | 全局环境文件定位 | dev |
+| 配置 | `config-env-precedence` | 环境文件加载与优先级 | test |
+| 运行时 | `runtime-default-budget` | CLI 与 Runtime 默认预算一致性 | test |
+| 安全 | `security-private-files` | .env.* 私密文件隔离 | test |
+| 安全 | `security-shell-secrets` | Shell 子进程密钥隔离 | test |
 
 `dev` 用于实现期调试；`test` 用于固定配置后的正式 Pass@1；`all` 只用于数据质量门禁和完整演示，不用于反复调参。
 
 ## 数据来源与许可边界
 
-- 001–006 来自 zzcode 自身修复历史，经过拆分后形成可独立应用和评分的任务。
-- 007–008 是根据同一代码基线审查得到的安全回归任务。
+- 协议、运行时、配置任务及 `.env` 隔离任务来自 zzcode 自身修复历史。
+- 私密文件及 Shell 密钥隔离是根据同一代码基线审查得到的安全回归任务。
 - 所有任务均以 `b0f9c84b9fcec9901684c70d6c29edad5357761b` 为 base commit。
 - 数据集不包含第三方仓库代码或第三方 benchmark 答案。
 

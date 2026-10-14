@@ -5,15 +5,16 @@
   "splits": {
     "dev": {
       "task_count": 4,
-      "digest": "sha256:5ae6985d5e64f56c9275b27796887ca5a4862878cde85059dff0ed6ef76d1ff5"
+      "digest": "sha256:51ef80fa5b04b09a63f6821449693b671a3997da9f42bb8695aa846dcdf784b5"
     },
     "test": {
       "task_count": 4,
-      "digest": "sha256:8d3e2471b1e300e6a91aae52fd80018dc9c8b596d4d5c2f299c30d98ed266e6f"
+      "digest": "sha256:7191be5bc20b2d7cde18ee7e0a28e88a40cd015f7a95b07af8169a2b893146ed"
     },
     "all": {
       "task_count": 8,
-      "digest": "sha256:3195d948807346caeef494bbd8d54b9cef5daf4aa1c29dd089cb5f401406949f"
+      "digest": "sha256:8e69159dca9375dc28d12aaeaca714a9f059103a8e7f8d1deb1272f82ea0f963"
     }
-  }
+  },
+  "taxonomy_version": 2
 }
